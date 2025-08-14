@@ -1,0 +1,57 @@
+version: '3.6'
+
+services:
+  ### land-api-db ##########################################
+  land-db:
+    image: postgres:17
+    restart: unless-stopped
+    networks:
+      - shared-net
+    environment:
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      PGUSER: ${DATABASE_USERNAME}
+    ports:
+      - '${DATABASE_PORT}:5432'
+    volumes:
+      - land-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ 'CMD-SHELL', 'pg_isready' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: quay.io/minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_SERVER_URL=${MINIO_URL}
+    volumes:
+      - land_minio_data:/data
+    ports:
+      - ${MINIO_PORT}:9000
+      - ${MINIO_FETCH_PORT}:9001
+    networks:
+      - shared-net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    networks:
+      - shared-net
+    ports:
+      - '5050:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+
+volumes:
+  land-db-data:
+  land_minio_data:
+networks:
+  shared-net:
+    name: shared-net
+    external: true
