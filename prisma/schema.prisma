@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserType {
+  ADMIN
+  USER
+}
+
+enum IdType {
+  FAYDA_ID
+  GOVERNMENT_ID
+  TIN_NUMBER
+  PASSPORT
+}
+
+model User {
+  id                             String    @id @default(uuid())
+  user_type                      UserType
+  id_type                        IdType
+  name                           String
+  username                       String    @unique
+  password                       String
+  phone_number                   String    @unique
+  email                          String?   @unique
+  code_hash                      String?
+  profile_image                  String?
+  code_expiration                DateTime?
+  require_password_change        Boolean   @default(false)
+  username_verified              Boolean   @default(false)
+  username_verified_at           DateTime?
+  is_active                      Boolean   @default(true)
+  active_status_updated_at       DateTime?
+  active_status_updated_by_id    String?
+  status_update_note             String?
+  is_suspended                   Boolean   @default(false)
+  suspended_status_updated_at    DateTime?
+  suspended_status_updated_by_id String?
+  suspended_status_update_note   String?
+
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+  created_by_id  String?
+  updated_by_id  String?
+  userRoles      UserRole[]
+  otps           Otp[]
+  loginHistories LoginHistory[]
+
+  @@map("users")
+}
+
+model Otp {
+  id         String   @id @default(uuid())
+  user_id    String
+  user       User     @relation(fields: [user_id], references: [id])
+  otp        String
+  created_at DateTime @default(now())
+  expires_at DateTime
+
+  @@map("otp")
+}
+
+model LoginHistory {
+  id         String   @id @default(uuid())
+  user_id    String
+  ip_address String
+  lat        String?
+  lng        String?
+  user       User     @relation(fields: [user_id], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model PermissionAction {
+  id                            String                         @id @default(uuid())
+  action                        String                         @unique()
+  description                   String?
+  draft                         Boolean                        @default(false)
+  created_at                    DateTime                       @default(now())
+  updated_at                    DateTime                       @updatedAt
+  rolePermissionResourceActions RolePermissionResourceAction[]
+
+  @@map("permission_actions")
+}
+
+model PermissionResource {
+  id                      String                   @id @default(uuid())
+  name                    String                   @unique()
+  description             String?
+  draft                   Boolean                  @default(false)
+  created_at              DateTime                 @default(now())
+  updated_at              DateTime                 @updatedAt
+  rolePermissionResources RolePermissionResource[]
+
+  @@map("permission_resources")
+}
+
+model Role {
+  id                      String                   @id @default(uuid())
+  name                    String                   @unique()
+  description             String?
+  switchable              Boolean                  @default(false)
+  editable                Boolean                  @default(false)
+  draft                   Boolean                  @default(false)
+  created_at              DateTime                 @default(now())
+  updated_at              DateTime                 @updatedAt
+  rolePermissionResources RolePermissionResource[]
+  userRoles               UserRole[]
+
+  @@map("roles")
+}
+
+model RolePermissionResource {
+  id                            String                         @id @default(uuid())
+  role_id                       String
+  permission_resource_id        String
+  role                          Role                           @relation(fields: [role_id], references: [id])
+  permissionResource            PermissionResource             @relation(fields: [permission_resource_id], references: [id])
+  created_at                    DateTime                       @default(now())
+  updated_at                    DateTime                       @updatedAt
+  rolePermissionResourceActions RolePermissionResourceAction[]
+
+  @@unique([permission_resource_id, role_id])
+  @@map("role_permission_resources")
+}
+
+model RolePermissionResourceAction {
+  id                          String                 @id @default(uuid())
+  permission_action_id        String
+  role_permission_resource_id String
+  permissionAction            PermissionAction       @relation(fields: [permission_action_id], references: [id])
+  rolePermissionResource      RolePermissionResource @relation(fields: [role_permission_resource_id], references: [id])
+  created_at                  DateTime               @default(now())
+  updated_at                  DateTime               @updatedAt
+
+  @@unique([role_permission_resource_id, permission_action_id])
+  @@map("role_permission_resource_actions")
+}
+
+model UserRole {
+  id            String    @id @default(uuid())
+  user_id       String
+  role_id       String
+  role          Role      @relation(fields: [role_id], references: [id])
+  user          User      @relation(fields: [user_id], references: [id])
+  created_at    DateTime  @default(now())
+  updated_at    DateTime? @updatedAt
+  created_by_id String?
+  updated_by_id String?
+
+  @@unique([role_id, user_id])
+  @@map("user_roles")
+}
