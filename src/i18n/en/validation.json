@@ -1,0 +1,11 @@
+{
+    "not-empty": "$t(keywords.resources.{property}) should not be empty",
+    "is-number": "$t(keywords.resources.{property}) should be a number",
+    "is-string": "$t(keywords.resources.{property}) should be a string",
+    "is-array": "$t(keywords.resources.{property}) should be a array",
+    "is-boolean": "$t(keywords.resources.{property}) must be a boolean",
+    "is-enum": "$t(keywords.resources.{property}) should be an enum",
+    "matches": "The $t(keywords.resources.{property}) format is invalid.",
+    "min-length": "$t(keywords.resources.{property}) must be longer than or equal to {value} characters",
+    "max-length": "$t(keywords.resources.{property}) must be shorter than or equal to {value} characters"
+}

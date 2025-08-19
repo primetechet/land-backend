@@ -1,0 +1,9 @@
+{
+  "resources": {
+    "user": "User",
+    "user-role": "User role",
+    "complaint": "complaint",
+    "company": "Company",
+    "phone-number": "Phone numbers"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "unauthorized": "Unauthorized",
+  "unauthorized-action": "Unauthorized action!",
+  "unauthorized-and-not-found": "Unauthorized, $t(keywords.resources.{Resource}) not found",
+  "bad-request": "Bad Request",
+  "not-found": "$t(keywords.resources.{Resource}) not found!",
+  "not-your": "Not your $t(keywords.resources.{Resource})",
+  "not-submitted": "$t(keywords.resources.{Resource}) not submitted!",
+  "already-checked-in": "$t(keywords.resources.{Resource}) already checked-in",
+  "is-inactive": "$t(keywords.resources.{Resource}) is inactive",
+  "is-suspended": "$t(keywords.resources.{Resource}) is suspended",
+  "already-exists": "$t(keywords.resources.{Resource}) already exists",
+  "invalid-resource": "Invalid $t(keywords.resources.{Resource})",
+  "action-already-taken": "Action already taken",
+  "already-paid": "Already paid",
+  "already-submitted": "Already submitted",
+  "already-verified": "$t(keywords.resources.{Resource}) Already verified",
+  "already-rejected": "$t(keywords.resources.{Resource}) Already rejected",
+  "review-all-documents": "Please review all documents",
+  "document.missing": "Please upload $t(keywords.resources.{Resource})",
+
+  "auth": {
+    "account-inactive": "Your account is not active",
+    "phone-number-not-verified": "Phone number is not verified",
+    "email-not-verified": "Email is not verified",
+    "invalid-credentials": "Unauthorized, Invalid credentials",
+    "invalid-token": "Unauthorized, Invalid token",
+    "invalid-otp": "Invalid otp",
+    "invalid-password": "Invalid password"
+  }
+}

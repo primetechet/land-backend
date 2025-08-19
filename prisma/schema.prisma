@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -26,6 +26,89 @@ enum IdType {
   PASSPORT
 }
 
+enum Gender {
+  MALE
+  FEMALE
+}
+
+model TitleDeedApplication {
+  id                String  @id @default(uuid())
+  is_organization   Boolean @default(false)
+  title_deed_number String
+  kebele            String
+  house_number      String
+  remark            String?
+
+  title_deed_service_id String
+  organization_type_id  String?
+  woreda_id             String
+  branch_id             String
+  user_id               String
+
+  draft         Boolean   @default(false)
+  drafted_at    DateTime?
+  drafted_by_id String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  created_by_id String?
+  updated_by_id String?
+
+  organizationType           OrganizationType?           @relation(fields: [organization_type_id], references: [id])
+  titleDeedService           TitleDeedService            @relation(fields: [title_deed_service_id], references: [id])
+  woreda                     Woreda                      @relation(fields: [woreda_id], references: [id])
+  branch                     Branch                      @relation(fields: [branch_id], references: [id])
+  user                       User                        @relation(fields: [user_id], references: [id])
+  titleDeedApplicationOwners TitleDeedApplicationOwner[]
+
+  @@map("title_deed_applications")
+}
+
+model TitleDeedApplicationOwner {
+  id                          String  @id @default(uuid())
+  is_organization             Boolean @default(false)
+  id_type                     IdType
+  id_number                   String
+  is_applicant                Boolean @default(false)
+  first_name                  String
+  father_name                 String
+  grand_father_name           String
+  first_name_am               String
+  father_name_am              String
+  grand_father_name_am        String
+  mother_first_name           String
+  mother_father_name          String
+  mother_grand_father_name    String
+  mother_first_name_am        String
+  mother_father_name_am       String
+  mother_grand_father_name_am String
+  gender                      Gender
+  kebele                      String
+  house_number                String
+  title_deed_application_id   String
+  disability_status_id        String
+  nationality_id              String
+  residency_country_id        String
+  woreda_id                   String
+  remark                      String?
+
+  draft         Boolean   @default(false)
+  drafted_at    DateTime?
+  drafted_by_id String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  created_by_id String?
+  updated_by_id String?
+
+  titleDeedApplication TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
+  disabilityStatus     DisabilityStatus     @relation(fields: [disability_status_id], references: [id])
+  woreda               Woreda               @relation(fields: [woreda_id], references: [id])
+  nationality          Country?             @relation("nationality", fields: [nationality_id], references: [id])
+  residencyCountry     Country?             @relation("residencyCountry", fields: [residency_country_id], references: [id])
+
+  @@map("title_deed_application_owners")
+}
+
+//AUTHENTICATION
 model User {
   id                             String    @id @default(uuid())
   user_type                      UserType
@@ -50,15 +133,48 @@ model User {
   suspended_status_updated_by_id String?
   suspended_status_update_note   String?
 
-  created_at     DateTime       @default(now())
-  updated_at     DateTime       @updatedAt
-  created_by_id  String?
-  updated_by_id  String?
-  userRoles      UserRole[]
-  otps           Otp[]
-  loginHistories LoginHistory[]
+  created_at            DateTime               @default(now())
+  updated_at            DateTime               @updatedAt
+  created_by_id         String?
+  updated_by_id         String?
+  userRoles             UserRole[]
+  otps                  Otp[]
+  loginHistories        LoginHistory[]
+  titleDeedApplications TitleDeedApplication[]
 
   @@map("users")
+}
+
+model Employee {
+  id                             String    @id @default(uuid())
+  name                           String
+  username                       String    @unique
+  password                       String
+  phone_number                   String    @unique
+  email                          String?   @unique
+  code_hash                      String?
+  profile_image                  String?
+  code_expiration                DateTime?
+  require_password_change        Boolean   @default(false)
+  username_verified              Boolean   @default(false)
+  username_verified_at           DateTime?
+  is_active                      Boolean   @default(true)
+  active_status_updated_at       DateTime?
+  active_status_updated_by_id    String?
+  status_update_note             String?
+  is_suspended                   Boolean   @default(false)
+  suspended_status_updated_at    DateTime?
+  suspended_status_updated_by_id String?
+  suspended_status_update_note   String?
+
+  created_at             DateTime               @default(now())
+  updated_at             DateTime               @updatedAt
+  created_by_id          String?
+  updated_by_id          String?
+  employeeLoginHistories EmployeeLoginHistory[]
+  employeeRoles          EmployeeRole[]
+
+  @@map("employees")
 }
 
 model Otp {
@@ -81,6 +197,22 @@ model LoginHistory {
   user       User     @relation(fields: [user_id], references: [id])
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+
+  @@map("login_histories")
+}
+
+model EmployeeLoginHistory {
+  id            String   @id @default(uuid())
+  is_successful Boolean  @default(true)
+  employee_id   String
+  ip_address    String
+  lat           String?
+  lng           String?
+  employee      Employee @relation(fields: [employee_id], references: [id])
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  @@map("employee_login_histories")
 }
 
 model PermissionAction {
@@ -118,6 +250,7 @@ model Role {
   updated_at              DateTime                 @updatedAt
   rolePermissionResources RolePermissionResource[]
   userRoles               UserRole[]
+  employeeRoles           EmployeeRole[]
 
   @@map("roles")
 }
@@ -162,4 +295,236 @@ model UserRole {
 
   @@unique([role_id, user_id])
   @@map("user_roles")
+}
+
+model EmployeeRole {
+  id            String    @id @default(uuid())
+  employee_id   String
+  role_id       String
+  role          Role      @relation(fields: [role_id], references: [id])
+  employee      Employee  @relation(fields: [employee_id], references: [id])
+  created_at    DateTime  @default(now())
+  updated_at    DateTime? @updatedAt
+  created_by_id String?
+  updated_by_id String?
+
+  @@unique([role_id, employee_id])
+  @@map("employee_roles")
+}
+
+//BASE DATA
+model TitleDeedService {
+  id                           String                   @id @default(uuid())
+  name                         String                   @unique
+  name_json                    Json                     @default("{}")
+  icon                         Json?
+  description                  String?
+  description_json             Json?                    @default("{}")
+  has_existing_title_deed      Boolean                  @default(false)
+  parent_title_deed_service_id String?
+  titleDeedService             TitleDeedService?        @relation("TitleDeedServiceToTitleDeedService", fields: [parent_title_deed_service_id], references: [id])
+  childrenTitleDeedServices    TitleDeedService[]       @relation("TitleDeedServiceToTitleDeedService")
+  draft                        Boolean                  @default(false)
+  drafted_at                   DateTime?
+  drafted_by_id                String?
+  created_at                   DateTime                 @default(now())
+  updated_at                   DateTime                 @updatedAt
+  created_by_id                String?
+  updated_by_id                String?
+  titleDeedServiceBranches     TitleDeedServiceBranch[]
+  titleDeedApplications        TitleDeedApplication[]
+
+  @@map("title_deed_services")
+}
+
+model TitleDeedServiceRequirement {
+  id               String    @id @default(uuid())
+  description      String?
+  description_json Json?     @default("{}")
+  branch_id        String
+  branch           Branch    @relation(fields: [branch_id], references: [id])
+  draft            Boolean   @default(false)
+  drafted_at       DateTime?
+  drafted_by_id    String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  created_by_id    String?
+  updated_by_id    String?
+
+  @@map("title_deed_service_requirements")
+}
+
+model TitleDeedServiceBranch {
+  id                    String           @id @default(uuid())
+  description           String?
+  description_json      Json?            @default("{}")
+  branch_id             String
+  branch                Branch           @relation(fields: [branch_id], references: [id])
+  title_deed_service_id String
+  titleDeedService      TitleDeedService @relation(fields: [title_deed_service_id], references: [id])
+  draft                 Boolean          @default(false)
+  drafted_at            DateTime?
+  drafted_by_id         String?
+  created_at            DateTime         @default(now())
+  updated_at            DateTime         @updatedAt
+  created_by_id         String?
+  updated_by_id         String?
+
+  @@map("title_deed_service_branches")
+}
+
+model Branch {
+  id                           String                        @id @default(uuid())
+  name                         String                        @unique
+  name_json                    Json                          @default("{}")
+  code                         String
+  description                  String?
+  description_json             Json?                         @default("{}")
+  woreda_id                    String
+  woreda                       Woreda                        @relation(fields: [woreda_id], references: [id])
+  mesob                        Boolean                       @default(false)
+  subcity                      Boolean                       @default(false)
+  central                      Boolean                       @default(false)
+  draft                        Boolean                       @default(false)
+  drafted_at                   DateTime?
+  drafted_by_id                String?
+  created_at                   DateTime                      @default(now())
+  updated_at                   DateTime                      @updatedAt
+  created_by_id                String?
+  updated_by_id                String?
+  titleDeedServiceBranches     TitleDeedServiceBranch[]
+  titleDeedServiceRequirements TitleDeedServiceRequirement[]
+  titleDeedApplications        TitleDeedApplication[]
+
+  @@map("branches")
+}
+
+model OrganizationType {
+  id                    String                 @id @default(uuid())
+  name                  String                 @unique
+  name_json             Json                   @default("{}")
+  description           String?
+  description_json      Json?                  @default("{}")
+  draft                 Boolean                @default(false)
+  drafted_at            DateTime?
+  drafted_by_id         String?
+  created_at            DateTime               @default(now())
+  updated_at            DateTime               @updatedAt
+  created_by_id         String?
+  updated_by_id         String?
+  titleDeedApplications TitleDeedApplication[]
+
+  @@map("organization_types")
+}
+
+model DisabilityStatus {
+  id                         String                      @id @default(uuid())
+  name                       String                      @unique
+  name_json                  Json                        @default("{}")
+  description                String?
+  description_json           Json?                       @default("{}")
+  draft                      Boolean                     @default(false)
+  drafted_at                 DateTime?
+  drafted_by_id              String?
+  created_at                 DateTime                    @default(now())
+  updated_at                 DateTime                    @updatedAt
+  created_by_id              String?
+  updated_by_id              String?
+  titleDeedApplicationOwners TitleDeedApplicationOwner[]
+
+  @@map("disability_statuses")
+}
+
+model Country {
+  id               String    @id @default(uuid())
+  name             String    @unique
+  name_json        Json      @default("{}")
+  country_code     String    @unique
+  flag             String?
+  nationality      String    @unique
+  nationality_json Json      @default("{}")
+  description      String?
+  description_json Json?     @default("{}")
+  draft            Boolean   @default(false)
+  drafted_at       DateTime?
+  drafted_by_id    String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  created_by_id    String?
+  updated_by_id    String?
+  regions          Region[]
+
+  residencyTitleDeedApplicationOwners   TitleDeedApplicationOwner[] @relation("residencyCountry")
+  nationalityTitleDeedApplicationOwners TitleDeedApplicationOwner[] @relation("nationality")
+
+  @@map("countries")
+}
+
+model Region {
+  id               String     @id @default(uuid())
+  name             String     @unique
+  name_json        Json       @default("{}")
+  zip_code         String
+  description      String?
+  description_json Json?      @default("{}")
+  country_id       String
+  country          Country    @relation(fields: [country_id], references: [id])
+  draft            Boolean    @default(false)
+  drafted_at       DateTime?
+  drafted_by_id    String?
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
+  created_by_id    String?
+  updated_by_id    String?
+  districts        District[]
+
+  @@map("regions")
+}
+
+model District {
+  id               String    @id @default(uuid())
+  name             String
+  name_json        Json      @default("{}")
+  description      String?
+  description_json Json?     @default("{}")
+  region_id        String
+  zip_code         String
+  region           Region    @relation(fields: [region_id], references: [id])
+  draft            Boolean   @default(false)
+  drafted_at       DateTime?
+  drafted_by_id    String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  created_by_id    String?
+  updated_by_id    String?
+  woredas          Woreda[]
+
+  @@unique([name, region_id])
+  @@unique([zip_code, region_id])
+  @@map("districts")
+}
+
+model Woreda {
+  id                         String                      @id @default(uuid())
+  name                       String
+  name_json                  Json                        @default("{}")
+  description                String?
+  description_json           Json?                       @default("{}")
+  zip_code                   String
+  district_id                String
+  district                   District                    @relation(fields: [district_id], references: [id])
+  draft                      Boolean                     @default(false)
+  drafted_at                 DateTime?
+  drafted_by_id              String?
+  created_at                 DateTime                    @default(now())
+  updated_at                 DateTime                    @updatedAt
+  created_by_id              String?
+  updated_by_id              String?
+  branches                   Branch[]
+  titleDeedApplications      TitleDeedApplication[]
+  titleDeedApplicationOwners TitleDeedApplicationOwner[]
+
+  @@unique([name, district_id])
+  @@unique([zip_code, district_id])
+  @@map("woredas")
 }

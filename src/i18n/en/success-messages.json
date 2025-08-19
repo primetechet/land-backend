@@ -1,0 +1,20 @@
+{
+  "auth": {
+    "account-created": "Account Created!",
+    "account-verified": "Account Verified!",
+    "otp-sent": "OTP sent successfully",
+    "password-reset": "Password reset successfully"
+  },
+  "resource-verified": "$t(keywords.resources.{Resource}) verified",
+  "resource-approved": "$t(keywords.resources.{Resource}) approved",
+  "resource-rejected": "$t(keywords.resources.{Resource}) rejected",
+  "resource-authorized": "$t(keywords.resources.{Resource}) authorized",
+  "resource-audited": "$t(keywords.resources.{Resource}) audited",
+  "resource-submitted": "$t(keywords.resources.{Resource}) submitted",
+  "resource-cleared": "$t(keywords.resources.{Resource}) cleared",
+  "resource-validated": "$t(keywords.resources.{Resource}) validated",
+  "resource-completed": "$t(keywords.resources.{Resource}) completed",
+  "resource-flagged": "$t(keywords.resources.{Resource}) is flagged",
+  "checked-in": "Checked in",
+  "paid": "Paid"
+}
