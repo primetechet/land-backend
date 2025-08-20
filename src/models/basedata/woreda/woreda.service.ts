@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/common/database/database.service';
-import { CreateWoredaDto, UpdateWoredaDto } from './dto';
+import { CreateWoredaDto, SearchWoredaDto, UpdateWoredaDto } from './dto';
 
 @Injectable()
 export class WoredaService {
@@ -10,17 +10,29 @@ export class WoredaService {
     return this.prisma.woreda.create({ data: createWoredaDto });
   }
 
-  async findAll(query: any) {
+  async findAll(options: SearchWoredaDto) {
+    const { search, district_id } = { ...options };
+    const where: any = {};
+
+    if (search) {
+      where.name = {
+        contains: search,
+        mode: 'insensitive',
+      };
+    }
+
+    if (district_id) where.district_id = district_id;
+
     return this.prisma.woreda.findMany({
-      where: query.search
-        ? {
-            OR: [
-              { name: { contains: query.search, mode: 'insensitive' } },
-              { description: { contains: query.search, mode: 'insensitive' } },
-            ],
-          }
-        : undefined,
-      include: { district: true },
+      where,
+      select: {
+        id: true,
+        name: true,
+        name_json: true,
+        description: true,
+        description_json: true,
+        zip_code: true,
+      },
     });
   }
 

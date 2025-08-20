@@ -43,7 +43,7 @@ export class DistrictService {
   }
 
   findAll(options: SearchDistrictDto) {
-    const { search } = { ...options };
+    const { search, region_id } = { ...options };
     const where: any = {};
 
     if (search) {
@@ -52,6 +52,8 @@ export class DistrictService {
         mode: 'insensitive',
       };
     }
+
+    if (region_id) where.region_id = region_id;
 
     return this.prisma.district.findMany({
       where,

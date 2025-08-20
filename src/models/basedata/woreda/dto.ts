@@ -54,6 +54,7 @@ export class CreateWoredaDto {
 
 export class SearchWoredaDto extends PartialType(PaginationDto) {
   search?: string;
+  district_id?: string;
 }
 
 export class UpdateWoredaDto extends PartialType(CreateWoredaDto) {
