@@ -57,8 +57,7 @@ export class TitleDeedApplicationController {
       );
     }
 
-    dto.created_by_id = request.user.sub;
-    return this.service.create(dto);
+    return this.service.create(dto, request);
   }
 
   @Get()

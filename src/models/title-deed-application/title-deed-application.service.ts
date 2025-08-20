@@ -7,15 +7,29 @@ import {
 import { TitleDeedApplication } from '@prisma/client';
 import { paginate } from 'src/common/utils/paginater';
 import { DatabaseService } from 'src/common/database/database.service';
+import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 
 @Injectable()
 export class TitleDeedApplicationService {
   constructor(private readonly prisma: DatabaseService) {}
-
   async create(
     data: CreateTitleDeedApplicationDto,
+    request: EmployeeTokenClaim,
   ): Promise<TitleDeedApplication> {
-    return this.prisma.titleDeedApplication.create({ data });
+    return this.prisma.titleDeedApplication.create({
+      data: {
+        is_organization: data.is_organization,
+        title_deed_number: data.title_deed_number,
+        kebele: data.kebele,
+        house_number: data.house_number,
+        remark: data.remark,
+        title_deed_service_id: data.title_deed_service_id,
+        organization_type_id: data.organization_type_id,
+        woreda_id: data.woreda_id,
+        branch_id: data.branch_id,
+        user_id: request.user.sub, // ✅ added explicitly
+      },
+    });
   }
 
   async update(

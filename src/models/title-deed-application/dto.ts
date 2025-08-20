@@ -31,22 +31,6 @@ export class CreateTitleDeedApplicationDto {
   @IsString()
   remark?: string;
 
-  @ApiPropertyOptional({
-    description: 'Description of the application',
-    example: 'Application for land registration',
-  })
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @ApiPropertyOptional({
-    example: { en: 'Land registration', fr: 'Enregistrement foncier' },
-    description: 'Description in different languages as JSON',
-  })
-  @IsOptional()
-  @IsObject()
-  description_json?: Record<string, string>;
-
   @ApiProperty({
     description: 'Related Title Deed Service ID',
     example: 'uuid-of-service',
@@ -69,15 +53,6 @@ export class CreateTitleDeedApplicationDto {
   @ApiProperty({ description: 'Branch ID', example: 'uuid-of-branch' })
   @IsString()
   branch_id: string;
-
-  @ApiProperty({
-    description: 'User ID of the applicant',
-    example: 'uuid-of-user',
-  })
-  @IsString()
-  user_id: string;
-
-  created_by_id: string;
 }
 
 export class SearchTitleDeedApplicationDto extends PartialType(PaginationDto) {
