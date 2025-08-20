@@ -103,10 +103,6 @@ export class CreateTitleDeedApplicationOwnerDto {
   @IsEnum(Gender)
   gender: Gender;
 
-  @ApiProperty({ description: 'Kebele of the owner', example: 'Kebele 10' })
-  @IsString()
-  kebele: string;
-
   @ApiProperty({ description: 'House number of the owner', example: 'H-12' })
   @IsString()
   house_number: string;

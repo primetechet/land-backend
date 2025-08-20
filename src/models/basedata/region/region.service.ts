@@ -1,13 +1,29 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/common/database/database.service';
 import { CreateRegionDto, UpdateRegionDto, SearchRegionDto } from './dto';
+import { paginate } from 'src/common/utils/paginater';
 
 @Injectable()
 export class RegionService {
   constructor(private readonly prisma: DatabaseService) {}
 
   async create(createRegionDto: CreateRegionDto) {
-    return this.prisma.region.create({ data: createRegionDto });
+    const ethCountry = await this.prisma.country.findFirst({
+      where: {
+        country_code: {
+          equals: 'ETH',
+          mode: 'insensitive',
+        },
+      },
+    });
+
+    if (!ethCountry) {
+      throw new HttpException('Country Ethiopia Not Found', 421);
+    }
+
+    return this.prisma.region.create({
+      data: { ...createRegionDto, country_id: ethCountry.id },
+    });
   }
 
   async findAll(query?: SearchRegionDto) {
@@ -22,31 +38,19 @@ export class RegionService {
     return this.prisma.region.findMany({ where });
   }
 
-  async findAllPaginated(query: SearchRegionDto) {
-    const { page = 1, limit = 10, search } = query;
-    const skip = (page - 1) * limit;
-
+  async findAllPaginated(options: SearchRegionDto) {
+    const { search } = { ...options };
     const where: any = {};
+
     if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { zip_code: { contains: search, mode: 'insensitive' } },
-      ];
+      where.name = { contains: search, mode: 'insensitive' };
     }
 
-    const [data, total] = await Promise.all([
-      this.prisma.region.findMany({ where, skip, take: limit }),
-      this.prisma.region.count({ where }),
-    ]);
-
-    return {
-      data,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
+    return paginate(
+      this.prisma.region,
+      { where, orderBy: { created_at: 'desc' } },
+      { page: +options.page, perPage: +options.limit },
+    );
   }
 
   async findOne(id: string) {

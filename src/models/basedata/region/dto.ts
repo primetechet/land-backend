@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dtos/global.dto';
-import { IsString, IsOptional, IsObject } from 'class-validator';
+import { IsString, IsOptional, IsObject, IsBoolean } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateRegionDto {
@@ -45,14 +45,13 @@ export class CreateRegionDto {
   @IsObject()
   description_json?: Record<string, string>;
 
-  @ApiProperty({
-    description: 'The ID of the country this region belongs to',
-    example: 'uuid-of-country',
+  @ApiPropertyOptional({
+    description: 'Whether the country is in draft mode',
+    example: false,
   })
-  @IsString()
-  country_id: string;
-
-  created_by_id: string;
+  @IsOptional()
+  @IsBoolean()
+  draft?: boolean;
 }
 
 export class SearchRegionDto extends PartialType(PaginationDto) {

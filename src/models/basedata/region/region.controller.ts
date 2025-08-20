@@ -39,19 +39,7 @@ export class RegionController {
   @ApiOperation({ summary: 'Create a new region' })
   @ApiResponse({ status: 201, description: 'Region created successfully.' })
   @ApiResponse({ status: 422, description: 'Record already exists.' })
-  async create(@Request() request, @Body() createRegionDto: CreateRegionDto) {
-    const existingRegion = await this.prisma.region.findFirst({
-      where: { name: createRegionDto.name },
-    });
-
-    if (existingRegion) {
-      throw new HttpException(
-        'Record already exists',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
-    }
-
-    createRegionDto.created_by_id = request.user.sub;
+  async create(@Request() request, @Body() createRegionDto: any) {
     return this.regionService.create(createRegionDto);
   }
 

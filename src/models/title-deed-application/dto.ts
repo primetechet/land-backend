@@ -13,12 +13,27 @@ export class CreateTitleDeedApplicationDto {
 
   @ApiProperty({ description: 'Unique title deed number', example: 'TD-12345' })
   @IsString()
+  @IsOptional()
   title_deed_number: string;
 
   @ApiProperty({ description: 'Kebele of the applicant', example: 'Kebele 12' })
   @IsString()
   kebele: string;
 
+  @ApiProperty({
+    description: 'Phone number of the applicant',
+    example: '+251912345678',
+  })
+  @IsString()
+  phone_number: string;
+
+  @ApiPropertyOptional({
+    description: 'Birth date of the applicant',
+    example: '1990-01-01',
+  })
+  @IsOptional()
+  @IsString()
+  birth_date?: string;
   @ApiProperty({ description: 'House number', example: 'H-123' })
   @IsString()
   house_number: string;

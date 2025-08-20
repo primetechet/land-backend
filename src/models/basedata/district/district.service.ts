@@ -18,7 +18,6 @@ export class DistrictService {
         description_json: data.description_json,
         region_id: data.region_id,
         zip_code: data.zip_code,
-        created_by_id: data.created_by_id,
       },
     });
 

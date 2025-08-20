@@ -46,17 +46,6 @@ export class TitleDeedApplicationController {
   })
   @ApiResponse({ status: 422, description: 'Duplicate application detected.' })
   async create(@Request() request, @Body() dto: CreateTitleDeedApplicationDto) {
-    const existing = await this.prisma.titleDeedApplication.findFirst({
-      where: { title_deed_number: dto.title_deed_number },
-    });
-
-    if (existing) {
-      throw new HttpException(
-        'Application already exists',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
-    }
-
     return this.service.create(dto, request);
   }
 

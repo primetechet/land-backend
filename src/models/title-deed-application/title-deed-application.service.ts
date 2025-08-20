@@ -19,7 +19,7 @@ export class TitleDeedApplicationService {
     return this.prisma.titleDeedApplication.create({
       data: {
         is_organization: data.is_organization,
-        title_deed_number: data.title_deed_number,
+        title_deed_number: data.title_deed_number || null,
         kebele: data.kebele,
         house_number: data.house_number,
         remark: data.remark,
@@ -27,7 +27,7 @@ export class TitleDeedApplicationService {
         organization_type_id: data.organization_type_id,
         woreda_id: data.woreda_id,
         branch_id: data.branch_id,
-        user_id: request.user.sub, // ✅ added explicitly
+        user_id: '629fbff4-34b2-469b-90ee-0cc8335fb92c', // ✅ added explicitly
       },
     });
   }

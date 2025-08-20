@@ -82,7 +82,6 @@ model TitleDeedApplicationOwner {
   mother_father_name_am       String
   mother_grand_father_name_am String
   gender                      Gender
-  kebele                      String
   house_number                String
   title_deed_application_id   String
   disability_status_id        String

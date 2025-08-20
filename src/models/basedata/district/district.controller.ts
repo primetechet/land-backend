@@ -55,7 +55,6 @@ export class DistrictController {
       );
     }
 
-    createDistrictDto.created_by_id = request.user.sub;
     return this.districtService.create(createDistrictDto);
   }
 
