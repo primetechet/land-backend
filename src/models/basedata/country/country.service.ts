@@ -4,12 +4,16 @@ import { UpdateCountryDto } from './dto';
 import { Country } from '@prisma/client';
 import { paginate } from 'src/common/utils/paginater';
 import { DatabaseService } from 'src/common/database/database.service';
+import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 
 @Injectable()
 export class CountryService {
   constructor(private readonly prisma: DatabaseService) {}
 
-  async create(data: CreateCountryDto): Promise<Country> {
+  async create(
+    data: CreateCountryDto,
+    request: EmployeeTokenClaim,
+  ): Promise<Country> {
     const country = await this.prisma.country.create({
       data: {
         name: data.name,
@@ -20,7 +24,7 @@ export class CountryService {
         name_json: data.name_json,
         description_json: data.description_json,
         nationality_json: data.nationality_json,
-        created_by_id: data.created_by_id,
+        created_by_id: request.user.sub,
       },
     });
 
@@ -38,7 +42,6 @@ export class CountryService {
         name_json: data.name_json,
         description_json: data.description_json,
         nationality_json: data.nationality_json,
-        created_by_id: data.created_by_id,
       },
       where: { id: id },
     });

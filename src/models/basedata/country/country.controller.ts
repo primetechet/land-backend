@@ -44,11 +44,7 @@ export class CountryController {
   async create(@Request() request, @Body() createCountryDto: CreateCountryDto) {
     const existingCountry = await this.prisma.country.findFirst({
       where: {
-        OR: [
-          { name: createCountryDto.name },
-          { country_code: createCountryDto.country_code },
-          { nationality: createCountryDto.nationality },
-        ],
+        name: createCountryDto.name,
       },
     });
 
@@ -59,8 +55,9 @@ export class CountryController {
       );
     }
 
-    createCountryDto.created_by_id = request.user.sub;
-    return this.countryService.create(createCountryDto);
+    console.log(request.user);
+
+    return this.countryService.create(createCountryDto, request);
   }
 
   @Get()

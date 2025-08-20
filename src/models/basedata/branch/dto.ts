@@ -61,7 +61,13 @@ export class CreateBranchDto {
   @IsBoolean()
   central?: boolean;
 
-  created_by_id: string;
+  @ApiPropertyOptional({
+    description: 'Whether the country is in draft mode',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  draft?: boolean;
 }
 
 export class SearchBranchDto extends PartialType(PaginationDto) {

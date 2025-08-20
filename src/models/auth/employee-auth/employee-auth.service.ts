@@ -6,6 +6,7 @@ import { I18nTranslations } from 'src/generated/i18n.generated';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import {
+  EmployeeTokenClaim,
   IEmployeeLogin,
   IUserRole,
 } from 'src/common/interfaces/employee-login.interface';
@@ -72,6 +73,12 @@ export class EmployeeAuthService {
     }
 
     return this.generateJwtToken(user);
+  }
+
+  async me(token: EmployeeTokenClaim) {
+    const user = await this.getEmployeeLoginDetail(token.user.username);
+
+    return { ...user, server_time: new Date() };
   }
 
   async getEmployeeLoginDetail(username: string) {
@@ -146,7 +153,7 @@ export class EmployeeAuthService {
     }
 
     const accessToken = this.jwtService.sign(jwtPayload, {
-      expiresIn: '45m',
+      expiresIn: '1145m',
     });
 
     const refreshToken = this.jwtService.sign(
@@ -154,7 +161,7 @@ export class EmployeeAuthService {
         username: user.username,
       },
       {
-        expiresIn: '1h',
+        expiresIn: '11h',
       },
     );
 

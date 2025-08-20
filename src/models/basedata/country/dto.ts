@@ -63,62 +63,12 @@ export class CreateCountryDto {
   description?: string;
 
   @ApiPropertyOptional({
-    description: 'Whether the country accepts visas',
-    example: true,
-  })
-  @IsOptional()
-  @IsBoolean()
-  is_neighbor?: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Whether the country accepts visas',
-    example: true,
-  })
-  @IsOptional()
-  @IsBoolean()
-  accept_visa?: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Whether the country accepts passports',
-    example: true,
-  })
-  @IsOptional()
-  @IsBoolean()
-  accept_passport?: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Whether the country accepts origin IDs',
-    example: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  accept_origin_id?: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Whether the country accepts residency IDs',
-    example: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  accept_residency_id?: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Whether the country accepts travel documents',
-    example: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  accept_travel_document?: boolean;
-
-  @ApiPropertyOptional({
     description: 'Whether the country is in draft mode',
     example: false,
   })
   @IsOptional()
   @IsBoolean()
   draft?: boolean;
-
-  created_by_id: string;
 }
 
 export class SearchCountryDto extends PartialType(PaginationDto) {
