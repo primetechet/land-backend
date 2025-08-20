@@ -14,6 +14,13 @@ import { EmployeeAuthModule } from './models/auth/employee-auth/employee-auth.mo
 import { TitleDeedApplicationModule } from './models/title-deed-application/title-deed-application.module';
 import { TitleDeedServiceModule } from './models/basedata/title-deed-service/title-deed-service.module';
 import { TitleDeedApplicationOwnerModule } from './models/title-deed-application-owner/title-deed-application-owner.module';
+import { WoredaModule } from './models/basedata/woreda/woreda.module';
+import { RegionModule } from './models/basedata/region/region.module';
+import { DisabilityStatusModule } from './models/basedata/disability-status/disability-status.module';
+import { OrganizationTypeModule } from './models/basedata/organization-type/organization-type.module';
+import { BranchModule } from './models/basedata/branch/branch.module';
+import { TitleDeedServiceBranchModule } from './models/basedata/title-deed-service-branch/title-deed-service-branch.module';
+import { TitleDeedServiceRequirementModule } from './models/basedata/title-deed-service-requirement/title-deed-service-requirement.module';
 
 @Module({
   imports: [
@@ -35,6 +42,13 @@ import { TitleDeedApplicationOwnerModule } from './models/title-deed-application
     TitleDeedApplicationModule,
     TitleDeedServiceModule,
     TitleDeedApplicationOwnerModule,
+    WoredaModule,
+    RegionModule,
+    DisabilityStatusModule,
+    OrganizationTypeModule,
+    BranchModule,
+    TitleDeedServiceBranchModule,
+    TitleDeedServiceRequirementModule,
   ],
   controllers: [AppController],
   providers: [AppService],

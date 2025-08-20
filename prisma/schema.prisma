@@ -314,43 +314,45 @@ model EmployeeRole {
 
 //BASE DATA
 model TitleDeedService {
-  id                           String                   @id @default(uuid())
-  name                         String                   @unique
-  name_json                    Json                     @default("{}")
+  id                           String                        @id @default(uuid())
+  name                         String                        @unique
+  name_json                    Json                          @default("{}")
   icon                         Json?
   description                  String?
-  description_json             Json?                    @default("{}")
-  has_existing_title_deed      Boolean                  @default(false)
+  description_json             Json?                         @default("{}")
+  has_existing_title_deed      Boolean                       @default(false)
   parent_title_deed_service_id String?
-  titleDeedService             TitleDeedService?        @relation("TitleDeedServiceToTitleDeedService", fields: [parent_title_deed_service_id], references: [id])
-  childrenTitleDeedServices    TitleDeedService[]       @relation("TitleDeedServiceToTitleDeedService")
-  draft                        Boolean                  @default(false)
+  titleDeedService             TitleDeedService?             @relation("TitleDeedServiceToTitleDeedService", fields: [parent_title_deed_service_id], references: [id])
+  childrenTitleDeedServices    TitleDeedService[]            @relation("TitleDeedServiceToTitleDeedService")
+  draft                        Boolean                       @default(false)
   drafted_at                   DateTime?
   drafted_by_id                String?
-  created_at                   DateTime                 @default(now())
-  updated_at                   DateTime                 @updatedAt
+  created_at                   DateTime                      @default(now())
+  updated_at                   DateTime                      @updatedAt
   created_by_id                String?
   updated_by_id                String?
   titleDeedServiceBranches     TitleDeedServiceBranch[]
   titleDeedApplications        TitleDeedApplication[]
+  titleDeedServiceRequirements TitleDeedServiceRequirement[]
 
   @@map("title_deed_services")
 }
 
 model TitleDeedServiceRequirement {
-  id               String    @id @default(uuid())
-  description      String?
-  description_json Json?     @default("{}")
-  branch_id        String
-  branch           Branch    @relation(fields: [branch_id], references: [id])
-  draft            Boolean   @default(false)
-  drafted_at       DateTime?
-  drafted_by_id    String?
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
-  created_by_id    String?
-  updated_by_id    String?
+  id                    String           @id @default(uuid())
+  description           String
+  description_json      Json?            @default("{}")
+  title_deed_service_id String
+  titleDeedService      TitleDeedService @relation(fields: [title_deed_service_id], references: [id])
+  draft                 Boolean          @default(false)
+  drafted_at            DateTime?
+  drafted_by_id         String?
+  created_at            DateTime         @default(now())
+  updated_at            DateTime         @updatedAt
+  created_by_id         String?
+  updated_by_id         String?
 
+  @@unique([title_deed_service_id, description])
   @@map("title_deed_service_requirements")
 }
 
@@ -370,31 +372,31 @@ model TitleDeedServiceBranch {
   created_by_id         String?
   updated_by_id         String?
 
+  @@unique([title_deed_service_id, branch_id])
   @@map("title_deed_service_branches")
 }
 
 model Branch {
-  id                           String                        @id @default(uuid())
-  name                         String                        @unique
-  name_json                    Json                          @default("{}")
-  code                         String
-  description                  String?
-  description_json             Json?                         @default("{}")
-  woreda_id                    String
-  woreda                       Woreda                        @relation(fields: [woreda_id], references: [id])
-  mesob                        Boolean                       @default(false)
-  subcity                      Boolean                       @default(false)
-  central                      Boolean                       @default(false)
-  draft                        Boolean                       @default(false)
-  drafted_at                   DateTime?
-  drafted_by_id                String?
-  created_at                   DateTime                      @default(now())
-  updated_at                   DateTime                      @updatedAt
-  created_by_id                String?
-  updated_by_id                String?
-  titleDeedServiceBranches     TitleDeedServiceBranch[]
-  titleDeedServiceRequirements TitleDeedServiceRequirement[]
-  titleDeedApplications        TitleDeedApplication[]
+  id                       String                   @id @default(uuid())
+  name                     String                   @unique
+  name_json                Json                     @default("{}")
+  code                     String
+  description              String?
+  description_json         Json?                    @default("{}")
+  woreda_id                String
+  woreda                   Woreda                   @relation(fields: [woreda_id], references: [id])
+  mesob                    Boolean                  @default(false)
+  subcity                  Boolean                  @default(false)
+  central                  Boolean                  @default(false)
+  draft                    Boolean                  @default(false)
+  drafted_at               DateTime?
+  drafted_by_id            String?
+  created_at               DateTime                 @default(now())
+  updated_at               DateTime                 @updatedAt
+  created_by_id            String?
+  updated_by_id            String?
+  titleDeedServiceBranches TitleDeedServiceBranch[]
+  titleDeedApplications    TitleDeedApplication[]
 
   @@map("branches")
 }
