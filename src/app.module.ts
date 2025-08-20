@@ -21,6 +21,7 @@ import { OrganizationTypeModule } from './models/basedata/organization-type/orga
 import { BranchModule } from './models/basedata/branch/branch.module';
 import { TitleDeedServiceBranchModule } from './models/basedata/title-deed-service-branch/title-deed-service-branch.module';
 import { TitleDeedServiceRequirementModule } from './models/basedata/title-deed-service-requirement/title-deed-service-requirement.module';
+import { DistrictModule } from './models/basedata/district/district.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { TitleDeedServiceRequirementModule } from './models/basedata/title-deed-
     BranchModule,
     TitleDeedServiceBranchModule,
     TitleDeedServiceRequirementModule,
+    DistrictModule,
   ],
   controllers: [AppController],
   providers: [AppService],
