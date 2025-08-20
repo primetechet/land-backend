@@ -16,6 +16,21 @@ export class CreateTitleDeedApplicationOwnerDto {
   @IsEnum(IdType)
   id_type: IdType;
 
+  @ApiProperty({
+    description: 'Phone number of the applicant',
+    example: '+251912345678',
+  })
+  @IsString()
+  phone_number: string;
+
+  @ApiPropertyOptional({
+    description: 'Birth date of the applicant',
+    example: '1990-01-01',
+  })
+  @IsOptional()
+  @IsString()
+  birth_date?: string;
+
   @ApiProperty({ description: 'ID number of the owner', example: 'AB123456' })
   @IsString()
   id_number: string;
@@ -132,8 +147,6 @@ export class CreateTitleDeedApplicationOwnerDto {
   @IsOptional()
   @IsString()
   remark?: string;
-
-  created_by_id: string;
 }
 
 export class SearchTitleDeedApplicationOwnerDto extends PartialType(
