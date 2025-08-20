@@ -22,13 +22,14 @@ export class TitleDeedServiceRequirementService {
   }
 
   async findAll(query: SearchTitleDeedServiceRequirementDto) {
-    const { search } = query;
+    const { search, title_deed_service_id } = query;
+    const where: any = {};
+
+    if (title_deed_service_id)
+      where.title_deed_service_id = title_deed_service_id;
+
     return this.prisma.titleDeedServiceRequirement.findMany({
-      where: search
-        ? {
-            OR: [{ description: { contains: search, mode: 'insensitive' } }],
-          }
-        : {},
+      where: where,
       include: { titleDeedService: true },
     });
   }

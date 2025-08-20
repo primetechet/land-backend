@@ -17,7 +17,7 @@ import {
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Title Deed Service Branches')
-@Controller('title-deed-service-branches')
+@Controller('title-deed-service-branch')
 export class TitleDeedServiceBranchController {
   constructor(private readonly service: TitleDeedServiceBranchService) {}
 

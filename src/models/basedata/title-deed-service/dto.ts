@@ -62,11 +62,23 @@ export class CreateTitleDeedServiceDto {
   @IsString()
   parent_title_deed_service_id?: string;
 
-  created_by_id: string;
+  @ApiProperty({ description: 'The country code', example: 'US' })
+  @IsString()
+  code: string;
+
+  @ApiPropertyOptional({
+    description: 'Whether the country is in draft mode',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  draft?: boolean;
 }
 
 export class SearchTitleDeedServiceDto extends PartialType(PaginationDto) {
   search?: string;
+  title_deed_service_id?: string;
+  branch_id?: string;
 }
 
 export class UpdateTitleDeedServiceDto extends PartialType(

@@ -39,6 +39,10 @@ export class SearchTitleDeedServiceRequirementDto extends PartialType(
   @IsOptional()
   @IsString()
   search?: string;
+
+  @IsOptional()
+  @IsString()
+  title_deed_service_id?: string;
 }
 
 export class UpdateTitleDeedServiceRequirementDto extends PartialType(

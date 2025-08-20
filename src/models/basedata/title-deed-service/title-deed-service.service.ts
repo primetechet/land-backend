@@ -24,7 +24,6 @@ export class TitleDeedServiceService {
         description_json: data.description_json,
         has_existing_title_deed: data.has_existing_title_deed ?? false,
         parent_title_deed_service_id: data.parent_title_deed_service_id,
-        created_by_id: data.created_by_id,
       },
     });
   }
@@ -49,15 +48,24 @@ export class TitleDeedServiceService {
   }
 
   findAll(options: SearchTitleDeedServiceDto) {
-    const { search } = { ...options };
+    const { search, title_deed_service_id, branch_id } = { ...options };
     const where: any = {};
 
     if (search) {
       where.name = { contains: search, mode: 'insensitive' };
     }
 
+    if (title_deed_service_id) {
+      where.title_deed_service_id = title_deed_service_id;
+    }
+
+    if (branch_id) {
+      where.branch_id = branch_id;
+    }
+
     return this.prisma.titleDeedService.findMany({
       where,
+      orderBy: { created_at: 'desc' },
       select: {
         id: true,
         name: true,
@@ -86,7 +94,7 @@ export class TitleDeedServiceService {
 
     return paginate(
       this.prisma.titleDeedService,
-      { where },
+      { where, orderBy: { created_at: 'desc' } },
       { page: +options.page, perPage: +options.limit },
     );
   }

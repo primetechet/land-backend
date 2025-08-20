@@ -26,10 +26,11 @@ export class TitleDeedServiceBranchService {
   }
 
   async findAllPaginated(query: SearchTitleDeedServiceBranchDto) {
-    const { page = 1, limit = 10, search } = query;
-    const where = search
-      ? { description: { contains: search, mode: 'insensitive' } }
-      : {};
+    const { page = 1, limit = 10, title_deed_service_id } = query;
+    const where: any = {};
+
+    if (title_deed_service_id)
+      where.title_deed_service_id = title_deed_service_id;
 
     return paginate(
       this.prisma.titleDeedServiceBranch,

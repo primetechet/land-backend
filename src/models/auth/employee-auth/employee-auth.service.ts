@@ -62,9 +62,9 @@ export class EmployeeAuthService {
     }
 
     if (loginDto?.lat && loginDto?.long) {
-      await this.prisma.loginHistory.create({
+      await this.prisma.employeeLoginHistory.create({
         data: {
-          user_id: user.id,
+          employee_id: user.id,
           ip_address,
           lat: loginDto.lat,
           lng: loginDto.long,

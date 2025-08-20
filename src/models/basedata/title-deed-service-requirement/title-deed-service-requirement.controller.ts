@@ -17,7 +17,7 @@ import {
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Title Deed Service Requirements')
-@Controller('title-deed-service-requirements')
+@Controller('title-deed-service-requirement')
 export class TitleDeedServiceRequirementController {
   constructor(private readonly service: TitleDeedServiceRequirementService) {}
 
