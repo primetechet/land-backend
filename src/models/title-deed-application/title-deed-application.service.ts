@@ -165,9 +165,6 @@ export class TitleDeedApplicationService {
     return await this.prisma.titleDeedServiceDocumentType
       .findMany({
         where: {
-          documentType: {
-            draft: false,
-          },
           title_deed_service_id: titleDeedApplication.title_deed_service_id,
         },
         include: {
@@ -202,13 +199,13 @@ export class TitleDeedApplicationService {
       })
       .then((types) => {
         return types.map((type: any) => {
-          const hasRejected = type.titleDeedApplicationDocuments.some(
+          const hasRejected = type.titleDeedApplicationClientDocuments.some(
             (doc) => doc.rejected,
           );
-          const hasPending = type.titleDeedApplicationDocuments.some(
+          const hasPending = type.titleDeedApplicationClientDocuments.some(
             (doc) => !doc.rejected && !doc.verified,
           );
-          const hasVerified = type.titleDeedApplicationDocuments.some(
+          const hasVerified = type.titleDeedApplicationClientDocuments.some(
             (doc) => doc.verified,
           );
 

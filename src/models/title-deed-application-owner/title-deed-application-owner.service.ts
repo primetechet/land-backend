@@ -91,6 +91,12 @@ export class TitleDeedApplicationOwnerService {
         nationality_id: true,
         residency_country_id: true,
         woreda_id: true,
+        nationality: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         woreda: {
           select: {
             id: true,
