@@ -56,7 +56,7 @@ export class TitleDeedApplicationOwnerService {
   }
 
   findAll(options: SearchTitleDeedApplicationOwnerDto) {
-    const { search } = { ...options };
+    const { search, title_deed_application_id } = { ...options };
     const where: any = {};
 
     if (search) {
@@ -67,6 +67,9 @@ export class TitleDeedApplicationOwnerService {
         { id_number: { contains: search, mode: 'insensitive' } },
       ];
     }
+
+    if (title_deed_application_id)
+      where.title_deed_application_id = title_deed_application_id;
 
     return this.prisma.titleDeedApplicationOwner.findMany({
       where,

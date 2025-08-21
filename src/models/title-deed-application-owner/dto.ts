@@ -149,6 +149,7 @@ export class SearchTitleDeedApplicationOwnerDto extends PartialType(
   PaginationDto,
 ) {
   search?: string;
+  title_deed_application_id?: string;
 }
 
 export class UpdateTitleDeedApplicationOwnerDto extends PartialType(
