@@ -28,6 +28,7 @@ import { Resource } from 'src/common/decorators/resource.decorator';
 import { RESOURCE } from 'src/common/constants/resource';
 import { ACTIONS } from 'src/common/constants/actions';
 import { DatabaseService } from 'src/common/database/database.service';
+import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 
 @ApiTags('title-deed-application')
 @ApiBearerAuth()
@@ -68,6 +69,11 @@ export class TitleDeedApplicationController {
   @ApiParam({ name: 'id', type: String })
   findOne(@Param('id') id: string) {
     return this.service.findOne(id);
+  }
+
+  @Post(':id/submit')
+  submit(@Request() request: EmployeeTokenClaim, @Param('id') id: string) {
+    return this.service.submit(id, request);
   }
 
   @Patch(':id')

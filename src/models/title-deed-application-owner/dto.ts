@@ -143,6 +143,20 @@ export class CreateTitleDeedApplicationOwnerDto {
   @IsOptional()
   @IsString()
   remark?: string;
+
+  @ApiPropertyOptional({
+    description: 'Power of agency document',
+    example: {},
+  })
+  @IsOptional()
+  power_of_agency_document?: any;
+
+  @ApiPropertyOptional({
+    description: 'Power of agency document',
+    example: {},
+  })
+  @IsOptional()
+  photo_file?: any;
 }
 
 export class SearchTitleDeedApplicationOwnerDto extends PartialType(

@@ -61,6 +61,20 @@ export class TitleDeedApplicationService {
     return this.prisma.titleDeedApplication.update({ where: { id }, data });
   }
 
+  async submit(id: string, request: EmployeeTokenClaim) {
+    return await this.prisma.titleDeedApplication.update({
+      where: { id, user_id: request.user.sub },
+      data: {
+        submitted: true,
+        submitted_at: new Date(),
+      },
+      select: {
+        id: true,
+        submitted: true,
+      },
+    });
+  }
+
   findAll(options: SearchTitleDeedApplicationDto) {
     const { search } = { ...options };
     const where: any = {};
@@ -120,7 +134,6 @@ export class TitleDeedApplicationService {
         kebele: true,
         house_number: true,
         remark: true,
-        draft: true,
         titleDeedService: { select: { id: true, name: true } },
         organizationType: { select: { id: true, name: true } },
         woreda: { select: { id: true, name: true } },

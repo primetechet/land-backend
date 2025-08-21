@@ -65,7 +65,7 @@ export class TitleDeedServiceService {
 
     return this.prisma.titleDeedService.findMany({
       where,
-      orderBy: { created_at: 'desc' },
+      orderBy: { created_at: 'asc' },
       select: {
         id: true,
         name: true,

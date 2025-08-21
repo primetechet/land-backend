@@ -28,6 +28,7 @@ export class TitleDeedServiceRequirementService {
     if (title_deed_service_id)
       where.title_deed_service_id = title_deed_service_id;
 
+    console.log(query, where);
     return this.prisma.titleDeedServiceRequirement.findMany({
       where: where,
       include: { titleDeedService: true },
@@ -35,12 +36,11 @@ export class TitleDeedServiceRequirementService {
   }
 
   async findAllPaginated(query: SearchTitleDeedServiceRequirementDto) {
-    const { page = 1, limit = 10, search } = query;
-    const where = search
-      ? {
-          OR: [{ description: { contains: search, mode: 'insensitive' } }],
-        }
-      : {};
+    const { search, title_deed_service_id, page, limit } = query;
+    const where: any = {};
+
+    if (title_deed_service_id)
+      where.title_deed_service_id = title_deed_service_id;
 
     return paginate(
       this.prisma.titleDeedServiceRequirement,

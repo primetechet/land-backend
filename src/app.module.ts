@@ -25,6 +25,10 @@ import { DistrictModule } from './models/basedata/district/district.module';
 import { TitleDeedServiceDocumentTypeModule } from './models/basedata/title-deed-service-document-type/title-deed-service-document-type.module';
 import { DocumentTypeModule } from './models/basedata/document-type/document-type.module';
 import { AuthModule } from './models/auth/auth/auth.module';
+import { TitleDeedApplicationReviewModule } from './models/title-deed-application-review/title-deed-application-review.module';
+import { MinioClientModule } from './common/minio-client/minio-client.module';
+import { TitleDeedApplicationClientDocumentModule } from './models/title-deed-application-client-document/title-deed-application-client-document.module';
+import { TitleDeedApplicationDocumentModule } from './models/title-deed-application-document/title-deed-application-document.module';
 
 @Module({
   imports: [
@@ -57,6 +61,10 @@ import { AuthModule } from './models/auth/auth/auth.module';
     TitleDeedServiceDocumentTypeModule,
     DocumentTypeModule,
     AuthModule,
+    TitleDeedApplicationReviewModule,
+    MinioClientModule,
+    TitleDeedApplicationClientDocumentModule,
+    TitleDeedApplicationDocumentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

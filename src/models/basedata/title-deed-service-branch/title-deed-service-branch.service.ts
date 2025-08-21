@@ -16,11 +16,17 @@ export class TitleDeedServiceBranchService {
   }
 
   async findAll(query: SearchTitleDeedServiceBranchDto) {
-    const { search } = query;
+    const { title_deed_service_id } = query;
+    const where: any = {};
+
+    if (title_deed_service_id)
+      where.title_deed_service_id = title_deed_service_id;
+
+    if (title_deed_service_id)
+      where.title_deed_service_id = title_deed_service_id;
+
     return this.prisma.titleDeedServiceBranch.findMany({
-      where: search
-        ? { description: { contains: search, mode: 'insensitive' } }
-        : {},
+      where,
       include: { branch: true, titleDeedService: true },
     });
   }

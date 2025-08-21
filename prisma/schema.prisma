@@ -51,22 +51,124 @@ model TitleDeedApplication {
   branch_id             String
   user_id               String
 
-  draft         Boolean   @default(false)
-  drafted_at    DateTime?
-  drafted_by_id String?
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
-  created_by_id String?
-  updated_by_id String?
+  submitted               Boolean   @default(false)
+  submitted_at            DateTime?
+  archived                Boolean   @default(false)
+  archived_at             DateTime?
+  archived_by_id          String?
+  archive_note            String?
+  verified                Boolean   @default(false)
+  verified_at             DateTime?
+  verified_by_id          String?
+  verifier_note           String?
+  plot_registered         Boolean   @default(false)
+  plot_registered_at      DateTime?
+  plot_registered_by_id   String?
+  plot_registration_note  String?
+  base_map_approved       Boolean   @default(false)
+  base_map_approved_at    DateTime?
+  base_map_approved_by_id String?
+  base_map_approver_note  String?
+  authorized              Boolean   @default(false)
+  authorized_at           DateTime?
+  authorized_by_id        String?
+  authorizer_note         String?
+  rejected                Boolean   @default(false)
+  rejected_at             DateTime?
+  rejected_by_id          String?
+  rejecter_note           String?
+  rejection_reason_id     String?
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+  created_by_id           String?
+  updated_by_id           String?
 
-  organizationType           OrganizationType?           @relation(fields: [organization_type_id], references: [id])
-  titleDeedService           TitleDeedService            @relation(fields: [title_deed_service_id], references: [id])
-  woreda                     Woreda                      @relation(fields: [woreda_id], references: [id])
-  branch                     Branch                      @relation(fields: [branch_id], references: [id])
-  user                       User                        @relation(fields: [user_id], references: [id])
-  titleDeedApplicationOwners TitleDeedApplicationOwner[]
+  organizationType  OrganizationType? @relation(fields: [organization_type_id], references: [id])
+  titleDeedService  TitleDeedService  @relation(fields: [title_deed_service_id], references: [id])
+  woreda            Woreda            @relation(fields: [woreda_id], references: [id])
+  branch            Branch            @relation(fields: [branch_id], references: [id])
+  user              User              @relation(fields: [user_id], references: [id])
+  rejectionReason   RejectionReason?  @relation(fields: [rejection_reason_id], references: [id])
+  rejectedBy        Employee?         @relation("rejectedBy", fields: [rejected_by_id], references: [id])
+  verifiedBy        Employee?         @relation("verifiedBy", fields: [verified_by_id], references: [id])
+  archivedBy        Employee?         @relation("archivedBy", fields: [archived_by_id], references: [id])
+  authorizedBy      Employee?         @relation("authorizedBy", fields: [authorized_by_id], references: [id])
+  plotRegisteredBy  Employee?         @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
+  baseMapApprovedBy Employee?         @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
+
+  titleDeedApplicationOwners          TitleDeedApplicationOwner[]
+  titleDeedApplicationReviews         TitleDeedApplicationReview[]
+  titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
+  titleDeedApplicationDocuments       TitleDeedApplicationDocument[]
 
   @@map("title_deed_applications")
+}
+
+model TitleDeedApplicationClientDocument {
+  id                                  String                       @id @default(uuid())
+  title_deed_application_id           String
+  attachment                          Json
+  issued_at                           DateTime?
+  expires_at                          DateTime?
+  title_deed_service_document_type_id String
+  rejected                            Boolean                      @default(false)
+  rejected_at                         DateTime?
+  rejected_by_id                      String?
+  rejecter_note                       String?
+  rejection_reason_id                 String?
+  verified                            Boolean                      @default(false)
+  verified_at                         DateTime?
+  verified_by_id                      String?
+  verifier_note                       String?
+  created_by_id                       String?
+  updated_by_id                       String?
+  created_at                          DateTime                     @default(now())
+  updated_at                          DateTime                     @updatedAt
+  rejectionReason                     RejectionReason?             @relation(fields: [rejection_reason_id], references: [id])
+  titleDeedApplication                TitleDeedApplication         @relation(fields: [title_deed_application_id], references: [id])
+  titleDeedServiceDocumentType        TitleDeedServiceDocumentType @relation(fields: [title_deed_service_document_type_id], references: [id])
+  rejectedBy                          Employee?                    @relation("rejectedBy", fields: [rejected_by_id], references: [id])
+  verifiedBy                          Employee?                    @relation("verifiedBy", fields: [verified_by_id], references: [id])
+  createdBy                           User?                        @relation(fields: [created_by_id], references: [id])
+
+  @@map("title_deed_application_client_documents")
+}
+
+model TitleDeedApplicationDocument {
+  id                        String               @id @default(uuid())
+  title_deed_application_id String
+  attachment                Json
+  issued_at                 DateTime?
+  expires_at                DateTime?
+  created_by_id             String?
+  updated_by_id             String?
+  created_at                DateTime             @default(now())
+  updated_at                DateTime             @updatedAt
+  titleDeedApplication      TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
+  createdBy                 Employee?            @relation(fields: [created_by_id], references: [id])
+
+  @@map("title_deed_application_documents")
+}
+
+model TitleDeedApplicationReview {
+  id                        String               @id @default(uuid())
+  reassigned                Boolean              @default(false)
+  assignment_note           String?
+  employee_id               String
+  title_deed_application_id String
+  completed                 Boolean              @default(false)
+  completed_at              DateTime?
+  completed_by_id           String?
+  note                      String?
+  role                      String
+  created_at                DateTime             @default(now())
+  updated_at                DateTime             @updatedAt
+  created_by_id             String?
+  updated_by_id             String?
+  employee                  Employee             @relation(fields: [employee_id], references: [id])
+  titleDeedApplication      TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
+
+  @@map("title_deed_application_reviews")
 }
 
 model TitleDeedApplicationOwner {
@@ -138,14 +240,15 @@ model User {
   suspended_status_updated_by_id String?
   suspended_status_update_note   String?
 
-  created_at            DateTime               @default(now())
-  updated_at            DateTime               @updatedAt
-  created_by_id         String?
-  updated_by_id         String?
-  userRoles             UserRole[]
-  otps                  Otp[]
-  loginHistories        LoginHistory[]
-  titleDeedApplications TitleDeedApplication[]
+  created_at                          DateTime                             @default(now())
+  updated_at                          DateTime                             @updatedAt
+  created_by_id                       String?
+  updated_by_id                       String?
+  userRoles                           UserRole[]
+  otps                                Otp[]
+  loginHistories                      LoginHistory[]
+  titleDeedApplications               TitleDeedApplication[]
+  titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
 
   @@map("users")
 }
@@ -172,12 +275,23 @@ model Employee {
   suspended_status_updated_by_id String?
   suspended_status_update_note   String?
 
-  created_at             DateTime               @default(now())
-  updated_at             DateTime               @updatedAt
-  created_by_id          String?
-  updated_by_id          String?
-  employeeLoginHistories EmployeeLoginHistory[]
-  employeeRoles          EmployeeRole[]
+  created_at                  DateTime                     @default(now())
+  updated_at                  DateTime                     @updatedAt
+  created_by_id               String?
+  updated_by_id               String?
+  employeeLoginHistories      EmployeeLoginHistory[]
+  employeeRoles               EmployeeRole[]
+  titleDeedApplicationReviews TitleDeedApplicationReview[]
+
+  rejectedTitleDeedApplication               TitleDeedApplication[]               @relation("rejectedBy")
+  verifiedTitleDeedApplication               TitleDeedApplication[]               @relation("verifiedBy")
+  archivedTitleDeedApplication               TitleDeedApplication[]               @relation("archivedBy")
+  authorizedTitleDeedApplication             TitleDeedApplication[]               @relation("authorizedBy")
+  baseMapApprovedTitleDeedApplication        TitleDeedApplication[]               @relation("baseMapApprovedBy")
+  plotRegisteredTitleDeedApplication         TitleDeedApplication[]               @relation("plotRegisteredBy")
+  rejectedTitleDeedApplicationClientDocument TitleDeedApplicationClientDocument[] @relation("rejectedBy")
+  verifiedTitleDeedApplicationClientDocument TitleDeedApplicationClientDocument[] @relation("verifiedBy")
+  titleDeedApplicationDocuments              TitleDeedApplicationDocument[]
 
   @@map("employees")
 }
@@ -559,19 +673,39 @@ model DocumentType {
 }
 
 model TitleDeedServiceDocumentType {
-  id                    String           @id @default(uuid())
-  properties_json       Json?
-  description           String?
-  title_deed_service_id String
-  document_type_id      String
-  is_required           Boolean          @default(true)
-  draft                 Boolean          @default(false)
-  created_at            DateTime         @default(now())
-  updated_at            DateTime         @updatedAt
-  created_by_id         String?
-  updated_by_id         String?
-  titleDeedService      TitleDeedService @relation(fields: [title_deed_service_id], references: [id])
-  documentType          DocumentType     @relation(fields: [document_type_id], references: [id])
+  id                                  String                               @id @default(uuid())
+  properties_json                     Json?
+  description                         String?
+  title_deed_service_id               String
+  document_type_id                    String
+  is_required                         Boolean                              @default(true)
+  draft                               Boolean                              @default(false)
+  created_at                          DateTime                             @default(now())
+  updated_at                          DateTime                             @updatedAt
+  created_by_id                       String?
+  updated_by_id                       String?
+  titleDeedService                    TitleDeedService                     @relation(fields: [title_deed_service_id], references: [id])
+  documentType                        DocumentType                         @relation(fields: [document_type_id], references: [id])
+  titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
 
   @@map("document_category_types")
+}
+
+model RejectionReason {
+  id                                  String                               @id @default(uuid())
+  name                                String                               @unique
+  name_json                           Json                                 @default("{}")
+  description                         String?
+  description_json                    Json?                                @default("{}")
+  draft                               Boolean                              @default(false)
+  drafted_at                          DateTime?
+  drafted_by_id                       String?
+  created_at                          DateTime                             @default(now())
+  updated_at                          DateTime                             @updatedAt
+  created_by_id                       String?
+  updated_by_id                       String?
+  titleDeedApplications               TitleDeedApplication[]
+  titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
+
+  @@map("rejection_reasons")
 }
