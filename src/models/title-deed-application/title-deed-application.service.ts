@@ -120,7 +120,28 @@ export class TitleDeedApplicationService {
 
     return paginate(
       this.prisma.titleDeedApplication,
-      { where },
+      {
+        where,
+        include: {
+          titleDeedService: { select: { id: true, name: true } },
+          organizationType: { select: { id: true, name: true } },
+          _count: {
+            select: {
+              titleDeedApplicationOwners: true,
+            },
+          },
+          woreda: {
+            select: {
+              id: true,
+              name: true,
+              district: { select: { id: true, name: true } },
+            },
+          },
+
+          branch: { select: { id: true, name: true } },
+          user: { select: { id: true, name: true } },
+        },
+      },
       { page: +options.page, perPage: +options.limit },
     );
   }
