@@ -15,8 +15,8 @@ datasource db {
 }
 
 enum UserType {
-  ADMIN
-  USER
+  ORGANIZATION
+  INDIVIDUAL
 }
 
 enum IdType {
@@ -29,6 +29,12 @@ enum IdType {
 enum Gender {
   MALE
   FEMALE
+}
+
+enum BranchType {
+  CENTRAL
+  MESOB
+  SUB_CITY
 }
 
 model TitleDeedApplication {
@@ -385,9 +391,7 @@ model Branch {
   description_json         Json?                    @default("{}")
   woreda_id                String
   woreda                   Woreda                   @relation(fields: [woreda_id], references: [id])
-  mesob                    Boolean                  @default(false)
-  subcity                  Boolean                  @default(false)
-  central                  Boolean                  @default(false)
+  branch_type              BranchType               @default(SUB_CITY)
   draft                    Boolean                  @default(false)
   drafted_at               DateTime?
   drafted_by_id            String?

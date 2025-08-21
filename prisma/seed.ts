@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { IdType, PrismaClient, UserType } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -101,6 +101,22 @@ async function main() {
 
   // 5️⃣ Create an admin employee
   const hashedPassword = await bcrypt.hash('@Password1', 10);
+
+  const user = await prisma.user.upsert({
+    where: { username: 'user' },
+    update: {},
+    create: {
+      user_type: UserType.INDIVIDUAL,
+      id_type: IdType.FAYDA_ID,
+      name: 'Yoseph Hailu',
+      username: 'user',
+      password: hashedPassword,
+      phone_number: '0000000000',
+      email: 'admin@example.com',
+      require_password_change: true,
+      is_active: true,
+    },
+  });
 
   const adminEmployee = await prisma.employee.upsert({
     where: { username: 'admin' },

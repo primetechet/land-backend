@@ -24,6 +24,7 @@ import { TitleDeedServiceRequirementModule } from './models/basedata/title-deed-
 import { DistrictModule } from './models/basedata/district/district.module';
 import { TitleDeedServiceDocumentTypeModule } from './models/basedata/title-deed-service-document-type/title-deed-service-document-type.module';
 import { DocumentTypeModule } from './models/basedata/document-type/document-type.module';
+import { AuthModule } from './models/auth/auth/auth.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { DocumentTypeModule } from './models/basedata/document-type/document-typ
     DistrictModule,
     TitleDeedServiceDocumentTypeModule,
     DocumentTypeModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

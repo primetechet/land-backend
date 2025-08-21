@@ -1,7 +1,14 @@
 import { PartialType } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dtos/global.dto';
-import { IsString, IsOptional, IsBoolean, IsObject } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsObject,
+  IsEnum,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { BranchType } from '@prisma/client';
 
 export class CreateBranchDto {
   @ApiProperty({ description: 'Branch name', example: 'Addis Ababa Central' })
@@ -46,20 +53,9 @@ export class CreateBranchDto {
   @IsString()
   woreda_id: string;
 
-  @ApiProperty({ description: 'Is Mesob branch?', example: false })
-  @IsOptional()
-  @IsBoolean()
-  mesob?: boolean;
-
-  @ApiProperty({ description: 'Is Subcity branch?', example: false })
-  @IsOptional()
-  @IsBoolean()
-  subcity?: boolean;
-
-  @ApiProperty({ description: 'Is Central branch?', example: true })
-  @IsOptional()
-  @IsBoolean()
-  central?: boolean;
+  @ApiProperty({ description: 'Branch Type', enum: BranchType })
+  @IsEnum(BranchType)
+  branch_type: BranchType;
 
   @ApiPropertyOptional({
     description: 'Whether the country is in draft mode',
