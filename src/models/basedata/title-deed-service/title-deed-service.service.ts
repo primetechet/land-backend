@@ -24,6 +24,7 @@ export class TitleDeedServiceService {
         description_json: data.description_json,
         has_existing_title_deed: data.has_existing_title_deed ?? false,
         parent_title_deed_service_id: data.parent_title_deed_service_id,
+        applicant_type: data.applicant_type,
       },
     });
   }
@@ -42,6 +43,7 @@ export class TitleDeedServiceService {
         description_json: data.description_json,
         has_existing_title_deed: data.has_existing_title_deed,
         parent_title_deed_service_id: data.parent_title_deed_service_id,
+        applicant_type: data.applicant_type,
         updated_by_id: data.updated_by_id,
       },
     });
@@ -75,11 +77,9 @@ export class TitleDeedServiceService {
         description_json: true,
         has_existing_title_deed: true,
         parent_title_deed_service_id: true,
+        applicant_type: true,
         draft: true,
         created_at: true,
-        updated_at: true,
-        created_by_id: true,
-        updated_by_id: true,
       },
     });
   }
@@ -111,6 +111,7 @@ export class TitleDeedServiceService {
         description_json: true,
         has_existing_title_deed: true,
         parent_title_deed_service_id: true,
+        applicant_type: true,
         childrenTitleDeedServices: {
           select: { id: true, name: true, name_json: true },
         },

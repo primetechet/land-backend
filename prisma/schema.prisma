@@ -37,6 +37,12 @@ enum BranchType {
   SUB_CITY
 }
 
+enum APPLICANT_TYPE {
+  INDIVIDUAL
+  ORGANIZATION
+  BOTH
+}
+
 model TitleDeedApplication {
   id                String  @id @default(uuid())
   application_no    String  @unique
@@ -442,6 +448,7 @@ model TitleDeedService {
   description                   String?
   description_json              Json?                          @default("{}")
   has_existing_title_deed       Boolean                        @default(false)
+  applicant_type                APPLICANT_TYPE                 @default(BOTH)
   parent_title_deed_service_id  String?
   titleDeedService              TitleDeedService?              @relation("TitleDeedServiceToTitleDeedService", fields: [parent_title_deed_service_id], references: [id])
   childrenTitleDeedServices     TitleDeedService[]             @relation("TitleDeedServiceToTitleDeedService")

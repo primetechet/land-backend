@@ -1,7 +1,14 @@
 import { PartialType } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dtos/global.dto';
-import { IsString, IsOptional, IsObject, IsBoolean } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsObject,
+  IsBoolean,
+  IsEnum,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { APPLICANT_TYPE } from '@prisma/client';
 
 export class CreateTitleDeedServiceDto {
   @ApiProperty({
@@ -54,6 +61,14 @@ export class CreateTitleDeedServiceDto {
   @IsBoolean()
   has_existing_title_deed?: boolean;
 
+  @ApiProperty({
+    description: 'Indicates if this service requires an existing title deed',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  individual_only?: boolean;
+
   @ApiPropertyOptional({
     description: 'The ID of the parent title deed service (if nested)',
     example: 'uuid-of-parent-service',
@@ -65,6 +80,10 @@ export class CreateTitleDeedServiceDto {
   @ApiProperty({ description: 'The country code', example: 'US' })
   @IsString()
   code: string;
+
+  @ApiProperty({ description: 'Applicant Type', enum: APPLICANT_TYPE })
+  @IsEnum(APPLICANT_TYPE)
+  applicant_type: APPLICANT_TYPE;
 
   @ApiPropertyOptional({
     description: 'Whether the country is in draft mode',
