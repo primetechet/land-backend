@@ -47,7 +47,22 @@ export class BranchService {
   }
 
   async findOne(id: string) {
-    const record = await this.prisma.branch.findUnique({ where: { id } });
+    const record = await this.prisma.branch.findUnique({
+      where: { id },
+      include: {
+        woreda: {
+          select: {
+            district: {
+              select: {
+                id: true,
+                name: true,
+                region: { select: { id: true, name: true } },
+              },
+            },
+          },
+        },
+      },
+    });
     if (!record) throw new NotFoundException('Branch not found');
     return record;
   }
