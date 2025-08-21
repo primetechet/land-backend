@@ -13,8 +13,8 @@ import { BufferedFile } from 'src/common/types/buffered-file.type';
 import { CreateTitleDeedApplicationDocumentDto } from './dto';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 import { TitleDeedApplicationDocumentService } from './title-deed-application-document.service';
-@ApiTags('title-deed-application-client-document')
-@Controller('title-deed-application-client-document')
+@ApiTags('title-deed-application-document')
+@Controller('title-deed-application-document')
 @ApiBearerAuth()
 export class TitleDeedApplicationDocumentController {
   constructor(
