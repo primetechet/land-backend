@@ -47,7 +47,7 @@ export class TitleDeedApplicationService {
         },
         user: {
           connect: {
-            id: '629fbff4-34b2-469b-90ee-0cc8335fb92c',
+            id: request.user.sub,
           },
         },
       },
