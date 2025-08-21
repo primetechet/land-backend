@@ -25,7 +25,7 @@ import { TitleDeedApplicationReviewService } from './title-deed-application-revi
 import { TitleDeedApplicationReviewValidator } from './title-deed-application-review.validation';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 
-@Controller('new-visa-application-review')
+@Controller('title-deed-application-review')
 export class TitleDeedApplicationReviewController {
   constructor(
     private readonly newVisaApplicationReviewService: TitleDeedApplicationReviewService,
@@ -33,12 +33,12 @@ export class TitleDeedApplicationReviewController {
   ) {}
 
   @Post()
-  @Resource([
-    {
-      resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
-      actions: [ACTIONS.CREATE],
-    },
-  ])
+  // @Resource([
+  //   {
+  //     resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
+  //     actions: [ACTIONS.CREATE],
+  //   },
+  // ])
   create(
     @Request() request: EmployeeTokenClaim,
     @Body()
@@ -94,13 +94,14 @@ export class TitleDeedApplicationReviewController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get a resource by ID' })
-  @Resource([
-    {
-      resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
-      actions: [ACTIONS.READ_ONE],
-    },
-  ])
+  // @Resource([
+  //   {
+  //     resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
+  //     actions: [ACTIONS.READ_ONE],
+  //   },
+  // ])
   findOne(@Param('id') id: string, @Request() request: EmployeeTokenClaim) {
+    console.log(id);
     return this.newVisaApplicationReviewService.findOne(id);
   }
 

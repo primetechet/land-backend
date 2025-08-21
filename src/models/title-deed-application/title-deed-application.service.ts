@@ -18,6 +18,7 @@ export class TitleDeedApplicationService {
   ): Promise<TitleDeedApplication> {
     return this.prisma.titleDeedApplication.create({
       data: {
+        application_no: 'TAKE_FROM_TRIGGER',
         is_organization: data.is_organization,
         title_deed_number: data.title_deed_number || null,
         kebele: data.kebele,
@@ -127,20 +128,18 @@ export class TitleDeedApplicationService {
   findOne(id: string) {
     return this.prisma.titleDeedApplication.findUnique({
       where: { id },
-      select: {
-        id: true,
-        is_organization: true,
-        title_deed_number: true,
-        kebele: true,
-        house_number: true,
-        remark: true,
+      include: {
         titleDeedService: { select: { id: true, name: true } },
         organizationType: { select: { id: true, name: true } },
-        woreda: { select: { id: true, name: true } },
+        woreda: {
+          select: {
+            id: true,
+            name: true,
+            district: { select: { id: true, name: true } },
+          },
+        },
         branch: { select: { id: true, name: true } },
         user: { select: { id: true, name: true } },
-        created_at: true,
-        updated_at: true,
       },
     });
   }

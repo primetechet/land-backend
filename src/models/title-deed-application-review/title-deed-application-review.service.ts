@@ -25,6 +25,7 @@ export class TitleDeedApplicationReviewService {
     request: EmployeeTokenClaim,
     createTitleDeedApplicationReviewDto: CreateTitleDeedApplicationReviewDto,
   ) {
+    console.log(createTitleDeedApplicationReviewDto);
     const employee = await this.prisma.employee.findUnique({
       where: { id: request.user.sub },
     });
@@ -74,7 +75,7 @@ export class TitleDeedApplicationReviewService {
       await this.prisma.titleDeedApplicationReview.findFirst({
         where: {
           employee_id: employee.id,
-          completed: null,
+          completed: false,
           titleDeedApplication: {
             // titleDeedApplicationIssues: {
             //   none: { OR: [{ resolved: false }, { resolved: null }] },
@@ -94,7 +95,7 @@ export class TitleDeedApplicationReviewService {
         ...applicationCondition,
         submitted: true,
         titleDeedApplicationReviews: {
-          none: { completed: null },
+          none: { completed: false },
         },
       },
     });
@@ -231,7 +232,7 @@ export class TitleDeedApplicationReviewService {
 
   async findOne(id: string) {
     const titleDeedApplicationReview =
-      await this.prisma.titleDeedApplicationReview.findFirst({
+      await this.prisma.titleDeedApplicationReview.findUnique({
         where: {
           id: id,
         },

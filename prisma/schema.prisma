@@ -39,6 +39,7 @@ enum BranchType {
 
 model TitleDeedApplication {
   id                String  @id @default(uuid())
+  application_no    String  @unique
   is_organization   Boolean @default(false)
   title_deed_number String?
   kebele            String
