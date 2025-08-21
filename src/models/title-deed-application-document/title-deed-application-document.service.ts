@@ -52,4 +52,8 @@ export class TitleDeedApplicationDocumentService {
       { page: +options.page, perPage: +options.limit },
     );
   }
+
+  async remove(id: string) {
+    return this.prisma.titleDeedApplicationDocument.delete({ where: { id } });
+  }
 }

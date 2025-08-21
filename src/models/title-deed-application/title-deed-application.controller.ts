@@ -56,6 +56,16 @@ export class TitleDeedApplicationController {
     return this.service.findAll(payload);
   }
 
+  @Get(':id/archive-document')
+  archiveDocuments(@Param('id') id: string) {
+    return this.service.archiveDocuments(id);
+  }
+
+  @Get(':id/client-document')
+  clientDocuments(@Param('id') id: string) {
+    return this.service.clientDocuments(id);
+  }
+
   @Get('paginated')
   @ApiOperation({ summary: 'Get paginated applications' })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -82,13 +92,5 @@ export class TitleDeedApplicationController {
   @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.UPDATE] }])
   update(@Param('id') id: string, @Body() dto: UpdateTitleDeedApplicationDto) {
     return this.service.update(id, dto);
-  }
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete a title deed application by ID' })
-  @ApiParam({ name: 'id', type: String })
-  @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.DELETE] }])
-  remove(@Param('id') id: string) {
-    return this.service.remove(id);
   }
 }

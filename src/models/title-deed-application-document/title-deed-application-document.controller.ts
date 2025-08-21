@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   Post,
   Request,
@@ -8,7 +9,13 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { BufferedFile } from 'src/common/types/buffered-file.type';
 import { CreateTitleDeedApplicationDocumentDto } from './dto';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
@@ -34,5 +41,13 @@ export class TitleDeedApplicationDocumentController {
       file,
       request,
     );
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a document by ID' })
+  @ApiResponse({ status: 200, description: 'Document deleted successfully.' })
+  @ApiParam({ name: 'id', description: 'Document ID', type: String })
+  remove(@Param('id') id: string) {
+    return this.titleDeedApplicationDocumentService.remove(id);
   }
 }

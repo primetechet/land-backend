@@ -144,7 +144,78 @@ export class TitleDeedApplicationService {
     });
   }
 
-  remove(id: string) {
-    return this.prisma.titleDeedApplication.delete({ where: { id } });
+  async archiveDocuments(id: string) {
+    return await this.prisma.titleDeedApplicationDocument.findMany({
+      where: {
+        title_deed_application_id: id,
+      },
+    });
+  }
+
+  async clientDocuments(id: string) {
+    const titleDeedApplication =
+      await this.prisma.titleDeedApplication.findUnique({
+        where: { id: id },
+        select: { id: true, title_deed_service_id: true },
+      });
+
+    return await this.prisma.titleDeedServiceDocumentType
+      .findMany({
+        where: {
+          documentType: {
+            draft: false,
+          },
+          title_deed_service_id: titleDeedApplication.title_deed_service_id,
+        },
+        include: {
+          documentType: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+          titleDeedApplicationClientDocuments: {
+            orderBy: { created_at: 'desc' },
+            where: { title_deed_application_id: id },
+            include: {
+              verifiedBy: {
+                select: {
+                  name: true,
+                },
+              },
+              createdBy: {
+                select: {
+                  name: true,
+                },
+              },
+              rejectedBy: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      })
+      .then((types) => {
+        return types.map((type: any) => {
+          const hasRejected = type.titleDeedApplicationDocuments.some(
+            (doc) => doc.rejected,
+          );
+          const hasPending = type.titleDeedApplicationDocuments.some(
+            (doc) => !doc.rejected && !doc.verified,
+          );
+          const hasVerified = type.titleDeedApplicationDocuments.some(
+            (doc) => doc.verified,
+          );
+
+          return {
+            ...type,
+            has_rejected: hasRejected,
+            has_pending: hasPending,
+            has_verified: hasVerified,
+          };
+        });
+      });
   }
 }
