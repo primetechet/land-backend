@@ -18,6 +18,7 @@ export class TitleDeedApplicationOwnerService {
     return this.prisma.titleDeedApplicationOwner.create({
       data: {
         is_organization: data.is_organization,
+        is_representative: data.is_representative,
         id_type: data.id_type,
         id_number: data.id_number,
         is_applicant: data.is_applicant,
@@ -76,6 +77,7 @@ export class TitleDeedApplicationOwnerService {
       select: {
         id: true,
         is_organization: true,
+        is_representative: true,
         id_type: true,
         id_number: true,
         is_applicant: true,

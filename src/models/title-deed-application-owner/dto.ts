@@ -12,6 +12,13 @@ export class CreateTitleDeedApplicationOwnerDto {
   @IsBoolean()
   is_organization: boolean;
 
+  @ApiProperty({
+    description: 'Whether the owner is an organization',
+    example: false,
+  })
+  @IsBoolean()
+  is_representative: boolean;
+
   @ApiProperty({ description: 'ID type of the owner', enum: IdType })
   @IsEnum(IdType)
   id_type: IdType;

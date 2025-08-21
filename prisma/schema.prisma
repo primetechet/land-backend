@@ -174,6 +174,7 @@ model TitleDeedApplicationReview {
 
 model TitleDeedApplicationOwner {
   id                          String  @id @default(uuid())
+  is_representative           Boolean @default(false)
   is_organization             Boolean @default(false)
   id_type                     IdType
   id_number                   String
