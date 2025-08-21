@@ -34,7 +34,7 @@ enum Gender {
 model TitleDeedApplication {
   id                String  @id @default(uuid())
   is_organization   Boolean @default(false)
-  title_deed_number String
+  title_deed_number String?
   kebele            String
   house_number      String
   remark            String?
@@ -313,26 +313,27 @@ model EmployeeRole {
 
 //BASE DATA
 model TitleDeedService {
-  id                           String                        @id @default(uuid())
-  name                         String                        @unique
-  name_json                    Json                          @default("{}")
-  icon                         Json?
-  description                  String?
-  description_json             Json?                         @default("{}")
-  has_existing_title_deed      Boolean                       @default(false)
-  parent_title_deed_service_id String?
-  titleDeedService             TitleDeedService?             @relation("TitleDeedServiceToTitleDeedService", fields: [parent_title_deed_service_id], references: [id])
-  childrenTitleDeedServices    TitleDeedService[]            @relation("TitleDeedServiceToTitleDeedService")
-  draft                        Boolean                       @default(false)
-  drafted_at                   DateTime?
-  drafted_by_id                String?
-  created_at                   DateTime                      @default(now())
-  updated_at                   DateTime                      @updatedAt
-  created_by_id                String?
-  updated_by_id                String?
-  titleDeedServiceBranches     TitleDeedServiceBranch[]
-  titleDeedApplications        TitleDeedApplication[]
-  titleDeedServiceRequirements TitleDeedServiceRequirement[]
+  id                            String                         @id @default(uuid())
+  name                          String                         @unique
+  name_json                     Json                           @default("{}")
+  icon                          Json?
+  description                   String?
+  description_json              Json?                          @default("{}")
+  has_existing_title_deed       Boolean                        @default(false)
+  parent_title_deed_service_id  String?
+  titleDeedService              TitleDeedService?              @relation("TitleDeedServiceToTitleDeedService", fields: [parent_title_deed_service_id], references: [id])
+  childrenTitleDeedServices     TitleDeedService[]             @relation("TitleDeedServiceToTitleDeedService")
+  draft                         Boolean                        @default(false)
+  drafted_at                    DateTime?
+  drafted_by_id                 String?
+  created_at                    DateTime                       @default(now())
+  updated_at                    DateTime                       @updatedAt
+  created_by_id                 String?
+  updated_by_id                 String?
+  titleDeedServiceBranches      TitleDeedServiceBranch[]
+  titleDeedApplications         TitleDeedApplication[]
+  titleDeedServiceRequirements  TitleDeedServiceRequirement[]
+  titleDeedServiceDocumentTypes TitleDeedServiceDocumentType[]
 
   @@map("title_deed_services")
 }
@@ -528,4 +529,45 @@ model Woreda {
   @@unique([name, district_id])
   @@unique([zip_code, district_id])
   @@map("woredas")
+}
+
+model DocumentType {
+  id                            String                         @id @default(uuid())
+  name                          String                         @unique
+  code                          String                         @unique
+  size                          Int?                           @default(5)
+  min_document_count            Int                            @default(1)
+  max_document_count            Int                            @default(1)
+  description                   String?
+  name_json                     Json                           @default("{}")
+  description_json              Json?                          @default("{}")
+  allowed_file_types            Json?                          @default("{}")
+  check_hint                    String?
+  expires                       Boolean                        @default(false)
+  draft                         Boolean                        @default(false)
+  created_at                    DateTime                       @default(now())
+  updated_at                    DateTime                       @updatedAt
+  created_by_id                 String?
+  updated_by_id                 String?
+  titleDeedServiceDocumentTypes TitleDeedServiceDocumentType[]
+
+  @@map("document_types")
+}
+
+model TitleDeedServiceDocumentType {
+  id                    String           @id @default(uuid())
+  properties_json       Json?
+  description           String?
+  title_deed_service_id String
+  document_type_id      String
+  is_required           Boolean          @default(true)
+  draft                 Boolean          @default(false)
+  created_at            DateTime         @default(now())
+  updated_at            DateTime         @updatedAt
+  created_by_id         String?
+  updated_by_id         String?
+  titleDeedService      TitleDeedService @relation(fields: [title_deed_service_id], references: [id])
+  documentType          DocumentType     @relation(fields: [document_type_id], references: [id])
+
+  @@map("document_category_types")
 }

@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dtos/global.dto';
-import { IsString, IsOptional, IsObject } from 'class-validator';
+import { IsString, IsOptional, IsObject, IsBoolean } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTitleDeedServiceRequirementDto {
@@ -27,7 +27,13 @@ export class CreateTitleDeedServiceRequirementDto {
   @IsString()
   title_deed_service_id: string;
 
-  created_by_id: string;
+  @ApiPropertyOptional({
+    description: 'Whether the country is in draft mode',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  draft?: boolean;
 }
 
 export class SearchTitleDeedServiceRequirementDto extends PartialType(

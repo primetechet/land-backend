@@ -23,11 +23,33 @@ export class TitleDeedApplicationService {
         kebele: data.kebele,
         house_number: data.house_number,
         remark: data.remark,
-        title_deed_service_id: data.title_deed_service_id,
-        organization_type_id: data.organization_type_id,
-        woreda_id: data.woreda_id,
-        branch_id: data.branch_id,
-        user_id: '629fbff4-34b2-469b-90ee-0cc8335fb92c', // ✅ added explicitly
+        titleDeedService: {
+          connect: {
+            id: data.title_deed_service_id,
+          },
+        },
+        organizationType: data.organization_type_id
+          ? {
+              connect: {
+                id: data.organization_type_id,
+              },
+            }
+          : undefined,
+        woreda: {
+          connect: {
+            id: data.woreda_id,
+          },
+        },
+        branch: {
+          connect: {
+            id: data.branch_id,
+          },
+        },
+        user: {
+          connect: {
+            id: '629fbff4-34b2-469b-90ee-0cc8335fb92c',
+          },
+        },
       },
     });
   }

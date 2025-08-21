@@ -20,13 +20,6 @@ export class CreateTitleDeedApplicationDto {
   @IsString()
   kebele: string;
 
-  @ApiProperty({
-    description: 'Phone number of the applicant',
-    example: '+251912345678',
-  })
-  @IsString()
-  phone_number: string;
-
   @ApiPropertyOptional({
     description: 'Birth date of the applicant',
     example: '1990-01-01',

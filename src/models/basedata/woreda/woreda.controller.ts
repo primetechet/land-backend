@@ -62,7 +62,6 @@ export class WoredaController {
       );
     }
 
-    createWoredaDto.created_by_id = request.user.sub;
     return this.woredaService.create(createWoredaDto);
   }
 
