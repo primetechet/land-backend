@@ -10,6 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ArchiveTitleDeedApplicationReviewDto,
   AuthorizeTitleDeedApplicationReviewDto,
   CreateManualTitleDeedApplicationReviewDto,
   CreateTitleDeedApplicationReviewDto,
@@ -28,8 +29,8 @@ import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interfa
 @Controller('title-deed-application-review')
 export class TitleDeedApplicationReviewController {
   constructor(
-    private readonly newVisaApplicationReviewService: TitleDeedApplicationReviewService,
-    private readonly newVisaApplicationReviewValidator: TitleDeedApplicationReviewValidator,
+    private readonly titleDeedApplicationReviewService: TitleDeedApplicationReviewService,
+    private readonly titleDeedApplicationReviewValidator: TitleDeedApplicationReviewValidator,
   ) {}
 
   @Post()
@@ -44,7 +45,7 @@ export class TitleDeedApplicationReviewController {
     @Body()
     createTitleDeedApplicationReviewDto: CreateTitleDeedApplicationReviewDto,
   ) {
-    return this.newVisaApplicationReviewService.create(
+    return this.titleDeedApplicationReviewService.create(
       request,
       createTitleDeedApplicationReviewDto,
     );
@@ -62,7 +63,7 @@ export class TitleDeedApplicationReviewController {
   //   @Body()
   //   createManualTitleDeedApplicationReviewDto: CreateManualTitleDeedApplicationReviewDto,
   // ) {
-  //   return this.newVisaApplicationReviewService.createManual(
+  //   return this.titleDeedApplicationReviewService.createManual(
   //     request,
   //     createManualTitleDeedApplicationReviewDto,
   //   );
@@ -89,7 +90,7 @@ export class TitleDeedApplicationReviewController {
     @Query() payload: any,
   ) {
     payload.reviewer_id = request.user.sub;
-    return this.newVisaApplicationReviewService.findAllPaginated(payload);
+    return this.titleDeedApplicationReviewService.findAllPaginated(payload);
   }
 
   @Get(':id')
@@ -102,7 +103,27 @@ export class TitleDeedApplicationReviewController {
   // ])
   findOne(@Param('id') id: string, @Request() request: EmployeeTokenClaim) {
     console.log(id);
-    return this.newVisaApplicationReviewService.findOne(id);
+    return this.titleDeedApplicationReviewService.findOne(id);
+  }
+
+  @Post(':id/archive')
+  // @Resource([
+  //   {
+  //     resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
+  //     actions: [ACTIONS.VERIFY],
+  //   },
+  // ])
+  async archive(
+    @Request() request,
+    @Param('id') id: string,
+    @Body()
+    archiveTitleDeedApplicationReviewDto: ArchiveTitleDeedApplicationReviewDto,
+  ) {
+    return this.titleDeedApplicationReviewService.archive(
+      id,
+      archiveTitleDeedApplicationReviewDto,
+      request,
+    );
   }
 
   @Post(':id/verify')
@@ -120,12 +141,12 @@ export class TitleDeedApplicationReviewController {
   ) {
     verifyTitleDeedApplicationReviewDto.verified_by_id = request.user.sub;
 
-    await this.newVisaApplicationReviewValidator.verify(
+    await this.titleDeedApplicationReviewValidator.verify(
       id,
       verifyTitleDeedApplicationReviewDto,
     );
 
-    return this.newVisaApplicationReviewService.verify(
+    return this.titleDeedApplicationReviewService.verify(
       id,
       verifyTitleDeedApplicationReviewDto,
     );
@@ -146,7 +167,7 @@ export class TitleDeedApplicationReviewController {
   ) {
     authorizeTitleDeedApplicationReviewDto.authorized_by_id = request.user.sub;
 
-    return this.newVisaApplicationReviewService.authorize(
+    return this.titleDeedApplicationReviewService.authorize(
       id,
       authorizeTitleDeedApplicationReviewDto,
     );
@@ -167,7 +188,7 @@ export class TitleDeedApplicationReviewController {
   ) {
     rejectTitleDeedApplicationReviewDto.rejected_by_id = request.user.sub;
 
-    return this.newVisaApplicationReviewService.reject(
+    return this.titleDeedApplicationReviewService.reject(
       id,
       rejectTitleDeedApplicationReviewDto,
     );
@@ -186,7 +207,7 @@ export class TitleDeedApplicationReviewController {
     @Body()
     closeTitleDeedApplicationReviewDto: { note: string },
   ) {
-    return this.newVisaApplicationReviewService.close(
+    return this.titleDeedApplicationReviewService.close(
       id,
       request,
       closeTitleDeedApplicationReviewDto,

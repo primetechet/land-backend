@@ -1,5 +1,6 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import {
+  ArchiveTitleDeedApplicationReviewDto,
   AuthorizeTitleDeedApplicationReviewDto,
   CreateManualTitleDeedApplicationReviewDto,
   CreateTitleDeedApplicationReviewDto,
@@ -513,5 +514,75 @@ export class TitleDeedApplicationReviewService {
       data: titleDeedApplicationReview,
       message: 'Assignment Closed Successfully',
     };
+  }
+
+  async archive(
+    id: string,
+    archiveTitleDeedApplicationReviewDto: ArchiveTitleDeedApplicationReviewDto,
+    request: EmployeeTokenClaim,
+  ) {
+    const titleDeedApplicationReview =
+      await this.prisma.titleDeedApplicationReview.findUnique({
+        where: {
+          id: id,
+        },
+        select: {
+          titleDeedApplication: {
+            select: {
+              title_deed_service_id: true,
+              submitted: true,
+              archived: true,
+              id: true,
+            },
+          },
+        },
+      });
+
+    if (!titleDeedApplicationReview) {
+      throw new HttpException(
+        this.i18n.t('error-messages.invalid-resource', {
+          args: { Resource: 'title-deed-application' },
+        }),
+        422,
+      );
+    }
+
+    if (!titleDeedApplicationReview.titleDeedApplication.submitted) {
+      throw new HttpException(
+        this.i18n.t('error-messages.not-submitted', {
+          args: { Resource: 'title-deed-application' },
+        }),
+        422,
+      );
+    }
+
+    if (titleDeedApplicationReview.titleDeedApplication.archived) {
+      throw new HttpException(
+        this.i18n.t('error-messages.already-verified', {
+          args: { Resource: 'title-deed-application' },
+        }),
+        422,
+      );
+    }
+
+    const titleDeedApplication = await this.prisma.titleDeedApplication.update({
+      where: { id: titleDeedApplicationReview.titleDeedApplication.id },
+      data: {
+        archived: true,
+        archive_note: archiveTitleDeedApplicationReviewDto.archive_note,
+        archived_by_id: request.user.sub,
+        archived_at: new Date(),
+      },
+    });
+
+    return {
+      data: titleDeedApplication,
+      message: this.i18n.t('success-messages.resource-verified', {
+        args: {
+          Resource: 'title-deed-application',
+        },
+      }),
+    };
+    return null;
   }
 }

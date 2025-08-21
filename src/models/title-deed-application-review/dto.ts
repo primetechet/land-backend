@@ -21,6 +21,12 @@ export class CreateManualTitleDeedApplicationReviewDto {
   application_no: string;
 }
 
+export class ArchiveTitleDeedApplicationReviewDto {
+  @ApiProperty({ example: 'Review validated' })
+  @IsOptional()
+  archive_note: string;
+}
+
 export class VerifyTitleDeedApplicationReviewDto {
   @ApiProperty({ example: 'Review validated' })
   @IsOptional()

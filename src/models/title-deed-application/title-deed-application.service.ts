@@ -131,6 +131,9 @@ export class TitleDeedApplicationService {
       include: {
         titleDeedService: { select: { id: true, name: true } },
         organizationType: { select: { id: true, name: true } },
+        titleDeedApplicationOwners: {
+          where: { is_applicant: true },
+        },
         woreda: {
           select: {
             id: true,
