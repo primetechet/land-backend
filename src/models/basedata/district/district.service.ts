@@ -33,7 +33,6 @@ export class DistrictService {
         description_json: data.description_json,
         region_id: data.region_id,
         zip_code: data.zip_code,
-        updated_by_id: data.updated_by_id,
       },
       where: { id: id },
     });

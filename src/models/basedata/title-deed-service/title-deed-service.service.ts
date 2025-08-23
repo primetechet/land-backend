@@ -44,7 +44,6 @@ export class TitleDeedServiceService {
         has_existing_title_deed: data.has_existing_title_deed,
         parent_title_deed_service_id: data.parent_title_deed_service_id,
         applicant_type: data.applicant_type,
-        updated_by_id: data.updated_by_id,
       },
     });
   }

@@ -54,7 +54,6 @@ export class OrganizationTypeController {
       );
     }
 
-    createDto.created_by_id = request.user.sub;
     return this.service.create(createDto);
   }
 
