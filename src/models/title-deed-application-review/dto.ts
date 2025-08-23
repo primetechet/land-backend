@@ -31,8 +31,6 @@ export class VerifyTitleDeedApplicationReviewDto {
   @ApiProperty({ example: 'Review validated' })
   @IsOptional()
   verifier_note: string;
-
-  verified_by_id: string;
 }
 
 export class ValidateTitleDeedApplicationReviewDto {

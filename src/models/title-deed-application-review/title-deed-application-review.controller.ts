@@ -69,9 +69,9 @@ export class TitleDeedApplicationReviewController {
   //   );
   // }
 
-  @Get('completed')
+  @Get('mine')
   @ApiOperation({
-    summary: 'Get paginated list of completed visa application reviews',
+    summary: 'Get paginated list of mine visa application reviews',
   })
   @ApiResponse({
     status: 200,
@@ -79,12 +79,12 @@ export class TitleDeedApplicationReviewController {
   })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
-  @Resource([
-    {
-      resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
-      actions: [ACTIONS.READ],
-    },
-  ])
+  // @Resource([
+  //   {
+  //     resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
+  //     actions: [ACTIONS.READ],
+  //   },
+  // ])
   findAllPaginated(
     @Request() request: EmployeeTokenClaim,
     @Query() payload: any,
@@ -127,20 +127,18 @@ export class TitleDeedApplicationReviewController {
   }
 
   @Post(':id/verify')
-  @Resource([
-    {
-      resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
-      actions: [ACTIONS.VERIFY],
-    },
-  ])
+  // @Resource([
+  //   {
+  //     resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
+  //     actions: [ACTIONS.VERIFY],
+  //   },
+  // ])
   async verify(
     @Request() request,
     @Param('id') id: string,
     @Body()
     verifyTitleDeedApplicationReviewDto: VerifyTitleDeedApplicationReviewDto,
   ) {
-    verifyTitleDeedApplicationReviewDto.verified_by_id = request.user.sub;
-
     await this.titleDeedApplicationReviewValidator.verify(
       id,
       verifyTitleDeedApplicationReviewDto,
@@ -149,6 +147,7 @@ export class TitleDeedApplicationReviewController {
     return this.titleDeedApplicationReviewService.verify(
       id,
       verifyTitleDeedApplicationReviewDto,
+      request,
     );
   }
 

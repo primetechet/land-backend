@@ -327,6 +327,8 @@ export class TitleDeedApplicationReviewService {
           titleDeedApplication: {
             select: {
               id: true,
+              application_no: true,
+              created_at: true,
               titleDeedService: {
                 select: {
                   id: true,
@@ -342,14 +344,18 @@ export class TitleDeedApplicationReviewService {
     );
   }
 
-  async verify(id: string, data: VerifyTitleDeedApplicationReviewDto) {
+  async verify(
+    id: string,
+    data: VerifyTitleDeedApplicationReviewDto,
+    request: EmployeeTokenClaim,
+  ) {
     const titleDeedApplicationReview =
       await this.prisma.titleDeedApplicationReview.findUnique({
         where: { id: id },
       });
 
     const employee = await this.prisma.employee.findUnique({
-      where: { id: data.verified_by_id },
+      where: { id: request.user.sub },
     });
 
     if (!employee) {
@@ -383,7 +389,7 @@ export class TitleDeedApplicationReviewService {
       data: titleDeedApplicationReview,
       message: this.i18n.t('success-messages.resource-verified', {
         args: {
-          Resource: 'new-visa-application',
+          Resource: 'title-deed-application',
         },
       }),
     };
@@ -430,7 +436,7 @@ export class TitleDeedApplicationReviewService {
       data: titleDeedApplicationReview,
       message: this.i18n.t('success-messages.resource-authorized', {
         args: {
-          Resource: 'new-visa-application',
+          Resource: 'title-deed-application',
         },
       }),
     };

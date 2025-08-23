@@ -88,7 +88,7 @@ export class CountryController {
   @ApiOperation({ summary: 'Update a country by ID' })
   @ApiResponse({ status: 200, description: 'Country updated successfully.' })
   @ApiParam({ name: 'id', description: 'Country ID', type: String })
-  @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.UPDATE] }])
+  // @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.UPDATE] }])
   update(@Param('id') id: string, @Body() updateCountryDto: UpdateCountryDto) {
     return this.countryService.update(id, updateCountryDto);
   }
@@ -97,7 +97,7 @@ export class CountryController {
   @ApiOperation({ summary: 'Delete a country by ID' })
   @ApiResponse({ status: 200, description: 'Country deleted successfully.' })
   @ApiParam({ name: 'id', description: 'Country ID', type: String })
-  @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.DELETE] }])
+  // @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.DELETE] }])
   remove(@Param('id') id: string) {
     return this.countryService.remove(id);
   }
