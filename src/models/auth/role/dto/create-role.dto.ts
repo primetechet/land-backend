@@ -1,5 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { Optional } from '@nestjs/common';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
+import { PaginationDto } from 'src/common/dtos/global.dto';
 export class CreateRoleDto {
   @ApiProperty({ example: 'admin' })
   @IsNotEmpty()
@@ -8,7 +10,6 @@ export class CreateRoleDto {
   @ApiProperty()
   @IsOptional()
   description?: string;
-  22;
 
   @ApiProperty()
   @IsOptional()
@@ -44,4 +45,10 @@ export class CreateRolePermissionResourceActionDto {
   @ApiProperty()
   @IsNotEmpty()
   permission_action_id: string;
+}
+
+export class SearchRoleDto extends PartialType(PaginationDto) {
+  @ApiProperty()
+  @Optional()
+  search?: string;
 }

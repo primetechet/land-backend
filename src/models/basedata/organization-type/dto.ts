@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/swagger';
-import { IsOptional, IsString, IsObject } from 'class-validator';
+import { IsOptional, IsString, IsObject, IsBoolean } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PaginationDto } from 'src/common/dtos/global.dto';
 
@@ -38,7 +38,13 @@ export class CreateOrganizationTypeDto {
   @IsObject()
   description_json?: Record<string, string>;
 
-  created_by_id: string;
+  @ApiPropertyOptional({
+    description: 'Whether the country is in draft mode',
+    example: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  draft?: boolean;
 }
 
 export class SearchOrganizationTypeDto extends PartialType(PaginationDto) {
@@ -47,6 +53,4 @@ export class SearchOrganizationTypeDto extends PartialType(PaginationDto) {
 
 export class UpdateOrganizationTypeDto extends PartialType(
   CreateOrganizationTypeDto,
-) {
-  updated_by_id: string;
-}
+) {}

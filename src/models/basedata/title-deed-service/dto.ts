@@ -102,6 +102,4 @@ export class SearchTitleDeedServiceDto extends PartialType(PaginationDto) {
 
 export class UpdateTitleDeedServiceDto extends PartialType(
   CreateTitleDeedServiceDto,
-) {
-  updated_by_id: string;
-}
+) {}

@@ -7,9 +7,10 @@ import {
   Delete,
   HttpException,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
-import { CreateRoleDto } from './dto/create-role.dto';
+import { CreateRoleDto, SearchRoleDto } from './dto/create-role.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { Resource } from 'src/common/decorators/resource.decorator';
@@ -44,6 +45,11 @@ export class RoleController {
     }
 
     return this.roleService.create(createRoleDto);
+  }
+
+  @Get('paginated')
+  findAllPaginated(@Query() payload: any) {
+    return this.roleService.findAllPaginated(payload);
   }
 
   @Get()

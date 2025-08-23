@@ -26,7 +26,7 @@ export class PermissionActionController {
   constructor(private readonly permissionService: PermissionActionService) {}
 
   @Post()
-  @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.CREATE] }])
+  // @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.CREATE] }])
   async create(
     @Body() createPermissionActionActionDto: CreatePermissionActionDto,
   ) {

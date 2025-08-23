@@ -1,8 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Role } from '@prisma/client';
-import { CreateRoleDto } from './dto/create-role.dto';
+import { CreateRoleDto, SearchRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { DatabaseService } from 'src/common/database/database.service';
+import { paginate } from 'src/common/utils/paginater';
 
 @Injectable()
 export class RoleService {
@@ -41,6 +42,23 @@ export class RoleService {
       );
     });
     return role;
+  }
+
+  async findAllPaginated(options: SearchRoleDto) {
+    const { search } = options;
+    const where: any = {};
+
+    if (search) {
+      where.name = { contains: search, mode: 'insensitive' };
+    }
+
+    return await paginate(
+      this.prisma.role,
+      {
+        where,
+      },
+      { page: +options.page, perPage: +options.limit },
+    );
   }
 
   async update(id: string, data: UpdateRoleDto): Promise<Role> {

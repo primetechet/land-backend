@@ -57,7 +57,6 @@ export class DisabilityStatusController {
       );
     }
 
-    createDisabilityStatusDto.created_by_id = request.user.sub;
     return this.disabilityStatusService.create(createDisabilityStatusDto);
   }
 

@@ -81,6 +81,4 @@ export class SearchCountryDto extends PartialType(PaginationDto) {
   is_neighbor?: String;
 }
 
-export class UpdateCountryDto extends PartialType(CreateCountryDto) {
-  updated_by_id: string;
-}
+export class UpdateCountryDto extends PartialType(CreateCountryDto) {}

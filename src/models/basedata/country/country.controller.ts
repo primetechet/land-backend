@@ -55,8 +55,6 @@ export class CountryController {
       );
     }
 
-    console.log(request.user);
-
     return this.countryService.create(createCountryDto, request);
   }
 

@@ -52,6 +52,4 @@ export class SearchTitleDeedServiceBranchDto extends PartialType(
 
 export class UpdateTitleDeedServiceBranchDto extends PartialType(
   CreateTitleDeedServiceBranchDto,
-) {
-  updated_by_id: string;
-}
+) {}

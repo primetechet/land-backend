@@ -58,6 +58,4 @@ export class SearchRegionDto extends PartialType(PaginationDto) {
   search?: string;
 }
 
-export class UpdateRegionDto extends PartialType(CreateRegionDto) {
-  updated_by_id: string;
-}
+export class UpdateRegionDto extends PartialType(CreateRegionDto) {}

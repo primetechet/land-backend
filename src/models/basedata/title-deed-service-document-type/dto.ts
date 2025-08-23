@@ -65,6 +65,4 @@ export class SearchTitleDeedServiceDocumentTypeDto extends PartialType(
 
 export class UpdateTitleDeedServiceDocumentTypeDto extends PartialType(
   CreateTitleDeedServiceDocumentTypeDto,
-) {
-  updated_by_id: string;
-}
+) {}

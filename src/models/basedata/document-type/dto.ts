@@ -102,6 +102,4 @@ export class SearchDocumentTypeDto extends PartialType(PaginationDto) {
   search?: string;
 }
 
-export class UpdateDocumentTypeDto extends PartialType(CreateDocumentTypeDto) {
-  updated_by_id: string;
-}
+export class UpdateDocumentTypeDto extends PartialType(CreateDocumentTypeDto) {}

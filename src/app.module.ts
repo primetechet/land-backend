@@ -29,6 +29,9 @@ import { TitleDeedApplicationReviewModule } from './models/title-deed-applicatio
 import { MinioClientModule } from './common/minio-client/minio-client.module';
 import { TitleDeedApplicationClientDocumentModule } from './models/title-deed-application-client-document/title-deed-application-client-document.module';
 import { TitleDeedApplicationDocumentModule } from './models/title-deed-application-document/title-deed-application-document.module';
+import { PermissionActionModule } from './models/auth/permission-action/permission-action.module';
+import { PermissionResourceModule } from './models/auth/permission-resource/permission-resource.module';
+import { RoleModule } from './models/auth/role/role.module';
 
 @Module({
   imports: [
@@ -65,6 +68,9 @@ import { TitleDeedApplicationDocumentModule } from './models/title-deed-applicat
     MinioClientModule,
     TitleDeedApplicationClientDocumentModule,
     TitleDeedApplicationDocumentModule,
+    PermissionActionModule,
+    PermissionResourceModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

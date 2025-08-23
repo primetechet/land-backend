@@ -95,32 +95,32 @@ export class EmployeeAuthService {
         require_password_change: true,
         is_active: true,
         is_suspended: true,
-        // userRoles: {
-        //   select: {
-        //     role: {
-        //       select: {
-        //         id: true,
-        //         name: true,
-        //         rolePermissionResources: {
-        //           select: {
-        //             rolePermissionResourceActions: {
-        //               select: {
-        //                 permissionAction: {
-        //                   select: { id: true, action: true },
-        //                 },
-        //               },
-        //             },
-        //             permissionResource: {
-        //               select: {
-        //                 name: true,
-        //               },
-        //             },
-        //           },
-        //         },
-        //       },
-        //     },
-        //   },
-        // },
+        employeeRoles: {
+          select: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                rolePermissionResources: {
+                  select: {
+                    rolePermissionResourceActions: {
+                      select: {
+                        permissionAction: {
+                          select: { id: true, action: true },
+                        },
+                      },
+                    },
+                    permissionResource: {
+                      select: {
+                        name: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
   }
