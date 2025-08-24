@@ -32,6 +32,9 @@ import { TitleDeedApplicationDocumentModule } from './models/title-deed-applicat
 import { PermissionActionModule } from './models/auth/permission-action/permission-action.module';
 import { PermissionResourceModule } from './models/auth/permission-resource/permission-resource.module';
 import { RoleModule } from './models/auth/role/role.module';
+import { LandUseModule } from './models/basedata/land-use/land-use.module';
+import { LandGradeModule } from './models/basedata/land-grade/land-grade.module';
+import { PlotModule } from './models/plot/plot.module';
 
 @Module({
   imports: [
@@ -71,6 +74,9 @@ import { RoleModule } from './models/auth/role/role.module';
     PermissionActionModule,
     PermissionResourceModule,
     RoleModule,
+    LandUseModule,
+    LandGradeModule,
+    PlotModule,
   ],
   controllers: [AppController],
   providers: [AppService],

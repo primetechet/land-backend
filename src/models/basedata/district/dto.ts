@@ -64,6 +64,7 @@ export class CreateDistrictDto {
 export class SearchDistrictDto extends PartialType(PaginationDto) {
   search?: string;
   region_id?: string;
+  region_code?: string;
 }
 
 export class UpdateDistrictDto extends PartialType(CreateDistrictDto) {}

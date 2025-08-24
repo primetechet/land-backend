@@ -107,6 +107,7 @@ model TitleDeedApplication {
   titleDeedApplicationReviews         TitleDeedApplicationReview[]
   titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
   titleDeedApplicationDocuments       TitleDeedApplicationDocument[]
+  plots                               Plot[]
 
   @@map("title_deed_applications")
 }
@@ -223,6 +224,56 @@ model TitleDeedApplicationOwner {
   @@map("title_deed_application_owners")
 }
 
+//Plot
+model Plot {
+  id                        String  @id @default(uuid())
+  plot_id                   String  @unique
+  // polygon                   Unsupported("geometry")
+  block_number              String
+  house_number              String
+  area_meter_square         Float
+  remark                    String?
+  title_deed_application_id String
+  land_use_id               String
+  land_grade_id             String
+  woreda_id                 String
+  branch_id                 String
+
+  base_map_approved       Boolean   @default(false)
+  base_map_approved_at    DateTime?
+  base_map_approved_by_id String?
+  base_map_approver_note  String?
+  plot_registered_at      DateTime  @default(now())
+  plot_registered_by_id   String
+  plot_registration_note  String?
+  authorized              Boolean   @default(false)
+  authorized_at           DateTime?
+  authorized_by_id        String?
+  authorizer_note         String?
+  rejected                Boolean   @default(false)
+  rejected_at             DateTime?
+  rejected_by_id          String?
+  rejecter_note           String?
+  rejection_reason_id     String?
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+  created_by_id           String?
+  updated_by_id           String?
+
+  landUse              LandUse              @relation(fields: [land_use_id], references: [id])
+  landGrade            LandGrade            @relation(fields: [land_grade_id], references: [id])
+  titleDeedApplication TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
+  woreda               Woreda               @relation(fields: [woreda_id], references: [id])
+  branch               Branch               @relation(fields: [branch_id], references: [id])
+  rejectionReason      RejectionReason?     @relation(fields: [rejection_reason_id], references: [id])
+  rejectedBy           Employee?            @relation("rejectedBy", fields: [rejected_by_id], references: [id])
+  authorizedBy         Employee?            @relation("authorizedBy", fields: [authorized_by_id], references: [id])
+  plotRegisteredBy     Employee             @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
+  baseMapApprovedBy    Employee?            @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
+
+  @@map("plots")
+}
+
 //AUTHENTICATION
 model User {
   id                             String    @id @default(uuid())
@@ -300,6 +351,10 @@ model Employee {
   rejectedTitleDeedApplicationClientDocument TitleDeedApplicationClientDocument[] @relation("rejectedBy")
   verifiedTitleDeedApplicationClientDocument TitleDeedApplicationClientDocument[] @relation("verifiedBy")
   titleDeedApplicationDocuments              TitleDeedApplicationDocument[]
+  rejectedPlot                               Plot[]                               @relation("rejectedBy")
+  authorizedPlot                             Plot[]                               @relation("authorizedBy")
+  baseMapApprovedPlot                        Plot[]                               @relation("baseMapApprovedBy")
+  plotRegisteredPlot                         Plot[]                               @relation("plotRegisteredBy")
 
   @@map("employees")
 }
@@ -524,6 +579,7 @@ model Branch {
   updated_by_id            String?
   titleDeedServiceBranches TitleDeedServiceBranch[]
   titleDeedApplications    TitleDeedApplication[]
+  Plot                     Plot[]
 
   @@map("branches")
 }
@@ -652,6 +708,7 @@ model Woreda {
   branches                   Branch[]
   titleDeedApplications      TitleDeedApplication[]
   titleDeedApplicationOwners TitleDeedApplicationOwner[]
+  plots                      Plot[]
 
   @@unique([name, district_id])
   @@unique([zip_code, district_id])
@@ -715,6 +772,43 @@ model RejectionReason {
   updated_by_id                       String?
   titleDeedApplications               TitleDeedApplication[]
   titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
+  plots                               Plot[]
 
   @@map("rejection_reasons")
+}
+
+model LandUse {
+  id               String    @id @default(uuid())
+  name             String    @unique
+  name_json        Json      @default("{}")
+  description      String?
+  description_json Json?     @default("{}")
+  draft            Boolean   @default(false)
+  drafted_at       DateTime?
+  drafted_by_id    String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  created_by_id    String?
+  updated_by_id    String?
+  plots            Plot[]
+
+  @@map("land_uses")
+}
+
+model LandGrade {
+  id               String    @id @default(uuid())
+  name             String    @unique
+  name_json        Json      @default("{}")
+  description      String?
+  description_json Json?     @default("{}")
+  draft            Boolean   @default(false)
+  drafted_at       DateTime?
+  drafted_by_id    String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  created_by_id    String?
+  updated_by_id    String?
+  plots            Plot[]
+
+  @@map("land_grades")
 }

@@ -228,6 +228,20 @@ async function seedGeographyAndTitleDeeds() {
     create: { name: 'None' },
   });
 
+  // 7️⃣ Land Use Status
+  const landUse = await prisma.landUse.upsert({
+    where: { name: 'Residency' },
+    update: {},
+    create: { name: 'Residency' },
+  });
+
+  // 7️⃣ Land Grade Status
+  const landGrade = await prisma.landGrade.upsert({
+    where: { name: '1-1' },
+    update: {},
+    create: { name: '1-1' },
+  });
+
   // 8️⃣ Title Deed Services
   const landRegistrationService = await prisma.titleDeedService.upsert({
     where: { name: 'Land Registration' },
