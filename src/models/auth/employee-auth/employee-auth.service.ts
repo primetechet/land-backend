@@ -6,6 +6,7 @@ import { I18nTranslations } from 'src/generated/i18n.generated';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import {
+  AuthPermission,
   EmployeeTokenClaim,
   IEmployeeLogin,
   IUserRole,
@@ -20,7 +21,9 @@ export class EmployeeAuthService {
   ) {}
 
   async login(loginDto: EmployeeLoginDto, ip_address: string) {
-    const user = await this.getEmployeeLoginDetail(loginDto.username);
+    const user: any = await this.getEmployeeLoginDetail(loginDto.username);
+
+    user.resourcePermissions = await this.convertRolePermissions(user.id);
 
     if (!user) {
       throw new HttpException(
@@ -78,7 +81,9 @@ export class EmployeeAuthService {
   async me(token: EmployeeTokenClaim) {
     const user = await this.getEmployeeLoginDetail(token.user.username);
 
-    return { ...user, server_time: new Date() };
+    const resourcePermissions = await this.convertRolePermissions(user.id);
+
+    return { ...user, resourcePermissions, server_time: new Date() };
   }
 
   async getEmployeeLoginDetail(username: string) {
@@ -95,33 +100,41 @@ export class EmployeeAuthService {
         require_password_change: true,
         is_active: true,
         is_suspended: true,
-        employeeRoles: {
-          select: {
-            role: {
-              select: {
-                id: true,
-                name: true,
-                rolePermissionResources: {
-                  select: {
-                    rolePermissionResourceActions: {
-                      select: {
-                        permissionAction: {
-                          select: { id: true, action: true },
-                        },
-                      },
-                    },
-                    permissionResource: {
-                      select: {
-                        name: true,
-                      },
-                    },
-                  },
-                },
+      },
+    });
+  }
+
+  private async convertRolePermissions(employee_id) {
+    const rolePermissionResources =
+      await this.prisma.rolePermissionResource.findMany({
+        where: {
+          role: { employeeRoles: { some: { employee_id: employee_id } } },
+        },
+        select: {
+          rolePermissionResourceActions: {
+            select: {
+              permissionAction: {
+                select: { id: true, action: true },
               },
             },
           },
+          permissionResource: {
+            select: {
+              name: true,
+            },
+          },
         },
-      },
+      });
+
+    return rolePermissionResources.map((rolePermissionResource) => {
+      return {
+        resource: rolePermissionResource.permissionResource.name,
+        permissions: rolePermissionResource.rolePermissionResourceActions.map(
+          (rolePermissionResourceAction) => {
+            return rolePermissionResourceAction.permissionAction.action;
+          },
+        ),
+      };
     });
   }
 
@@ -137,7 +150,7 @@ export class EmployeeAuthService {
     const jwtPayload: {
       sub: string;
       username: string;
-      roles?: IUserRole[];
+      resourcePermissions?: AuthPermission[];
       license_application_id?: string;
       username_verified: boolean;
       language: string;
@@ -149,7 +162,7 @@ export class EmployeeAuthService {
     };
 
     if ('userRoles' in user && user.userRoles) {
-      jwtPayload.roles = user.userRoles;
+      jwtPayload.resourcePermissions = user.resourcePermissions;
     }
 
     const accessToken = this.jwtService.sign(jwtPayload, {

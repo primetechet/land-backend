@@ -27,7 +27,7 @@ import { ACTIONS } from 'src/common/constants/actions';
 import { DatabaseService } from 'src/common/database/database.service';
 import { Resource } from 'src/common/decorators/resource.decorator';
 
-@ApiTags('country')
+@ApiTags('basedata/country')
 @ApiBearerAuth()
 @Controller('country')
 export class CountryController {

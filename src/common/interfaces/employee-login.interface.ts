@@ -31,7 +31,12 @@ export interface IEmployeeLogin {
       code: string;
     };
   }[];
-  userRoles: IUserRole[];
+  resourcePermissions: AuthPermission[];
+}
+
+export interface AuthPermission {
+  resource: string;
+  permissions: string[];
 }
 
 export interface EmployeeTokenClaim {
