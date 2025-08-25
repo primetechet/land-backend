@@ -38,6 +38,7 @@ export class ValidateTitleDeedApplicationReviewDto {
   @IsOptional()
   validator_note: string;
 
+  @IsOptional()
   validated_by_id: string;
 }
 
@@ -46,6 +47,7 @@ export class AuthorizeTitleDeedApplicationReviewDto {
   @IsOptional()
   authorizer_note: string;
 
+  @IsOptional()
   authorized_by_id: string;
 }
 export class RejectTitleDeedApplicationReviewDto {
@@ -64,5 +66,6 @@ export class SearchTitleDeedApplicationReviewDto extends PartialType(
   PaginationDto,
 ) {
   search?: string;
+  role?: string;
   reviewer_id?: string;
 }

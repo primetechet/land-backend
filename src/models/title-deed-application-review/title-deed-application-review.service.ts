@@ -296,7 +296,7 @@ export class TitleDeedApplicationReviewService {
   }
 
   async findAllPaginated(options: SearchTitleDeedApplicationReviewDto) {
-    const { search, reviewer_id } = { ...options };
+    const { search, reviewer_id, role } = { ...options };
     const where: any = {};
 
     if (search) {
@@ -312,6 +312,10 @@ export class TitleDeedApplicationReviewService {
       });
 
       where.employee_id = employee.id;
+    }
+
+    if (role) {
+      where.role = role;
     }
 
     return paginate(
@@ -395,14 +399,18 @@ export class TitleDeedApplicationReviewService {
     };
   }
 
-  async authorize(id: string, data: AuthorizeTitleDeedApplicationReviewDto) {
+  async authorize(
+    id: string,
+    data: AuthorizeTitleDeedApplicationReviewDto,
+    request: EmployeeTokenClaim,
+  ) {
     const titleDeedApplicationReview =
       await this.prisma.titleDeedApplicationReview.findUnique({
         where: { id: id },
       });
 
     const employee = await this.prisma.employee.findUnique({
-      where: { id: data.authorized_by_id },
+      where: { id: request.user.sub },
     });
 
     if (!employee) {
@@ -571,24 +579,33 @@ export class TitleDeedApplicationReviewService {
       );
     }
 
-    const titleDeedApplication = await this.prisma.titleDeedApplication.update({
-      where: { id: titleDeedApplicationReview.titleDeedApplication.id },
-      data: {
-        archived: true,
-        archive_note: archiveTitleDeedApplicationReviewDto.archive_note,
-        archived_by_id: request.user.sub,
-        archived_at: new Date(),
-      },
+    await this.prisma.$transaction(async (tx) => {
+      await tx.titleDeedApplicationReview.update({
+        where: { id: id },
+        data: {
+          completed: true,
+          note: archiveTitleDeedApplicationReviewDto.archive_note,
+          completed_by_id: request.user.sub,
+          completed_at: new Date(),
+        },
+      });
+
+      await tx.titleDeedApplication.update({
+        where: {
+          id: titleDeedApplicationReview.titleDeedApplication.id,
+        },
+        data: {
+          archived: true,
+          archive_note: archiveTitleDeedApplicationReviewDto.archive_note,
+          archived_by_id: request.user.sub,
+          archived_at: new Date(),
+        },
+      });
     });
 
     return {
-      data: titleDeedApplication,
-      message: this.i18n.t('success-messages.resource-verified', {
-        args: {
-          Resource: 'title-deed-application',
-        },
-      }),
+      data: titleDeedApplicationReview,
+      message: 'Archive action completed!',
     };
-    return null;
   }
 }

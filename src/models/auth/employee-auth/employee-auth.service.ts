@@ -1,4 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { EmployeeLoginDto } from './dto';
 import { DatabaseService } from 'src/common/database/database.service';
 import { I18nService } from 'nestjs-i18n';
@@ -84,6 +88,16 @@ export class EmployeeAuthService {
     const resourcePermissions = await this.convertRolePermissions(user.id);
 
     return { ...user, resourcePermissions, server_time: new Date() };
+  }
+
+  async refreshToken(token: EmployeeTokenClaim) {
+    if (!token.user.username) {
+      throw new UnauthorizedException(
+        this.i18n.t('error-messages.auth.invalid-token'),
+      );
+    }
+    const user = await this.getEmployeeLoginDetail(token.user.username);
+    if (user) return this.generateJwtToken(user);
   }
 
   async getEmployeeLoginDetail(username: string) {

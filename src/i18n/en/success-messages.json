@@ -15,6 +15,7 @@
   "resource-validated": "$t(keywords.resources.{Resource}) validated",
   "resource-completed": "$t(keywords.resources.{Resource}) completed",
   "resource-flagged": "$t(keywords.resources.{Resource}) is flagged",
+  "resource-archived": "$t(keywords.resources.{Resource}) archived",
   "checked-in": "Checked in",
   "paid": "Paid"
 }

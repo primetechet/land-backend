@@ -57,14 +57,6 @@ export class CreatePlotDto {
   @ApiProperty({ description: 'Land grade ID' })
   @IsUUID()
   land_grade_id: string;
-
-  @ApiProperty({ description: 'Woreda ID' })
-  @IsUUID()
-  woreda_id: string;
-
-  @ApiProperty({ description: 'Branch ID' })
-  @IsUUID()
-  branch_id: string;
 }
 
 export class SearchPlotDto extends PartialType(PaginationDto) {

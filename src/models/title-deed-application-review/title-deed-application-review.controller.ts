@@ -152,23 +152,22 @@ export class TitleDeedApplicationReviewController {
   }
 
   @Post(':id/authorize')
-  @Resource([
-    {
-      resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
-      actions: [ACTIONS.AUTHORIZE],
-    },
-  ])
+  // @Resource([
+  //   {
+  //     resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
+  //     actions: [ACTIONS.AUTHORIZE],
+  //   },
+  // ])
   authorize(
     @Request() request,
     @Param('id') id: string,
     @Body()
     authorizeTitleDeedApplicationReviewDto: AuthorizeTitleDeedApplicationReviewDto,
   ) {
-    authorizeTitleDeedApplicationReviewDto.authorized_by_id = request.user.sub;
-
     return this.titleDeedApplicationReviewService.authorize(
       id,
       authorizeTitleDeedApplicationReviewDto,
+      request,
     );
   }
 
