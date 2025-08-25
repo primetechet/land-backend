@@ -229,17 +229,31 @@ async function seedGeographyAndTitleDeeds() {
   });
 
   // 7️⃣ Land Use Status
-  const landUse = await prisma.landUse.upsert({
+  await prisma.landUse.upsert({
     where: { name: 'Residency' },
     update: {},
     create: { name: 'Residency' },
   });
 
   // 7️⃣ Land Grade Status
-  const landGrade = await prisma.landGrade.upsert({
+  await prisma.landGrade.upsert({
     where: { name: '1-1' },
     update: {},
     create: { name: '1-1' },
+  });
+
+  // 7️⃣ Land Use Status
+  await prisma.propertyUse.upsert({
+    where: { name: 'Residency' },
+    update: {},
+    create: { name: 'Residency' },
+  });
+
+  // 7️⃣ Land Grade Status
+  await prisma.propertyType.upsert({
+    where: { name: 'Vila' },
+    update: {},
+    create: { name: 'Vila' },
   });
 
   // 8️⃣ Title Deed Services
