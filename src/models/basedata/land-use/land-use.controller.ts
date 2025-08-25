@@ -11,6 +11,7 @@ import {
 import { LandUseService } from './land-use.service';
 import { CreateLandUseDto, UpdateLandUseDto, SearchLandUseDto } from './dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('Land Uses')
 @Controller('land-use')

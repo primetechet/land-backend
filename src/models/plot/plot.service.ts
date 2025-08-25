@@ -29,6 +29,9 @@ export class PlotService {
         branch_id: titleDeedApplication.branch_id,
         plot_registered_by_id: request.user.sub,
       },
+      select: {
+        id: true,
+      },
     });
   }
 

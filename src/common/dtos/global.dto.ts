@@ -15,9 +15,6 @@ export class PaginationDto {
   @IsOptional()
   limit?: number = 10;
 
-  properties?: VariableProperties<searchValueType>;
-  sorting?: VariableProperties<string>;
-
   @IsOptional()
   sort_by: string = 'created_at';
 
