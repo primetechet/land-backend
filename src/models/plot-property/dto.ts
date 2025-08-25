@@ -66,8 +66,6 @@ export class CreatePlotPropertyDto {
   @ApiProperty({ description: 'Property type ID (FK)' })
   @IsUUID()
   property_type_id: string;
-
-  created_by_id: string;
 }
 
 export class SearchPlotPropertyDto extends PartialType(PaginationDto) {
