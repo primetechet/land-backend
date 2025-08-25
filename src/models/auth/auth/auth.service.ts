@@ -1,4 +1,8 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { LoginDto } from './dto';
 import { DatabaseService } from 'src/common/database/database.service';
 import { I18nService } from 'nestjs-i18n';
@@ -79,6 +83,16 @@ export class AuthService {
     const user = await this.getLoginDetail(token.user.username);
 
     return { ...user, server_time: new Date() };
+  }
+
+  async refreshToken(token: TokenClaim) {
+    if (!token.user.username) {
+      throw new UnauthorizedException(
+        this.i18n.t('error-messages.auth.invalid-token'),
+      );
+    }
+    const user = await this.getLoginDetail(token.user.username);
+    if (user) return this.generateJwtToken(user);
   }
 
   async getLoginDetail(username: string) {
