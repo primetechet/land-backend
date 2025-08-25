@@ -19,7 +19,7 @@ import {
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Plot Properties')
-@Controller('plot-properties')
+@Controller('plot-property')
 export class PlotPropertyController {
   constructor(private readonly service: PlotPropertyService) {}
 

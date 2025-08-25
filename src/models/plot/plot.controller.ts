@@ -15,7 +15,7 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 
 @ApiTags('Plots')
-@Controller('plots')
+@Controller('plot')
 export class PlotController {
   constructor(private readonly plotService: PlotService) {}
 

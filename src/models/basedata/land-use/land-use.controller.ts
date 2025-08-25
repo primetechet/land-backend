@@ -13,7 +13,7 @@ import { CreateLandUseDto, UpdateLandUseDto, SearchLandUseDto } from './dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Land Uses')
-@Controller('land-uses')
+@Controller('land-use')
 export class LandUseController {
   constructor(private readonly landUseService: LandUseService) {}
 

@@ -17,7 +17,7 @@ import {
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Land Grades')
-@Controller('land-grades')
+@Controller('land-grade')
 export class LandGradeController {
   constructor(private readonly landGradeService: LandGradeService) {}
 
