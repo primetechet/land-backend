@@ -16,7 +16,7 @@ export class PlotService {
 
     return await this.prisma.plot.create({
       data: {
-        plot_id: createDto.plot_id,
+        plot_id: 'TAKE_FROM_TRIGGER',
         block_number: createDto.block_number,
         house_number: createDto.house_number,
         area_meter_square: createDto.area_meter_square,

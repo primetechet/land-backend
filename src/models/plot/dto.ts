@@ -11,11 +11,21 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreatePlotDto {
-  @ApiProperty({ description: 'Unique plot identifier', example: 'PLT-000123' })
-  @IsString()
-  plot_id: string;
-
-  @ApiProperty({ description: 'Geometry polygon in WKT or GeoJSON format' })
+  @ApiProperty({
+    description: 'Geometry polygon in WKT or GeoJSON format',
+    example: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [39.123, 9.123],
+          [39.124, 9.123],
+          [39.124, 9.124],
+          [39.123, 9.124],
+          [39.123, 9.123],
+        ],
+      ],
+    },
+  })
   @IsObject()
   polygon: any; // you may validate GeoJSON separately
 

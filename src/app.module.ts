@@ -35,6 +35,9 @@ import { RoleModule } from './models/auth/role/role.module';
 import { LandUseModule } from './models/basedata/land-use/land-use.module';
 import { LandGradeModule } from './models/basedata/land-grade/land-grade.module';
 import { PlotModule } from './models/plot/plot.module';
+import { PlotPropertyModule } from './models/plot-property/plot-property.module';
+import { PropertyTypeModule } from './models/basedata/property-type/property-type.module';
+import { PropertyUseModule } from './models/basedata/property-use/property-use.module';
 
 @Module({
   imports: [
@@ -77,6 +80,9 @@ import { PlotModule } from './models/plot/plot.module';
     LandUseModule,
     LandGradeModule,
     PlotModule,
+    PlotPropertyModule,
+    PropertyTypeModule,
+    PropertyUseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

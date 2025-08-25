@@ -270,8 +270,56 @@ model Plot {
   authorizedBy         Employee?            @relation("authorizedBy", fields: [authorized_by_id], references: [id])
   plotRegisteredBy     Employee             @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
   baseMapApprovedBy    Employee?            @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
+  plotProperties       PlotProperty[]
 
   @@map("plots")
+}
+
+model PlotProperty {
+  id                         String  @id @default(uuid())
+  property_id                String  @unique
+  // polygon                   Unsupported("geometry")
+  basement_floor_number      String
+  upper_floor_number         String
+  building_number            String
+  house_number               String
+  floor_number               String
+  estimated_price            Float
+  area_meter_square          Float
+  parking_area_meter_square  Float
+  building_size_meter_square Float
+  number_of_lift             Int
+  remark                     String?
+  plot_id                    String
+  property_use_id            String
+  property_type_id           String
+
+  base_map_approved       Boolean   @default(false)
+  base_map_approved_at    DateTime?
+  base_map_approved_by_id String?
+  base_map_approver_note  String?
+  plot_registered_at      DateTime  @default(now())
+  plot_registered_by_id   String
+  plot_registration_note  String?
+  rejected                Boolean   @default(false)
+  rejected_at             DateTime?
+  rejected_by_id          String?
+  rejecter_note           String?
+  rejection_reason_id     String?
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+  created_by_id           String?
+  updated_by_id           String?
+
+  propertyUse       PropertyUse      @relation(fields: [property_use_id], references: [id])
+  propertyType      PropertyType     @relation(fields: [property_type_id], references: [id])
+  plot              Plot             @relation(fields: [plot_id], references: [id])
+  rejectionReason   RejectionReason? @relation(fields: [rejection_reason_id], references: [id])
+  rejectedBy        Employee?        @relation("rejectedBy", fields: [rejected_by_id], references: [id])
+  plotRegisteredBy  Employee         @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
+  baseMapApprovedBy Employee?        @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
+
+  @@map("plot_properties")
 }
 
 //AUTHENTICATION
@@ -355,6 +403,9 @@ model Employee {
   authorizedPlot                             Plot[]                               @relation("authorizedBy")
   baseMapApprovedPlot                        Plot[]                               @relation("baseMapApprovedBy")
   plotRegisteredPlot                         Plot[]                               @relation("plotRegisteredBy")
+  rejectedPlotProperty                       PlotProperty[]                       @relation("rejectedBy")
+  baseMapApprovedPlotProperty                PlotProperty[]                       @relation("baseMapApprovedBy")
+  plotRegisteredPlotProperty                 PlotProperty[]                       @relation("plotRegisteredBy")
 
   @@map("employees")
 }
@@ -773,6 +824,7 @@ model RejectionReason {
   titleDeedApplications               TitleDeedApplication[]
   titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
   plots                               Plot[]
+  plotProperties                      PlotProperty[]
 
   @@map("rejection_reasons")
 }
@@ -811,4 +863,40 @@ model LandGrade {
   plots            Plot[]
 
   @@map("land_grades")
+}
+
+model PropertyType {
+  id               String         @id @default(uuid())
+  name             String         @unique
+  name_json        Json           @default("{}")
+  description      String?
+  description_json Json?          @default("{}")
+  draft            Boolean        @default(false)
+  drafted_at       DateTime?
+  drafted_by_id    String?
+  created_at       DateTime       @default(now())
+  updated_at       DateTime       @updatedAt
+  created_by_id    String?
+  updated_by_id    String?
+  plotProperties   PlotProperty[]
+
+  @@map("property_types")
+}
+
+model PropertyUse {
+  id               String         @id @default(uuid())
+  name             String         @unique
+  name_json        Json           @default("{}")
+  description      String?
+  description_json Json?          @default("{}")
+  draft            Boolean        @default(false)
+  drafted_at       DateTime?
+  drafted_by_id    String?
+  created_at       DateTime       @default(now())
+  updated_at       DateTime       @updatedAt
+  created_by_id    String?
+  updated_by_id    String?
+  plotProperties   PlotProperty[]
+
+  @@map("property_uses")
 }
