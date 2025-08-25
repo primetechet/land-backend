@@ -70,7 +70,7 @@ export class TitleDeedApplicationController {
   @ApiOperation({ summary: 'Get paginated applications' })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
-  findAllPaginated(@Query() payload: any) {
+  findAllPaginated(@Query() payload: any, @Request() request) {
     return this.service.findAllPaginated(payload);
   }
 

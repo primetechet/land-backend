@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  Request,
 } from '@nestjs/common';
 import { PlotService } from './plot.service';
 import { CreatePlotDto, UpdatePlotDto, SearchPlotDto } from './dto';
@@ -20,7 +21,10 @@ export class PlotController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new plot' })
-  create(@Body() createDto: CreatePlotDto, request: EmployeeTokenClaim) {
+  create(
+    @Body() createDto: CreatePlotDto,
+    @Request() request: EmployeeTokenClaim,
+  ) {
     return this.plotService.create(createDto, request);
   }
 
