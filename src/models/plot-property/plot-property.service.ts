@@ -75,10 +75,9 @@ export class PlotPropertyService {
         ],
       },
       include: {
-        propertyUse: true,
-        propertyType: true,
-        plot: true,
-        rejectionReason: true,
+        propertyType: { select: { id: true, name: true } },
+        propertyUse: { select: { id: true, name: true } },
+        rejectionReason: { select: { id: true, name: true } },
       },
     });
   }
@@ -133,10 +132,9 @@ export class PlotPropertyService {
     const record = await this.prisma.plotProperty.findUnique({
       where: { id },
       include: {
-        propertyUse: true,
-        propertyType: true,
-        plot: true,
-        rejectionReason: true,
+        propertyType: { select: { id: true, name: true } },
+        propertyUse: { select: { id: true, name: true } },
+        rejectionReason: { select: { id: true, name: true } },
       },
     });
     if (!record) throw new NotFoundException('Plot property not found');

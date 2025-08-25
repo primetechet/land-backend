@@ -3,6 +3,7 @@ import { DatabaseService } from 'src/common/database/database.service';
 import { paginate } from 'src/common/utils/paginater';
 import { CreatePlotDto, UpdatePlotDto, SearchPlotDto } from './dto';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
+import { PaginationDto } from 'src/common/dtos/global.dto';
 
 @Injectable()
 export class PlotService {
@@ -102,15 +103,32 @@ export class PlotService {
     );
   }
 
+  async plotProperty(id: string, pagination: PaginationDto) {
+    const { page = 1, limit = 10 } = pagination;
+
+    return paginate(
+      this.prisma.plotProperty,
+      {
+        where: { plot_id: id },
+        include: {
+          propertyType: { select: { id: true, name: true } },
+          propertyUse: { select: { id: true, name: true } },
+          rejectionReason: { select: { id: true, name: true } },
+        },
+      },
+      { page: +page, perPage: +limit },
+    );
+  }
+
   async findOne(id: string) {
     const record = await this.prisma.plot.findUnique({
       where: { id },
       include: {
-        landUse: true,
-        landGrade: true,
-        woreda: true,
-        branch: true,
-        rejectionReason: true,
+        landUse: { select: { id: true, name: true } },
+        landGrade: { select: { id: true, name: true } },
+        woreda: { select: { id: true, name: true } },
+        branch: { select: { id: true, name: true } },
+        rejectionReason: { select: { id: true, name: true } },
       },
     });
     if (!record) throw new NotFoundException('Plot not found');

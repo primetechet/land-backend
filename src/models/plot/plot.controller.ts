@@ -13,6 +13,7 @@ import { PlotService } from './plot.service';
 import { CreatePlotDto, UpdatePlotDto, SearchPlotDto } from './dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
+import { PaginationDto } from 'src/common/dtos/global.dto';
 
 @ApiTags('Plots')
 @Controller('plot')
@@ -38,6 +39,12 @@ export class PlotController {
   @ApiOperation({ summary: 'Get paginated plots with filters' })
   findAllPaginated(@Query() query: SearchPlotDto) {
     return this.plotService.findAllPaginated(query);
+  }
+
+  @Get(':id/property')
+  @ApiOperation({ summary: 'Get paginated plot properties' })
+  plotProperty(@Param('id') id: string, @Query() query: PaginationDto) {
+    return this.plotService.plotProperty(id, query);
   }
 
   @Get(':id')
