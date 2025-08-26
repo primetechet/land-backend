@@ -151,7 +151,7 @@ export class TitleDeedApplicationService {
     const where: any = {};
 
     return paginate(
-      this.prisma.titleDeedApplication,
+      this.prisma.plot,
       {
         where: { title_deed_application_id: id },
         include: {
