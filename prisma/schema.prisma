@@ -64,50 +64,54 @@ model TitleDeedApplication {
   branch_id             String
   user_id               String
 
-  submitted               Boolean   @default(false)
-  submitted_at            DateTime?
-  archived                Boolean   @default(false)
-  archived_at             DateTime?
-  archived_by_id          String?
-  archive_note            String?
-  verified                Boolean   @default(false)
-  verified_at             DateTime?
-  verified_by_id          String?
-  verifier_note           String?
-  plot_registered         Boolean   @default(false)
-  plot_registered_at      DateTime?
-  plot_registered_by_id   String?
-  plot_registration_note  String?
-  base_map_approved       Boolean   @default(false)
-  base_map_approved_at    DateTime?
-  base_map_approved_by_id String?
-  base_map_approver_note  String?
-  authorized              Boolean   @default(false)
-  authorized_at           DateTime?
-  authorized_by_id        String?
-  authorizer_note         String?
-  rejected                Boolean   @default(false)
-  rejected_at             DateTime?
-  rejected_by_id          String?
-  rejecter_note           String?
-  rejection_reason_id     String?
-  created_at              DateTime  @default(now())
-  updated_at              DateTime  @updatedAt
-  created_by_id           String?
-  updated_by_id           String?
+  submitted                  Boolean   @default(false)
+  submitted_at               DateTime?
+  archived                   Boolean   @default(false)
+  archived_at                DateTime?
+  archived_by_id             String?
+  archive_note               String?
+  appointment_required       Boolean   @default(false)
+  appointment_required_at    DateTime?
+  appointment_required_by_id String?
+  verified                   Boolean   @default(false)
+  verified_at                DateTime?
+  verified_by_id             String?
+  verifier_note              String?
+  plot_registered            Boolean   @default(false)
+  plot_registered_at         DateTime?
+  plot_registered_by_id      String?
+  plot_registration_note     String?
+  base_map_approved          Boolean   @default(false)
+  base_map_approved_at       DateTime?
+  base_map_approved_by_id    String?
+  base_map_approver_note     String?
+  authorized                 Boolean   @default(false)
+  authorized_at              DateTime?
+  authorized_by_id           String?
+  authorizer_note            String?
+  rejected                   Boolean   @default(false)
+  rejected_at                DateTime?
+  rejected_by_id             String?
+  rejecter_note              String?
+  rejection_reason_id        String?
+  created_at                 DateTime  @default(now())
+  updated_at                 DateTime  @updatedAt
+  created_by_id              String?
+  updated_by_id              String?
 
-  organizationType  OrganizationType? @relation(fields: [organization_type_id], references: [id])
-  titleDeedService  TitleDeedService  @relation(fields: [title_deed_service_id], references: [id])
-  woreda            Woreda            @relation(fields: [woreda_id], references: [id])
-  branch            Branch            @relation(fields: [branch_id], references: [id])
-  user              User              @relation(fields: [user_id], references: [id])
-  rejectionReason   RejectionReason?  @relation(fields: [rejection_reason_id], references: [id])
-  rejectedBy        Employee?         @relation("rejectedBy", fields: [rejected_by_id], references: [id])
-  verifiedBy        Employee?         @relation("verifiedBy", fields: [verified_by_id], references: [id])
-  archivedBy        Employee?         @relation("archivedBy", fields: [archived_by_id], references: [id])
-  authorizedBy      Employee?         @relation("authorizedBy", fields: [authorized_by_id], references: [id])
-  plotRegisteredBy  Employee?         @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
-  baseMapApprovedBy Employee?         @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
+  organizationType      OrganizationType? @relation(fields: [organization_type_id], references: [id])
+  titleDeedService      TitleDeedService  @relation(fields: [title_deed_service_id], references: [id])
+  woreda                Woreda            @relation(fields: [woreda_id], references: [id])
+  branch                Branch            @relation(fields: [branch_id], references: [id])
+  user                  User              @relation(fields: [user_id], references: [id])
+  rejectionReason       RejectionReason?  @relation(fields: [rejection_reason_id], references: [id])
+  rejectedBy            Employee?         @relation("rejectedBy", fields: [rejected_by_id], references: [id])
+  verifiedBy            Employee?         @relation("verifiedBy", fields: [verified_by_id], references: [id])
+  archivedBy            Employee?         @relation("archivedBy", fields: [archived_by_id], references: [id])
+  authorizedBy          Employee?         @relation("authorizedBy", fields: [authorized_by_id], references: [id])
+  plotRegisteredBy      Employee?         @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
+  baseMapApprovedBy     Employee?         @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
+  appointmentRequiredBy Employee?         @relation("appointmentRequiredBy", fields: [appointment_required_by_id], references: [id])
 
   titleDeedApplicationOwners          TitleDeedApplicationOwner[]
   titleDeedApplicationReviews         TitleDeedApplicationReview[]
@@ -115,6 +119,7 @@ model TitleDeedApplication {
   titleDeedApplicationDocuments       TitleDeedApplicationDocument[]
   plots                               Plot[]
   titleDeedApplicationPayments        TitleDeedApplicationPayment[]
+  titleDeedApplicationAppointments    TitleDeedApplicationAppointment[]
 
   @@map("title_deed_applications")
 }
@@ -249,6 +254,22 @@ model TitleDeedApplicationPayment {
   titleDeedApplication TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
 
   @@map("title_deed_application_payments")
+}
+
+model TitleDeedApplicationAppointment {
+  id                        String   @id @default(uuid())
+  date_time                 DateTime
+  title_deed_application_id String
+  remark                    String?
+
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  created_by_id String?
+  updated_by_id String?
+
+  titleDeedApplication TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
+
+  @@map("title_deed_application_appointments")
 }
 
 //Plot
@@ -425,6 +446,7 @@ model Employee {
   authorizedTitleDeedApplication             TitleDeedApplication[]               @relation("authorizedBy")
   baseMapApprovedTitleDeedApplication        TitleDeedApplication[]               @relation("baseMapApprovedBy")
   plotRegisteredTitleDeedApplication         TitleDeedApplication[]               @relation("plotRegisteredBy")
+  appointmentRequiredTitleDeedApplication    TitleDeedApplication[]               @relation("appointmentRequiredBy")
   rejectedTitleDeedApplicationClientDocument TitleDeedApplicationClientDocument[] @relation("rejectedBy")
   verifiedTitleDeedApplicationClientDocument TitleDeedApplicationClientDocument[] @relation("verifiedBy")
   titleDeedApplicationDocuments              TitleDeedApplicationDocument[]

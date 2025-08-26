@@ -47,6 +47,12 @@ export class PlotController {
     return this.plotService.plotProperty(id, query);
   }
 
+  @Get(':id/certificate')
+  @ApiOperation({ summary: 'Get paginated plot certificate data' })
+  plotCertificate(@Param('id') id: string) {
+    return this.plotService.plotCertificate(id);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a plot by ID' })
   findOne(@Param('id') id: string) {

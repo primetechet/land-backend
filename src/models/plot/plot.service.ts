@@ -123,6 +123,25 @@ export class PlotService {
     );
   }
 
+  async plotCertificate(id: string) {
+    const record = await this.prisma.plot.findUnique({
+      where: { id },
+      include: {
+        landUse: { select: { id: true, name: true } },
+        landGrade: { select: { id: true, name: true } },
+        woreda: { select: { id: true, name: true } },
+        branch: { select: { id: true, name: true } },
+        titleDeedApplication: {
+          include: {
+            titleDeedService: { select: { id: true, name: true } },
+          },
+        },
+      },
+    });
+    if (!record) throw new NotFoundException('Plot not found');
+    return record;
+  }
+
   async findOne(id: string) {
     const record = await this.prisma.plot.findUnique({
       where: { id },

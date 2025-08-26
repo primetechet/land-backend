@@ -157,6 +157,7 @@ export class TitleDeedApplicationService {
         include: {
           landUse: { select: { id: true, name: true } },
           landGrade: { select: { id: true, name: true } },
+          plotProperties: true,
         },
       },
       { page: +options.page, perPage: +options.limit },
