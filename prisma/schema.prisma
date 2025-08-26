@@ -43,6 +43,12 @@ enum APPLICANT_TYPE {
   BOTH
 }
 
+enum TitleDeedApplicationPaymentReason {
+  DOCUMENT_VERIFICATION
+  TECHNICAL_INSPECTION
+  CERTIFICATE_PRINTING
+}
+
 model TitleDeedApplication {
   id                String  @id @default(uuid())
   application_no    String  @unique
@@ -108,6 +114,7 @@ model TitleDeedApplication {
   titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
   titleDeedApplicationDocuments       TitleDeedApplicationDocument[]
   plots                               Plot[]
+  titleDeedApplicationPayments        TitleDeedApplicationPayment[]
 
   @@map("title_deed_applications")
 }
@@ -224,6 +231,26 @@ model TitleDeedApplicationOwner {
   @@map("title_deed_application_owners")
 }
 
+model TitleDeedApplicationPayment {
+  id                        String                            @id @default(uuid())
+  amount                    Float
+  payment_reason            TitleDeedApplicationPaymentReason
+  title_deed_application_id String
+  remark                    String?
+
+  paid          Boolean   @default(false)
+  paid_at       DateTime?
+  paid_by_id    String?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  created_by_id String?
+  updated_by_id String?
+
+  titleDeedApplication TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
+
+  @@map("title_deed_application_payments")
+}
+
 //Plot
 model Plot {
   id                        String  @id @default(uuid())
@@ -239,6 +266,8 @@ model Plot {
   woreda_id                 String
   branch_id                 String
 
+  submitted               Boolean   @default(false)
+  submitted_at            DateTime?
   base_map_approved       Boolean   @default(false)
   base_map_approved_at    DateTime?
   base_map_approved_by_id String?

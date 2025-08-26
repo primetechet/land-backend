@@ -38,6 +38,7 @@ import { PlotModule } from './models/plot/plot.module';
 import { PlotPropertyModule } from './models/plot-property/plot-property.module';
 import { PropertyTypeModule } from './models/basedata/property-type/property-type.module';
 import { PropertyUseModule } from './models/basedata/property-use/property-use.module';
+import { TitleDeedApplicationPaymentModule } from './models/title-deed-application-payment/title-deed-application-payment.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { PropertyUseModule } from './models/basedata/property-use/property-use.m
     PlotPropertyModule,
     PropertyTypeModule,
     PropertyUseModule,
+    TitleDeedApplicationPaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

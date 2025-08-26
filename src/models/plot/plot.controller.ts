@@ -58,4 +58,9 @@ export class PlotController {
   update(@Param('id') id: string, @Body() updateDto: UpdatePlotDto) {
     return this.plotService.update(id, updateDto);
   }
+
+  @Post(':id/submit')
+  submit(@Request() request: EmployeeTokenClaim, @Param('id') id: string) {
+    return this.plotService.submit(id, request);
+  }
 }

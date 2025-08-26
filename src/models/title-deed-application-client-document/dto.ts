@@ -26,8 +26,6 @@ export class VerifyTitleDeedApplicationClientDocumentDto {
   @ApiProperty({ example: 'Document validated' })
   @IsOptional()
   verifier_note: string;
-
-  verified_by_id: string;
 }
 
 export class RejectTitleDeedApplicationClientDocumentDto {

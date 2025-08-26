@@ -51,14 +51,18 @@ export class TitleDeedApplicationClientDocumentService {
     return titleDeedApplicationClientDocument;
   }
 
-  async verify(id: string, data: VerifyTitleDeedApplicationClientDocumentDto) {
+  async verify(
+    id: string,
+    data: VerifyTitleDeedApplicationClientDocumentDto,
+    request: EmployeeTokenClaim,
+  ) {
     const titleDeedApplicationClientDocument =
       await this.prisma.titleDeedApplicationClientDocument.findUnique({
         where: { id: id },
       });
 
     const employee = await this.prisma.employee.findUnique({
-      where: { id: data.verified_by_id },
+      where: { id: request.user.sub },
     });
 
     if (!employee) {

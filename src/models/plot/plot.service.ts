@@ -142,4 +142,18 @@ export class PlotService {
     await this.findOne(id);
     return this.prisma.plot.update({ where: { id }, data: updateDto });
   }
+
+  async submit(id: string, request: EmployeeTokenClaim) {
+    return await this.prisma.plot.update({
+      where: { id },
+      data: {
+        submitted: true,
+        submitted_at: new Date(),
+      },
+      select: {
+        id: true,
+        submitted: true,
+      },
+    });
+  }
 }

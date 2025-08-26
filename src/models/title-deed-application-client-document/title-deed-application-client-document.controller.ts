@@ -48,12 +48,10 @@ export class TitleDeedApplicationClientDocumentController {
     @Body()
     verifyTitleDeedApplicationClientDocumentDto: VerifyTitleDeedApplicationClientDocumentDto,
   ) {
-    verifyTitleDeedApplicationClientDocumentDto.verified_by_id =
-      request.user.sub;
-
     return this.titleDeedApplicationClientDocumentService.verify(
       id,
       verifyTitleDeedApplicationClientDocumentDto,
+      request,
     );
   }
 
