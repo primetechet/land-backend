@@ -146,6 +146,23 @@ export class TitleDeedApplicationService {
     );
   }
 
+  async titleDeedPlot(id: string, options: SearchTitleDeedApplicationDto) {
+    const { search } = { ...options };
+    const where: any = {};
+
+    return paginate(
+      this.prisma.titleDeedApplication,
+      {
+        where: { title_deed_application_id: id },
+        include: {
+          landUse: { select: { id: true, name: true } },
+          landGrade: { select: { id: true, name: true } },
+        },
+      },
+      { page: +options.page, perPage: +options.limit },
+    );
+  }
+
   findOne(id: string) {
     return this.prisma.titleDeedApplication.findUnique({
       where: { id },

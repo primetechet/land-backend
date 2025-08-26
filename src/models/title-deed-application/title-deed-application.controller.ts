@@ -66,6 +66,18 @@ export class TitleDeedApplicationController {
     return this.service.clientDocuments(id);
   }
 
+  @Get(':id/plot')
+  @ApiOperation({ summary: 'Get paginated title deed application plots' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  titleDeedPlot(
+    @Param('id') id: string,
+    @Query() payload: any,
+    @Request() request,
+  ) {
+    return this.service.titleDeedPlot(id, payload);
+  }
+
   @Get('paginated')
   @ApiOperation({ summary: 'Get paginated applications' })
   @ApiQuery({ name: 'page', required: false, type: Number })
