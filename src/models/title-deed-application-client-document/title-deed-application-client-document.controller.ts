@@ -64,9 +64,6 @@ export class TitleDeedApplicationClientDocumentController {
     @Body()
     rejectTitleDeedApplicationClientDocumentDto: RejectTitleDeedApplicationClientDocumentDto,
   ) {
-    rejectTitleDeedApplicationClientDocumentDto.rejected_by_id =
-      request.user.sub;
-
     return this.titleDeedApplicationClientDocumentService.reject(
       id,
       rejectTitleDeedApplicationClientDocumentDto,
