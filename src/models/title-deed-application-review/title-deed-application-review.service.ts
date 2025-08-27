@@ -58,7 +58,7 @@ export class TitleDeedApplicationReviewService {
         plot_registered: false,
       };
     } else if (
-      createTitleDeedApplicationReviewDto.action == 'BASE_MAP_APPROVED'
+      createTitleDeedApplicationReviewDto.action == 'BASE_MAP_APPROVAL'
     ) {
       applicationCondition = {
         submitted: true,
