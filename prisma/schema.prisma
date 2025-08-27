@@ -620,8 +620,28 @@ model TitleDeedService {
   titleDeedApplications         TitleDeedApplication[]
   titleDeedServiceRequirements  TitleDeedServiceRequirement[]
   titleDeedServiceDocumentTypes TitleDeedServiceDocumentType[]
+  titleDeedServicePayments      TitleDeedServicePayment[]
 
   @@map("title_deed_services")
+}
+
+model TitleDeedServicePayment {
+  id                    String                            @id @default(uuid())
+  amount                Float
+  payment_reason        TitleDeedApplicationPaymentReason
+  title_deed_service_id String
+  remark                String?
+  draft                 Boolean                           @default(false)
+  drafted_at            DateTime?
+  drafted_by_id         String?
+  created_at            DateTime                          @default(now())
+  updated_at            DateTime                          @updatedAt
+  created_by_id         String?
+  updated_by_id         String?
+
+  titleDeedService TitleDeedService @relation(fields: [title_deed_service_id], references: [id])
+
+  @@map("title_deed_service_payments")
 }
 
 model TitleDeedServiceRequirement {

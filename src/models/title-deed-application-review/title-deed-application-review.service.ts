@@ -1,5 +1,6 @@
 import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import {
+  AppointmentTitleDeedApplicationReviewDto,
   ArchiveTitleDeedApplicationReviewDto,
   AuthorizeTitleDeedApplicationReviewDto,
   CreateManualTitleDeedApplicationReviewDto,
@@ -68,7 +69,7 @@ export class TitleDeedApplicationReviewService {
       applicationCondition = {
         authorized: false,
         submitted: true,
-        verified: true,
+        plot_registered: true,
       };
     }
 
@@ -447,6 +448,52 @@ export class TitleDeedApplicationReviewService {
           Resource: 'title-deed-application',
         },
       }),
+    };
+  }
+
+  async requireAppointment(
+    id: string,
+    data: AppointmentTitleDeedApplicationReviewDto,
+    request: EmployeeTokenClaim,
+  ) {
+    const titleDeedApplicationReview =
+      await this.prisma.titleDeedApplicationReview.findUnique({
+        where: { id: id },
+      });
+
+    const employee = await this.prisma.employee.findUnique({
+      where: { id: request.user.sub },
+    });
+
+    if (!employee) {
+      throw new HttpException('', 422);
+    }
+    await this.prisma.$transaction(async (tx) => {
+      await tx.titleDeedApplicationReview.update({
+        where: { id: id },
+        data: {
+          completed: true,
+          note: data.appointment_note,
+          completed_by_id: employee.id,
+          completed_at: new Date(),
+        },
+      });
+
+      await tx.titleDeedApplication.update({
+        where: {
+          id: titleDeedApplicationReview.title_deed_application_id,
+        },
+        data: {
+          appointment_required: true,
+          appointment_required_by_id: employee.id,
+          appointment_required_at: new Date(),
+        },
+      });
+    });
+
+    return {
+      data: titleDeedApplicationReview,
+      message: 'Appointment Sent To Client',
     };
   }
 

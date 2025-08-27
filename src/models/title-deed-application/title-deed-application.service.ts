@@ -122,6 +122,7 @@ export class TitleDeedApplicationService {
       this.prisma.titleDeedApplication,
       {
         where,
+        orderBy: { created_at: 'desc' },
         include: {
           titleDeedService: { select: { id: true, name: true } },
           organizationType: { select: { id: true, name: true } },

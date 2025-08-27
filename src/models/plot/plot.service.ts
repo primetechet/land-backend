@@ -163,7 +163,7 @@ export class PlotService {
   }
 
   async submit(id: string, request: EmployeeTokenClaim) {
-    return await this.prisma.plot.update({
+    const plot = await this.prisma.plot.update({
       where: { id },
       data: {
         submitted: true,
@@ -172,7 +172,33 @@ export class PlotService {
       select: {
         id: true,
         submitted: true,
+        title_deed_application_id: true,
       },
     });
+
+    await this.prisma.titleDeedApplication.update({
+      where: { id: plot.title_deed_application_id },
+      data: {
+        plot_registered: true,
+        plot_registered_at: new Date(),
+        plot_registered_by_id: request.user.sub,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    await this.prisma.titleDeedApplicationReview.updateMany({
+      where: {
+        title_deed_application_id: plot.title_deed_application_id,
+        role: 'PLOT_REGISTRATION',
+      },
+      data: {
+        completed: true,
+        completed_at: new Date(),
+      },
+    });
+
+    return plot;
   }
 }

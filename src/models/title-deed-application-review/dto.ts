@@ -42,6 +42,15 @@ export class ValidateTitleDeedApplicationReviewDto {
   validated_by_id: string;
 }
 
+export class AppointmentTitleDeedApplicationReviewDto {
+  @ApiProperty({ example: 'Review validated' })
+  @IsOptional()
+  appointment_note: string;
+
+  @IsOptional()
+  appointment_required_by_id: string;
+}
+
 export class AuthorizeTitleDeedApplicationReviewDto {
   @ApiProperty({ example: 'Review validated' })
   @IsOptional()

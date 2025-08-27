@@ -10,6 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  AppointmentTitleDeedApplicationReviewDto,
   ArchiveTitleDeedApplicationReviewDto,
   AuthorizeTitleDeedApplicationReviewDto,
   CreateManualTitleDeedApplicationReviewDto,
@@ -147,6 +148,26 @@ export class TitleDeedApplicationReviewController {
     return this.titleDeedApplicationReviewService.verify(
       id,
       verifyTitleDeedApplicationReviewDto,
+      request,
+    );
+  }
+
+  @Post(':id/require-appointment')
+  // @Resource([
+  //   {
+  //     resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
+  //     actions: [ACTIONS.AUTHORIZE],
+  //   },
+  // ])
+  requireAppointment(
+    @Request() request,
+    @Param('id') id: string,
+    @Body()
+    requireAppointmentTitleDeedApplicationReviewDto: AppointmentTitleDeedApplicationReviewDto,
+  ) {
+    return this.titleDeedApplicationReviewService.requireAppointment(
+      id,
+      requireAppointmentTitleDeedApplicationReviewDto,
       request,
     );
   }
