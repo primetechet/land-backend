@@ -67,6 +67,7 @@ export class TitleDeedApplicationClientDocumentController {
     return this.titleDeedApplicationClientDocumentService.reject(
       id,
       rejectTitleDeedApplicationClientDocumentDto,
+      request,
     );
   }
 }
