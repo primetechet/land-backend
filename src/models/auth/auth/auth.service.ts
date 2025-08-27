@@ -14,6 +14,7 @@ import {
   ILogin,
   IUserRole,
 } from 'src/common/interfaces/login.interface';
+import { AuthorizationService } from 'src/common/services/authorization.service';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +22,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly prisma: DatabaseService,
     private readonly i18n: I18nService<I18nTranslations>,
+    private readonly authorizationService: AuthorizationService,
   ) {}
 
   async login(loginDto: LoginDto, ip_address: string) {
@@ -81,8 +83,15 @@ export class AuthService {
 
   async me(token: TokenClaim) {
     const user = await this.getLoginDetail(token.user.username);
+    const userRoles = await this.authorizationService.getUserRoles(
+      token.user.sub,
+    );
 
-    return { ...user, server_time: new Date() };
+    return {
+      ...user,
+      userRoles,
+      server_time: new Date(),
+    };
   }
 
   async refreshToken(token: TokenClaim) {
@@ -120,32 +129,28 @@ export class AuthService {
     refreshToken: string;
     user: T;
   }> {
-    const jwtPayload: {
-      sub: string;
-      username: string;
-      roles?: IUserRole[];
-      username_verified: boolean;
-      language: string;
-    } = {
+    // Minimal JWT payload following JWT BCP standards
+    const jwtPayload = {
       sub: user.id || '',
       username: user.username || '',
       username_verified: user.username_verified || false,
       language: 'en',
+      jti: `${user.id}-${Date.now()}`, // Unique token identifier
     };
 
-    if ('userRoles' in user && user.userRoles) {
-      jwtPayload.roles = user.userRoles;
-    }
-
     const accessToken = this.jwtService.sign(jwtPayload, {
+      algorithm: 'HS256',
       expiresIn: '1145m',
     });
 
     const refreshToken = this.jwtService.sign(
       {
+        sub: user.id,
         username: user.username,
+        jti: `refresh-${user.id}-${Date.now()}`,
       },
       {
+        algorithm: 'HS256',
         expiresIn: '11h',
       },
     );

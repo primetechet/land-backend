@@ -15,6 +15,7 @@ import {
   IEmployeeLogin,
   IUserRole,
 } from 'src/common/interfaces/employee-login.interface';
+import { AuthorizationService } from 'src/common/services/authorization.service';
 
 @Injectable()
 export class EmployeeAuthService {
@@ -22,12 +23,11 @@ export class EmployeeAuthService {
     private jwtService: JwtService,
     private readonly prisma: DatabaseService,
     private readonly i18n: I18nService<I18nTranslations>,
+    private readonly authorizationService: AuthorizationService,
   ) {}
 
   async login(loginDto: EmployeeLoginDto, ip_address: string) {
     const user: any = await this.getEmployeeLoginDetail(loginDto.username);
-
-    user.resourcePermissions = await this.convertRolePermissions(user.id);
 
     if (!user) {
       throw new HttpException(
@@ -84,10 +84,18 @@ export class EmployeeAuthService {
 
   async me(token: EmployeeTokenClaim) {
     const user = await this.getEmployeeLoginDetail(token.user.username);
+    const userRoles = await this.authorizationService.getEmployeeRoles(
+      token.user.sub,
+    );
+    const resourcePermissions =
+      await this.authorizationService.getEmployeePermissions(token.user.sub);
 
-    const resourcePermissions = await this.convertRolePermissions(user.id);
-
-    return { ...user, resourcePermissions, server_time: new Date() };
+    return {
+      ...user,
+      userRoles,
+      resourcePermissions,
+      server_time: new Date(),
+    };
   }
 
   async refreshToken(token: EmployeeTokenClaim) {
@@ -118,40 +126,6 @@ export class EmployeeAuthService {
     });
   }
 
-  private async convertRolePermissions(employee_id) {
-    const rolePermissionResources =
-      await this.prisma.rolePermissionResource.findMany({
-        where: {
-          role: { employeeRoles: { some: { employee_id: employee_id } } },
-        },
-        select: {
-          rolePermissionResourceActions: {
-            select: {
-              permissionAction: {
-                select: { id: true, action: true },
-              },
-            },
-          },
-          permissionResource: {
-            select: {
-              name: true,
-            },
-          },
-        },
-      });
-
-    return rolePermissionResources.map((rolePermissionResource) => {
-      return {
-        resource: rolePermissionResource.permissionResource.name,
-        permissions: rolePermissionResource.rolePermissionResourceActions.map(
-          (rolePermissionResourceAction) => {
-            return rolePermissionResourceAction.permissionAction.action;
-          },
-        ),
-      };
-    });
-  }
-
   private async generateJwtToken<
     T extends IEmployeeLogin | Partial<IEmployeeLogin>,
   >(
@@ -161,33 +135,28 @@ export class EmployeeAuthService {
     refreshToken: string;
     user: T;
   }> {
-    const jwtPayload: {
-      sub: string;
-      username: string;
-      resourcePermissions?: AuthPermission[];
-      license_application_id?: string;
-      username_verified: boolean;
-      language: string;
-    } = {
+    // Minimal JWT payload following JWT BCP standards
+    const jwtPayload = {
       sub: user.id || '',
       username: user.username || '',
       username_verified: user.username_verified || false,
       language: 'en',
+      jti: `emp-${user.id}-${Date.now()}`, // Unique token identifier
     };
 
-    if ('userRoles' in user && user.userRoles) {
-      jwtPayload.resourcePermissions = user.resourcePermissions;
-    }
-
     const accessToken = this.jwtService.sign(jwtPayload, {
+      algorithm: 'HS256',
       expiresIn: '1145m',
     });
 
     const refreshToken = this.jwtService.sign(
       {
+        sub: user.id,
         username: user.username,
+        jti: `refresh-emp-${user.id}-${Date.now()}`,
       },
       {
+        algorithm: 'HS256',
         expiresIn: '11h',
       },
     );

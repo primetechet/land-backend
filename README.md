@@ -1,98 +1,128 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Land Backend - Integrated Land Management System
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## What This System Does
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+The Land Backend is a **NestJS-based API** that manages land title deed applications and related administrative processes. It serves as the backend for an Integrated Land Management System, handling everything from user authentication to title deed application processing, with support for both individual citizens and organizations.
 
-## Description
+## Mental Model: How the Platform Works
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Here's how a typical request flows through the system:
 
-## Project setup
+1. **User Request** → A citizen or employee logs in through the authentication system
+2. **Authorization** → The system checks their role and permissions using JWT tokens
+3. **Business Logic** → Users can create, view, and manage title deed applications
+4. **Data Persistence** → All data is stored in PostgreSQL using Prisma ORM
+5. **Response** → The API returns structured JSON responses with proper validation
 
-```bash
-$ yarn install
+The system supports two types of users:
+
+- **Citizens** (regular users) who submit title deed applications
+- **Employees** (administrators) who process and manage applications
+
+## Repository Map
+
+```
+land-backend/
+├── 📁 src/                          # Main application code
+│   ├── 📁 models/                   # Business logic modules
+│   │   ├── 📁 auth/                 # Authentication & authorization
+│   │   ├── 📁 basedata/             # Reference data (countries, districts, etc.)
+│   │   ├── 📁 title-deed-application/     # Core business logic
+│   │   └── 📁 title-deed-application-owner/ # Application owners/beneficiaries
+│   ├── 📁 common/                   # Shared utilities and configurations
+│   │   ├── 📁 database/             # Database connection and Prisma setup
+│   │   ├── 📁 guards/               # Authentication guards
+│   │   ├── 📁 decorators/           # Custom decorators
+│   │   └── 📁 utils/                # Helper functions
+│   └── 📁 i18n/                     # Internationalization files
+├── 📁 prisma/                       # Database schema and migrations
+├── 📁 test/                         # End-to-end tests
+├── 📁 docs/                         # 📚 Documentation (you're here!)
+├── 📄 docker-compose.yml           # Production container setup
+├── 📄 docker-compose.dev.yml       # Development environment
+└── 📄 package.json                 # Dependencies and scripts
 ```
 
-## Compile and run the project
+## Who's Who (Team Structure)
+
+- **Backend Team** - Owns the API, database schema, and business logic
+- **DevOps Team** - Manages deployment, infrastructure, and monitoring
+- **Product Team** - Defines requirements and user stories
+- **QA Team** - Ensures quality and testing coverage
+
+_Note: Replace with actual team names and responsibilities_
+
+## Getting Started: Reading Order for New Hires
+
+### 🚀 First Day (Start Here)
+
+1. **[Project Tour](./docs/Orientation/Project-Tour.md)** - Walk through how requests flow
+2. **[Service Catalog](./docs/Orientation/Service-Catalog.md)** - Understand what each part does
+3. **[Glossary](./docs/Orientation/Glossary.md)** - Learn the domain language
+
+### 🔧 First Week (Build Understanding)
+
+4. **[System Overview](./docs/Architecture/System-Overview.md)** - High-level architecture
+5. **[Data Model](./docs/Architecture/Data-Model.md)** - Database structure and relationships
+6. **[Key Journeys](./docs/How-To/Key-Journeys.md)** - Common development tasks
+
+### 🛠️ Ongoing Reference
+
+7. **[Runbook Overview](./docs/Operate/Runbook-Overview.md)** - Operations and troubleshooting
+8. **[Security Overview](./docs/Security-and-Compliance/Security-Overview.md)** - Security practices
+9. **[Contributing Guidelines](./CONTRIBUTING.md)** - Development workflow
+10. **[FAQ](./docs/Appendix/FAQ.md)** - Quick answers to common questions
+
+## Quick Start for Developers
 
 ```bash
-# development
-$ yarn run start
+# 1. Clone and setup
+git clone <repository-url>
+cd land-backend
+yarn install
 
-# watch mode
-$ yarn run start:dev
+# 2. Setup environment
+cp .env.example .env
+# Edit .env with your database credentials
 
-# production mode
-$ yarn run start:prod
+# 3. Start development environment
+docker-compose -f docker-compose.dev.yml up -d
+yarn run prisma migrate dev
+yarn run start:dev
+
+# 4. Access the API
+# - API: http://localhost:3000
+# - Swagger Docs: http://localhost:3000/api/docs
+# - Database: localhost:5432
+# - MinIO Console: http://localhost:9001
 ```
 
-## Run tests
+## Technology Stack
 
-```bash
-# unit tests
-$ yarn run test
+- **Framework**: NestJS (Node.js)
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT with role-based access control
+- **Documentation**: Swagger/OpenAPI
+- **Containerization**: Docker & Docker Compose
+- **File Storage**: MinIO (S3-compatible)
+- **Internationalization**: nestjs-i18n
 
-# e2e tests
-$ yarn run test:e2e
+## Support & Resources
 
-# test coverage
-$ yarn run test:cov
-```
+- **API Documentation**: Available at `/api/docs` when running
+- **Database Schema**: See `prisma/schema.prisma`
+- **Environment Variables**: Check `.env.example`
+- **Testing**: Run `yarn test` for unit tests, `yarn test:e2e` for integration tests
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Bibliography
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+This documentation follows established practices from:
 
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
-```
+- **Diátaxis documentation framework** - Organizing content by tutorials/how-tos/reference/explanations
+- **Architecture Decision Records (ADRs)** - Recording major technical decisions with context
+- **Service catalogs** - Helping teams navigate complex systems
+- **Google Engineering Practices** - Clear reviews and understandable changes
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+For questions or improvements to this documentation, please create an issue or submit a pull request.

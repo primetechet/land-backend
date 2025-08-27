@@ -15,7 +15,25 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
         return {
           secret: configService.get<string>('AUTH_JWT_SECRET'),
           signOptions: {
-            expiresIn: configService.get<string>('AUTH_JWT_TOKEN_EXPIRES_IN'),
+            algorithm: 'HS256',
+            expiresIn: configService.get<string>(
+              'AUTH_JWT_TOKEN_EXPIRES_IN',
+              '1145m',
+            ),
+            issuer: configService.get<string>('JWT_ISSUER', 'land-backend'),
+            audience: configService.get<string>(
+              'JWT_AUDIENCE',
+              'land-backend-employees',
+            ),
+          },
+          verifyOptions: {
+            algorithms: ['HS256'],
+            issuer: configService.get<string>('JWT_ISSUER', 'land-backend'),
+            audience: configService.get<string>(
+              'JWT_AUDIENCE',
+              'land-backend-employees',
+            ),
+            clockTolerance: 30,
           },
         };
       },

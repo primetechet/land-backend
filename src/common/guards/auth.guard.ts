@@ -10,11 +10,11 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { IS_PUBLIC_KEY } from 'src/common/decorators/public.decorator';
-import { EmployeeTokenClaim } from '../interfaces/employee-login.interface';
+import { TokenClaim } from '../interfaces/login.interface';
 
 @Injectable()
-export class EmployeeAuthGuard implements CanActivate {
-  private readonly logger = new Logger(EmployeeAuthGuard.name);
+export class AuthGuard implements CanActivate {
+  private readonly logger = new Logger(AuthGuard.name);
 
   constructor(
     private jwtService: JwtService,
@@ -44,10 +44,7 @@ export class EmployeeAuthGuard implements CanActivate {
         secret: this.configService.get('AUTH_JWT_SECRET'),
         algorithms: ['HS256'], // Pin to HS256 only
         issuer: this.configService.get('JWT_ISSUER', 'land-backend'),
-        audience: this.configService.get(
-          'JWT_AUDIENCE',
-          'land-backend-employees',
-        ),
+        audience: this.configService.get('JWT_AUDIENCE', 'land-backend-users'),
         clockTolerance: 30, // 30 seconds tolerance for clock skew
       });
 
@@ -55,7 +52,7 @@ export class EmployeeAuthGuard implements CanActivate {
       this.validateRequiredClaims(payload);
 
       // Create minimal token claim structure
-      const tokenClaim: EmployeeTokenClaim['user'] = {
+      const tokenClaim: TokenClaim['user'] = {
         sub: payload.sub,
         username: payload.username,
         username_verified: payload.username_verified || false,

@@ -43,8 +43,6 @@ export interface EmployeeTokenClaim {
   user: {
     sub: string;
     username: string;
-    email?: string | null;
-    roles?: IUserRole[];
     username_verified: boolean;
     language: string;
   };

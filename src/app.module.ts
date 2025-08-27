@@ -39,6 +39,7 @@ import { PlotPropertyModule } from './models/plot-property/plot-property.module'
 import { PropertyTypeModule } from './models/basedata/property-type/property-type.module';
 import { PropertyUseModule } from './models/basedata/property-use/property-use.module';
 import { TitleDeedApplicationPaymentModule } from './models/title-deed-application-payment/title-deed-application-payment.module';
+import { AuthorizationModule } from './common/services/authorization.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { TitleDeedApplicationPaymentModule } from './models/title-deed-applicati
       isGlobal: true,
     }),
     DatabaseModule,
+    AuthorizationModule,
     CountryModule,
     I18nModule.forRoot({
       fallbackLanguage: 'en',
