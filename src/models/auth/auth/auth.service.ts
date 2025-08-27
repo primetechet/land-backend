@@ -78,7 +78,18 @@ export class AuthService {
       });
     }
 
-    return this.generateJwtToken(user);
+    const result = await this.generateJwtToken(user);
+
+    // Add userRoles to the response (not the JWT token)
+    const userRoles = await this.authorizationService.getUserRoles(user.id);
+
+    return {
+      ...result,
+      user: {
+        ...result.user,
+        userRoles,
+      },
+    };
   }
 
   async me(token: TokenClaim) {
@@ -101,7 +112,20 @@ export class AuthService {
       );
     }
     const user = await this.getLoginDetail(token.user.username);
-    if (user) return this.generateJwtToken(user);
+    if (user) {
+      const result = await this.generateJwtToken(user);
+
+      // Add userRoles to the response (not the JWT token)
+      const userRoles = await this.authorizationService.getUserRoles(user.id);
+
+      return {
+        ...result,
+        user: {
+          ...result.user,
+          userRoles,
+        },
+      };
+    }
   }
 
   async getLoginDetail(username: string) {

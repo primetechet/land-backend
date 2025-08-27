@@ -79,7 +79,19 @@ export class EmployeeAuthService {
       });
     }
 
-    return this.generateJwtToken(user);
+    const result = await this.generateJwtToken(user);
+
+    // Add resourcePermissions to the response (not the JWT token)
+    const resourcePermissions =
+      await this.authorizationService.getEmployeePermissions(user.id);
+
+    return {
+      ...result,
+      user: {
+        ...result.user,
+        resourcePermissions,
+      },
+    };
   }
 
   async me(token: EmployeeTokenClaim) {
@@ -105,7 +117,21 @@ export class EmployeeAuthService {
       );
     }
     const user = await this.getEmployeeLoginDetail(token.user.username);
-    if (user) return this.generateJwtToken(user);
+    if (user) {
+      const result = await this.generateJwtToken(user);
+
+      // Add resourcePermissions to the response (not the JWT token)
+      const resourcePermissions =
+        await this.authorizationService.getEmployeePermissions(user.id);
+
+      return {
+        ...result,
+        user: {
+          ...result.user,
+          resourcePermissions,
+        },
+      };
+    }
   }
 
   async getEmployeeLoginDetail(username: string) {
