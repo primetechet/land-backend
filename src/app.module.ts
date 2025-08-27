@@ -39,6 +39,7 @@ import { PlotPropertyModule } from './models/plot-property/plot-property.module'
 import { PropertyTypeModule } from './models/basedata/property-type/property-type.module';
 import { PropertyUseModule } from './models/basedata/property-use/property-use.module';
 import { TitleDeedApplicationPaymentModule } from './models/title-deed-application-payment/title-deed-application-payment.module';
+import { RejectionReasonModule } from './models/basedata/rejection-reason/rejection-reason.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { TitleDeedApplicationPaymentModule } from './models/title-deed-applicati
     PropertyTypeModule,
     PropertyUseModule,
     TitleDeedApplicationPaymentModule,
+    RejectionReasonModule,
   ],
   controllers: [AppController],
   providers: [AppService],
