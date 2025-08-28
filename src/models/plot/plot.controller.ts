@@ -10,7 +10,13 @@ import {
   Request,
 } from '@nestjs/common';
 import { PlotService } from './plot.service';
-import { CreatePlotDto, UpdatePlotDto, SearchPlotDto } from './dto';
+import {
+  CreatePlotDto,
+  UpdatePlotDto,
+  SearchPlotDto,
+  ClientRejectPlotDto,
+  ClientConfirmationPlotDto,
+} from './dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 import { PaginationDto } from 'src/common/dtos/global.dto';
@@ -68,5 +74,37 @@ export class PlotController {
   @Post(':id/submit')
   submit(@Request() request: EmployeeTokenClaim, @Param('id') id: string) {
     return this.plotService.submit(id, request);
+  }
+
+  @Post(':id/agree')
+  // @Resource([
+  //   {
+  //     resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
+  //     actions: [ACTIONS.REJECT],
+  //   },
+  // ])
+  agree(
+    @Request() request,
+    @Param('id') id: string,
+    @Body()
+    clientConfirmationDto: ClientConfirmationPlotDto,
+  ) {
+    return this.plotService.clientConfirmed(id, clientConfirmationDto);
+  }
+
+  @Post(':id/disagree')
+  // @Resource([
+  //   {
+  //     resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
+  //     actions: [ACTIONS.REJECT],
+  //   },
+  // ])
+  disagree(
+    @Request() request,
+    @Param('id') id: string,
+    @Body()
+    clientConfirmationDto: ClientRejectPlotDto,
+  ) {
+    return this.plotService.clientReject(id, clientConfirmationDto);
   }
 }

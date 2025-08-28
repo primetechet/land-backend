@@ -91,3 +91,15 @@ export class SearchPlotDto extends PartialType(PaginationDto) {
 export class UpdatePlotDto extends PartialType(CreatePlotDto) {
   updated_by_id: string;
 }
+
+export class ClientRejectPlotDto {
+  @ApiProperty({ example: 'I don´t accept this map' })
+  @IsOptional()
+  client_rejection_note: string;
+}
+
+export class ClientConfirmationPlotDto {
+  @ApiProperty({ example: 'I accept this map' })
+  @IsOptional()
+  client_confirmation_note: string;
+}

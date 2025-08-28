@@ -10,6 +10,8 @@ datasource db {
 
 model TitleDeedApplication {
   id                                  String                               @id @default(uuid())
+  old_id                              String?
+  migrated_from_xoka_system           Boolean                              @default(false)
   is_organization                     Boolean                              @default(false)
   title_deed_number                   String?
   kebele                              String
@@ -149,6 +151,9 @@ model TitleDeedApplicationReview {
 
 model TitleDeedApplicationOwner {
   id                          String               @id @default(uuid())
+  migrated_from_xoka_system   Boolean              @default(false)
+  photo                       Json                 @default("{}")
+  signature                   Json                 @default("{}")
   is_organization             Boolean              @default(false)
   id_type                     IdType
   id_number                   String
@@ -250,6 +255,12 @@ model Plot {
   rejected_by_id            String?
   rejecter_note             String?
   rejection_reason_id       String?
+  client_confirmed          Boolean              @default(false)
+  client_confirmed_at       DateTime?
+  client_confirmation_note  String?
+  client_rejected           Boolean              @default(false)
+  client_rejected_at        DateTime?
+  client_rejection_note     String?
   created_at                DateTime             @default(now())
   updated_at                DateTime             @updatedAt
   created_by_id             String?

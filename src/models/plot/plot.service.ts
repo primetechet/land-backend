@@ -1,7 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/common/database/database.service';
 import { paginate } from 'src/common/utils/paginater';
-import { CreatePlotDto, UpdatePlotDto, SearchPlotDto } from './dto';
+import {
+  CreatePlotDto,
+  UpdatePlotDto,
+  SearchPlotDto,
+  ClientRejectPlotDto,
+  ClientConfirmationPlotDto,
+} from './dto';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 import { PaginationDto } from 'src/common/dtos/global.dto';
 
@@ -200,5 +206,57 @@ export class PlotService {
     });
 
     return plot;
+  }
+
+  async clientConfirmed(id: string, data: ClientConfirmationPlotDto) {
+    // const user = await this.prisma.titleDeedApplicationOwner.findFirst({
+    //   where: { id_number: request.user.username },
+    // });
+
+    // if (!user) {
+    //   throw new HttpException('Not your application', 422);
+    // }
+
+    const plot = await this.prisma.plot.update({
+      where: {
+        id: id,
+      },
+      data: {
+        client_confirmed: true,
+        client_confirmation_note: data.client_confirmation_note,
+        client_confirmed_at: new Date(),
+      },
+    });
+
+    return {
+      data: plot,
+      message: 'Plot accepted',
+    };
+  }
+
+  async clientReject(id: string, data: ClientRejectPlotDto) {
+    // const user = await this.prisma.titleDeedApplicationOwner.findFirst({
+    //   where: { id_number: request.user.username },
+    // });
+
+    // if (!user) {
+    //   throw new HttpException('Not your application', 422);
+    // }
+
+    const plot = await this.prisma.plot.update({
+      where: {
+        id: id,
+      },
+      data: {
+        client_rejected: true,
+        client_rejection_note: data.client_rejection_note,
+        client_rejected_at: new Date(),
+      },
+    });
+
+    return {
+      data: plot,
+      message: 'Plot accepted',
+    };
   }
 }
