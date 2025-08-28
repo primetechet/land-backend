@@ -300,9 +300,11 @@ export class TitleDeedApplicationReviewService {
     const where: any = {};
 
     if (search) {
-      where.application_no = {
-        contains: search,
-        mode: 'insensitive',
+      where.titleDeedApplication = {
+        application_no: {
+          contains: search,
+          mode: 'insensitive',
+        },
       };
     }
 
