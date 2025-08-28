@@ -131,6 +131,7 @@ model TitleDeedApplicationReview {
   assignment_note           String?
   employee_id               String
   title_deed_application_id String
+  reapplied                 Boolean              @default(false)
   completed                 Boolean              @default(false)
   completed_at              DateTime?
   completed_by_id           String?

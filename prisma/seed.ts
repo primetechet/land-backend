@@ -249,6 +249,13 @@ async function seedGeographyAndTitleDeeds() {
     create: { name: 'Residency' },
   });
 
+  // 7️⃣ Reject Reason
+  await prisma.rejectionReason.upsert({
+    where: { name: 'Document Issue' },
+    update: {},
+    create: { name: 'Document Issue' },
+  });
+
   // 7️⃣ Land Grade Status
   await prisma.propertyType.upsert({
     where: { name: 'Vila' },

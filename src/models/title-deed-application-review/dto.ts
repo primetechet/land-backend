@@ -68,7 +68,9 @@ export class RejectTitleDeedApplicationReviewDto {
   @IsOptional()
   rejection_reason_id: string;
 
-  rejected_by_id: string;
+  @ApiProperty({ example: 'rejection reason id' })
+  @IsString()
+  role: string;
 }
 
 export class SearchTitleDeedApplicationReviewDto extends PartialType(

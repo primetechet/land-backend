@@ -63,7 +63,7 @@ export class RoleController {
   }
 
   @Patch(':id')
-  @Resource([{ resource: RESOURCE.USER, actions: [ACTIONS.UPDATE] }])
+  // @Resource([{ resource: RESOURCE.USER, actions: [ACTIONS.UPDATE] }])
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
     return this.roleService.update(id, updateRoleDto);
   }

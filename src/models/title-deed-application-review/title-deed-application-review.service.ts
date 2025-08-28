@@ -27,7 +27,6 @@ export class TitleDeedApplicationReviewService {
     request: EmployeeTokenClaim,
     createTitleDeedApplicationReviewDto: CreateTitleDeedApplicationReviewDto,
   ) {
-    console.log(createTitleDeedApplicationReviewDto);
     const employee = await this.prisma.employee.findUnique({
       where: { id: request.user.sub },
     });
@@ -58,7 +57,7 @@ export class TitleDeedApplicationReviewService {
         plot_registered: false,
       };
     } else if (
-      createTitleDeedApplicationReviewDto.action == 'BASE_MAP_APPROVED'
+      createTitleDeedApplicationReviewDto.action == 'BASE_MAP_APPROVAL'
     ) {
       applicationCondition = {
         submitted: true,
@@ -497,14 +496,18 @@ export class TitleDeedApplicationReviewService {
     };
   }
 
-  async reject(id: string, data: RejectTitleDeedApplicationReviewDto) {
+  async reject(
+    id: string,
+    data: RejectTitleDeedApplicationReviewDto,
+    request: EmployeeTokenClaim,
+  ) {
     const titleDeedApplicationReview =
       await this.prisma.titleDeedApplicationReview.findUnique({
         where: { id: id },
       });
 
     const employee = await this.prisma.employee.findUnique({
-      where: { id: data.rejected_by_id },
+      where: { id: request.user.sub },
     });
 
     if (!employee) {
@@ -522,12 +525,51 @@ export class TitleDeedApplicationReviewService {
         },
       });
 
+      const oldTitleDeedApplicationReview =
+        await tx.titleDeedApplicationReview.findFirst({
+          where: {
+            title_deed_application_id:
+              titleDeedApplicationReview.title_deed_application_id,
+            role: data.role,
+          },
+          orderBy: { created_at: 'desc' },
+          select: { id: true, employee_id: true },
+        });
+
+      let applicationCondition: any = {};
+
+      if (data.role == 'ARCHIVE') {
+        applicationCondition = {
+          archived: false,
+        };
+      } else if (data.role == 'VERIFICATION') {
+        applicationCondition = {
+          verified: false,
+        };
+      } else if (data.role == 'PLOT_REGISTRATION') {
+        applicationCondition = {
+          plot_registered: false,
+        };
+      } else if (data.role == 'BASE_MAP_APPROVAL') {
+        applicationCondition = {
+          base_map_approved: false,
+        };
+      } else if (data.role == 'AUTHORIZATION') {
+        applicationCondition = {
+          authorized: false,
+        };
+      } else {
+        applicationCondition = {
+          submitted: false,
+        };
+      }
+
       await tx.titleDeedApplication.update({
         where: {
           id: titleDeedApplicationReview.title_deed_application_id,
         },
         data: {
-          submitted: false,
+          ...applicationCondition,
           rejected: true,
           rejecter_note: data.rejecter_note,
           rejection_reason_id: data.rejection_reason_id || null,
@@ -535,15 +577,27 @@ export class TitleDeedApplicationReviewService {
           rejected_at: new Date(),
         },
       });
+
+      if (oldTitleDeedApplicationReview) {
+        return this.prisma.titleDeedApplicationReview.create({
+          data: {
+            role: data.role,
+            reapplied: true,
+            assignment_note: data.rejecter_note,
+            employee_id: oldTitleDeedApplicationReview.employee_id,
+            title_deed_application_id:
+              titleDeedApplicationReview.title_deed_application_id,
+          },
+          select: {
+            id: true,
+          },
+        });
+      }
     });
 
     return {
       data: titleDeedApplicationReview,
-      message: this.i18n.t('success-messages.resource-verified', {
-        args: {
-          Resource: 'visa-application',
-        },
-      }),
+      message: 'New Reviewer Assigned',
     };
   }
 

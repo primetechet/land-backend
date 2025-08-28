@@ -90,14 +90,18 @@ export class TitleDeedApplicationClientDocumentService {
     };
   }
 
-  async reject(id: string, data: RejectTitleDeedApplicationClientDocumentDto) {
+  async reject(
+    id: string,
+    data: RejectTitleDeedApplicationClientDocumentDto,
+    request: EmployeeTokenClaim,
+  ) {
     const titleDeedApplicationClientDocument =
       await this.prisma.titleDeedApplicationClientDocument.findUnique({
         where: { id: id },
       });
 
     const employee = await this.prisma.employee.findUnique({
-      where: { id: data.rejected_by_id },
+      where: { id: request.user.sub },
     });
 
     if (!employee) {

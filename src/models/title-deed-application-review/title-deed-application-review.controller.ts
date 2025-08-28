@@ -193,23 +193,22 @@ export class TitleDeedApplicationReviewController {
   }
 
   @Post(':id/reject')
-  @Resource([
-    {
-      resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
-      actions: [ACTIONS.REJECT],
-    },
-  ])
+  // @Resource([
+  //   {
+  //     resource: RESOURCE.TITLE_DEED_APPLICATION_REVIEW,
+  //     actions: [ACTIONS.REJECT],
+  //   },
+  // ])
   reject(
     @Request() request,
     @Param('id') id: string,
     @Body()
     rejectTitleDeedApplicationReviewDto: RejectTitleDeedApplicationReviewDto,
   ) {
-    rejectTitleDeedApplicationReviewDto.rejected_by_id = request.user.sub;
-
     return this.titleDeedApplicationReviewService.reject(
       id,
       rejectTitleDeedApplicationReviewDto,
+      request,
     );
   }
 

@@ -32,6 +32,4 @@ export class RejectTitleDeedApplicationClientDocumentDto {
   @ApiProperty({ example: 'Document rejected b/c of visibility' })
   @IsOptional()
   rejecter_note: string;
-
-  rejected_by_id: string;
 }
