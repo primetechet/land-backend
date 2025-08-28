@@ -87,7 +87,6 @@ export class TitleDeedApplicationOwnerController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a title deed application owner by ID' })
   @ApiParam({ name: 'id', type: String })
-  @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.UPDATE] }])
   update(
     @Param('id') id: string,
     @Body() dto: UpdateTitleDeedApplicationOwnerDto,

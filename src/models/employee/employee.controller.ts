@@ -13,11 +13,7 @@ import {
   Request,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
-import {
-  CreateEmployeeDto,
-  UpdateEmployeeDto,
-  EmployeeResponseDto,
-} from './dto';
+import { CreateEmployeeDto, UpdateEmployeeDto } from './dto';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 import { ApiBearerAuth, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { UseGuards } from '@nestjs/common';
@@ -25,6 +21,7 @@ import { EmployeeAuthGuard } from 'src/common/guards/employee-auth.guard';
 import { Resource } from 'src/common/decorators/resource.decorator';
 import { RESOURCE } from 'src/common/constants/resource';
 import { ACTIONS } from 'src/common/constants/actions';
+import { EmployeeResponseDto } from './dto';
 
 @ApiTags('Employee Management')
 @Controller('employees')

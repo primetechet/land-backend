@@ -44,7 +44,6 @@ import { AuthorizationModule } from './common/services/authorization.module';
 import { TokenCleanupService } from './common/services/token-cleanup.service';
 import { EmployeeModule } from './models/employee/employee.module';
 import { RejectionReasonModule } from './models/basedata/rejection-reason/rejection-reason.module';
-import { EmployeeModule } from './models/employee/employee.module';
 
 @Module({
   imports: [

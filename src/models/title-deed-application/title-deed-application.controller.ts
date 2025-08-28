@@ -101,7 +101,6 @@ export class TitleDeedApplicationController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a title deed application by ID' })
   @ApiParam({ name: 'id', type: String })
-  @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.UPDATE] }])
   update(@Param('id') id: string, @Body() dto: UpdateTitleDeedApplicationDto) {
     return this.service.update(id, dto);
   }
