@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import { MinioService } from 'nestjs-minio-client';
 import { BufferedFile } from 'src/common/types/buffered-file.type';
 
-type FolderId = 'TITLE_DEED_DOCUMENT';
+type FolderId = 'TITLE_DEED_DOCUMENT' | 'EMPLOYEE';
 
 type FolderInfo = {
   folder_id: FolderId;

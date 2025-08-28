@@ -40,6 +40,7 @@ import { PropertyTypeModule } from './models/basedata/property-type/property-typ
 import { PropertyUseModule } from './models/basedata/property-use/property-use.module';
 import { TitleDeedApplicationPaymentModule } from './models/title-deed-application-payment/title-deed-application-payment.module';
 import { RejectionReasonModule } from './models/basedata/rejection-reason/rejection-reason.module';
+import { EmployeeModule } from './models/employee/employee.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { RejectionReasonModule } from './models/basedata/rejection-reason/reject
     PropertyUseModule,
     TitleDeedApplicationPaymentModule,
     RejectionReasonModule,
+    EmployeeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
