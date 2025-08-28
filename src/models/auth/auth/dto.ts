@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional, IsString, Matches } from 'class-validator';
+import { Exclude, Expose } from 'class-transformer';
 
 export class LoginDto {
   @ApiProperty({
@@ -27,4 +28,67 @@ export class LoginDto {
   @IsOptional()
   @IsString()
   long?: string;
+}
+
+export class UserResponseDto {
+  @Expose()
+  @ApiProperty()
+  id: string;
+
+  @Expose()
+  @ApiProperty()
+  name: string;
+
+  @Expose()
+  @ApiProperty()
+  username: string;
+
+  @Expose()
+  @ApiProperty()
+  email?: string;
+
+  @Expose()
+  @ApiProperty()
+  require_password_change: boolean;
+
+  @Expose()
+  @ApiProperty()
+  is_active: boolean;
+
+  @Expose()
+  @ApiProperty()
+  is_suspended: boolean;
+
+  @Expose()
+  @ApiProperty()
+  username_verified: boolean;
+
+  @Expose()
+  @ApiProperty()
+  userRoles?: any[];
+
+  @Expose()
+  @ApiProperty()
+  server_time?: Date;
+
+  // Explicitly exclude sensitive fields
+  @Exclude()
+  password: string;
+
+  @Exclude()
+  code_hash: string;
+
+  @Exclude()
+  code_expiration: Date;
+}
+
+export class LoginResponseDto {
+  @ApiProperty()
+  accessToken: string;
+
+  @ApiProperty()
+  refreshToken: string;
+
+  @ApiProperty({ type: UserResponseDto })
+  user: UserResponseDto;
 }

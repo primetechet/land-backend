@@ -15,10 +15,14 @@ import {
 import { EmployeeAuthService } from './employee-auth.service';
 import { Public } from 'src/common/decorators/public.decorator';
 import { RefreshToken } from 'src/common/decorators/refresh-token.decorator';
-import { EmployeeLoginDto } from './dto';
+import {
+  EmployeeLoginDto,
+  EmployeeLoginResponseDto,
+  EmployeeResponseDto,
+} from './dto';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 import { NullableType } from 'src/common/types/nullable.type';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { UseGuards } from '@nestjs/common';
 import { EmployeeRefreshTokenGuard } from 'src/common/guards/employee-refresh-token.guard';
 
@@ -32,7 +36,15 @@ export class EmployeeAuthController {
   })
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  adminLogin(@Body() loginDto: EmployeeLoginDto, @Ip() ip) {
+  @ApiResponse({
+    status: 200,
+    description: 'Employee login successful',
+    type: EmployeeLoginResponseDto,
+  })
+  adminLogin(
+    @Body() loginDto: EmployeeLoginDto,
+    @Ip() ip,
+  ): Promise<EmployeeLoginResponseDto> {
     return this.employeeAuthService.login(loginDto, ip);
   }
 
@@ -42,7 +54,12 @@ export class EmployeeAuthController {
     groups: ['me'],
   })
   @ApiBearerAuth()
-  me(@Request() request: EmployeeTokenClaim): Promise<NullableType<any>> {
+  @ApiResponse({
+    status: 200,
+    description: 'Get current employee profile',
+    type: EmployeeResponseDto,
+  })
+  me(@Request() request: EmployeeTokenClaim): Promise<EmployeeResponseDto> {
     return this.employeeAuthService.me(request);
   }
 
@@ -55,7 +72,12 @@ export class EmployeeAuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public refresh(@Request() request: any) {
+  @ApiResponse({
+    status: 200,
+    description: 'Employee token refreshed successfully',
+    type: EmployeeLoginResponseDto,
+  })
+  public refresh(@Request() request: any): Promise<EmployeeLoginResponseDto> {
     const payload = request.refreshTokenPayload;
     return this.employeeAuthService.refreshToken(payload);
   }

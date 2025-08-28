@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { LoginDto } from './dto';
+import { LoginDto, UserResponseDto, LoginResponseDto } from './dto';
 import { DatabaseService } from 'src/common/database/database.service';
 import { I18nService } from 'nestjs-i18n';
 import { I18nTranslations } from 'src/generated/i18n.generated';
@@ -15,6 +15,7 @@ import {
   IUserRole,
 } from 'src/common/interfaces/login.interface';
 import { AuthorizationService } from 'src/common/services/authorization.service';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,10 @@ export class AuthService {
     private readonly authorizationService: AuthorizationService,
   ) {}
 
-  async login(loginDto: LoginDto, ip_address: string) {
+  async login(
+    loginDto: LoginDto,
+    ip_address: string,
+  ): Promise<LoginResponseDto> {
     const user = await this.getLoginDetail(loginDto.username);
 
     if (!user) {
@@ -83,29 +87,34 @@ export class AuthService {
     // Add userRoles to the response (not the JWT token)
     const userRoles = await this.authorizationService.getUserRoles(user.id);
 
+    // Transform to response DTO to exclude sensitive data
+    const userResponse = plainToInstance(UserResponseDto, {
+      ...result.user,
+      userRoles,
+    });
+
     return {
-      ...result,
-      user: {
-        ...result.user,
-        userRoles,
-      },
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      user: userResponse,
     };
   }
 
-  async me(token: TokenClaim) {
+  async me(token: TokenClaim): Promise<UserResponseDto> {
     const user = await this.getLoginDetail(token.user.username);
     const userRoles = await this.authorizationService.getUserRoles(
       token.user.sub,
     );
 
-    return {
+    // Transform to response DTO to exclude sensitive data
+    return plainToInstance(UserResponseDto, {
       ...user,
       userRoles,
       server_time: new Date(),
-    };
+    });
   }
 
-  async refreshToken(payload: any) {
+  async refreshToken(payload: any): Promise<LoginResponseDto> {
     const user = await this.getLoginDetail(payload.username);
     if (!user) {
       throw new UnauthorizedException(
@@ -118,12 +127,16 @@ export class AuthService {
     // Add userRoles to the response (not the JWT token)
     const userRoles = await this.authorizationService.getUserRoles(user.id);
 
+    // Transform to response DTO to exclude sensitive data
+    const userResponse = plainToInstance(UserResponseDto, {
+      ...result.user,
+      userRoles,
+    });
+
     return {
-      ...result,
-      user: {
-        ...result.user,
-        userRoles,
-      },
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      user: userResponse,
     };
   }
 
@@ -136,11 +149,12 @@ export class AuthService {
         id: true,
         name: true,
         username: true,
-        password: true,
+        password: true, // Still needed for password verification
         email: true,
         require_password_change: true,
         is_active: true,
         is_suspended: true,
+        username_verified: true,
       },
     });
   }

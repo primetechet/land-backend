@@ -3,7 +3,11 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { EmployeeLoginDto } from './dto';
+import {
+  EmployeeLoginDto,
+  EmployeeResponseDto,
+  EmployeeLoginResponseDto,
+} from './dto';
 import { DatabaseService } from 'src/common/database/database.service';
 import { I18nService } from 'nestjs-i18n';
 import { I18nTranslations } from 'src/generated/i18n.generated';
@@ -16,6 +20,7 @@ import {
   IUserRole,
 } from 'src/common/interfaces/employee-login.interface';
 import { AuthorizationService } from 'src/common/services/authorization.service';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class EmployeeAuthService {
@@ -26,7 +31,10 @@ export class EmployeeAuthService {
     private readonly authorizationService: AuthorizationService,
   ) {}
 
-  async login(loginDto: EmployeeLoginDto, ip_address: string) {
+  async login(
+    loginDto: EmployeeLoginDto,
+    ip_address: string,
+  ): Promise<EmployeeLoginResponseDto> {
     const user: any = await this.getEmployeeLoginDetail(loginDto.username);
 
     if (!user) {
@@ -85,16 +93,20 @@ export class EmployeeAuthService {
     const resourcePermissions =
       await this.authorizationService.getEmployeePermissions(user.id);
 
+    // Transform to response DTO to exclude sensitive data
+    const userResponse = plainToInstance(EmployeeResponseDto, {
+      ...result.user,
+      resourcePermissions,
+    });
+
     return {
-      ...result,
-      user: {
-        ...result.user,
-        resourcePermissions,
-      },
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      user: userResponse,
     };
   }
 
-  async me(token: EmployeeTokenClaim) {
+  async me(token: EmployeeTokenClaim): Promise<EmployeeResponseDto> {
     const user = await this.getEmployeeLoginDetail(token.user.username);
     const userRoles = await this.authorizationService.getEmployeeRoles(
       token.user.sub,
@@ -102,15 +114,16 @@ export class EmployeeAuthService {
     const resourcePermissions =
       await this.authorizationService.getEmployeePermissions(token.user.sub);
 
-    return {
+    // Transform to response DTO to exclude sensitive data
+    return plainToInstance(EmployeeResponseDto, {
       ...user,
       userRoles,
       resourcePermissions,
       server_time: new Date(),
-    };
+    });
   }
 
-  async refreshToken(payload: any) {
+  async refreshToken(payload: any): Promise<EmployeeLoginResponseDto> {
     const user = await this.getEmployeeLoginDetail(payload.username);
     if (!user) {
       throw new UnauthorizedException(
@@ -124,12 +137,16 @@ export class EmployeeAuthService {
     const resourcePermissions =
       await this.authorizationService.getEmployeePermissions(user.id);
 
+    // Transform to response DTO to exclude sensitive data
+    const userResponse = plainToInstance(EmployeeResponseDto, {
+      ...result.user,
+      resourcePermissions,
+    });
+
     return {
-      ...result,
-      user: {
-        ...result.user,
-        resourcePermissions,
-      },
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      user: userResponse,
     };
   }
 
@@ -142,11 +159,12 @@ export class EmployeeAuthService {
         id: true,
         name: true,
         username: true,
-        password: true,
+        password: true, // Still needed for password verification
         email: true,
         require_password_change: true,
         is_active: true,
         is_suspended: true,
+        username_verified: true,
       },
     });
   }

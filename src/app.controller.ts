@@ -11,7 +11,7 @@ export class AppController {
 
   @Get()
   async getHello() {
-    return await this.prisma.user.findMany();
+    // Return only a simple hello message, not user data
     return this.appService.getHello();
   }
 }
