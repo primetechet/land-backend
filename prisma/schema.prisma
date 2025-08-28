@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
@@ -14,112 +8,73 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserType {
-  ORGANIZATION
-  INDIVIDUAL
-}
-
-enum IdType {
-  FAYDA_ID
-  GOVERNMENT_ID
-  TIN_NUMBER
-  PASSPORT
-}
-
-enum Gender {
-  MALE
-  FEMALE
-}
-
-enum BranchType {
-  CENTRAL
-  MESOB
-  SUB_CITY
-}
-
-enum APPLICANT_TYPE {
-  INDIVIDUAL
-  ORGANIZATION
-  BOTH
-}
-
-enum TitleDeedApplicationPaymentReason {
-  DOCUMENT_VERIFICATION
-  TECHNICAL_INSPECTION
-  CERTIFICATE_PRINTING
-}
-
 model TitleDeedApplication {
-  id                String  @id @default(uuid())
-  application_no    String  @unique
-  is_organization   Boolean @default(false)
-  title_deed_number String?
-  kebele            String
-  house_number      String
-  remark            String?
-
-  title_deed_service_id String
-  organization_type_id  String?
-  woreda_id             String
-  branch_id             String
-  user_id               String
-
-  submitted                  Boolean   @default(false)
-  submitted_at               DateTime?
-  archived                   Boolean   @default(false)
-  archived_at                DateTime?
-  archived_by_id             String?
-  archive_note               String?
-  appointment_required       Boolean   @default(false)
-  appointment_required_at    DateTime?
-  appointment_required_by_id String?
-  verified                   Boolean   @default(false)
-  verified_at                DateTime?
-  verified_by_id             String?
-  verifier_note              String?
-  plot_registered            Boolean   @default(false)
-  plot_registered_at         DateTime?
-  plot_registered_by_id      String?
-  plot_registration_note     String?
-  base_map_approved          Boolean   @default(false)
-  base_map_approved_at       DateTime?
-  base_map_approved_by_id    String?
-  base_map_approver_note     String?
-  authorized                 Boolean   @default(false)
-  authorized_at              DateTime?
-  authorized_by_id           String?
-  authorizer_note            String?
-  rejected                   Boolean   @default(false)
-  rejected_at                DateTime?
-  rejected_by_id             String?
-  rejecter_note              String?
-  rejection_reason_id        String?
-  created_at                 DateTime  @default(now())
-  updated_at                 DateTime  @updatedAt
-  created_by_id              String?
-  updated_by_id              String?
-
-  organizationType      OrganizationType? @relation(fields: [organization_type_id], references: [id])
-  titleDeedService      TitleDeedService  @relation(fields: [title_deed_service_id], references: [id])
-  woreda                Woreda            @relation(fields: [woreda_id], references: [id])
-  branch                Branch            @relation(fields: [branch_id], references: [id])
-  user                  User              @relation(fields: [user_id], references: [id])
-  rejectionReason       RejectionReason?  @relation(fields: [rejection_reason_id], references: [id])
-  rejectedBy            Employee?         @relation("rejectedBy", fields: [rejected_by_id], references: [id])
-  verifiedBy            Employee?         @relation("verifiedBy", fields: [verified_by_id], references: [id])
-  archivedBy            Employee?         @relation("archivedBy", fields: [archived_by_id], references: [id])
-  authorizedBy          Employee?         @relation("authorizedBy", fields: [authorized_by_id], references: [id])
-  plotRegisteredBy      Employee?         @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
-  baseMapApprovedBy     Employee?         @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
-  appointmentRequiredBy Employee?         @relation("appointmentRequiredBy", fields: [appointment_required_by_id], references: [id])
-
-  titleDeedApplicationOwners          TitleDeedApplicationOwner[]
-  titleDeedApplicationReviews         TitleDeedApplicationReview[]
+  id                                  String                               @id @default(uuid())
+  is_organization                     Boolean                              @default(false)
+  title_deed_number                   String?
+  kebele                              String
+  house_number                        String
+  remark                              String?
+  title_deed_service_id               String
+  organization_type_id                String?
+  woreda_id                           String
+  branch_id                           String
+  user_id                             String
+  created_at                          DateTime                             @default(now())
+  updated_at                          DateTime                             @updatedAt
+  created_by_id                       String?
+  updated_by_id                       String?
+  archive_note                        String?
+  archived                            Boolean                              @default(false)
+  archived_at                         DateTime?
+  archived_by_id                      String?
+  authorized                          Boolean                              @default(false)
+  authorized_at                       DateTime?
+  authorized_by_id                    String?
+  authorizer_note                     String?
+  base_map_approved                   Boolean                              @default(false)
+  base_map_approved_at                DateTime?
+  base_map_approved_by_id             String?
+  base_map_approver_note              String?
+  plot_registered                     Boolean                              @default(false)
+  plot_registered_at                  DateTime?
+  plot_registered_by_id               String?
+  plot_registration_note              String?
+  rejected                            Boolean                              @default(false)
+  rejected_at                         DateTime?
+  rejected_by_id                      String?
+  rejecter_note                       String?
+  rejection_reason_id                 String?
+  verified                            Boolean                              @default(false)
+  verified_at                         DateTime?
+  verified_by_id                      String?
+  verifier_note                       String?
+  submitted                           Boolean                              @default(false)
+  submitted_at                        DateTime?
+  application_no                      String                               @unique
+  appointment_required                Boolean                              @default(false)
+  appointment_required_at             DateTime?
+  appointment_required_by_id          String?
+  plots                               Plot[]
+  titleDeedApplicationAppointments    TitleDeedApplicationAppointment[]
   titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
   titleDeedApplicationDocuments       TitleDeedApplicationDocument[]
-  plots                               Plot[]
+  titleDeedApplicationOwners          TitleDeedApplicationOwner[]
   titleDeedApplicationPayments        TitleDeedApplicationPayment[]
-  titleDeedApplicationAppointments    TitleDeedApplicationAppointment[]
+  titleDeedApplicationReviews         TitleDeedApplicationReview[]
+  appointmentRequiredBy               Employee?                            @relation("appointmentRequiredBy", fields: [appointment_required_by_id], references: [id])
+  archivedBy                          Employee?                            @relation("archivedBy", fields: [archived_by_id], references: [id])
+  authorizedBy                        Employee?                            @relation("authorizedBy", fields: [authorized_by_id], references: [id])
+  baseMapApprovedBy                   Employee?                            @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
+  branch                              Branch                               @relation(fields: [branch_id], references: [id])
+  organizationType                    OrganizationType?                    @relation(fields: [organization_type_id], references: [id])
+  plotRegisteredBy                    Employee?                            @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
+  rejectedBy                          Employee?                            @relation("rejectedBy", fields: [rejected_by_id], references: [id])
+  rejectionReason                     RejectionReason?                     @relation(fields: [rejection_reason_id], references: [id])
+  titleDeedService                    TitleDeedService                     @relation(fields: [title_deed_service_id], references: [id])
+  user                                User                                 @relation(fields: [user_id], references: [id])
+  verifiedBy                          Employee?                            @relation("verifiedBy", fields: [verified_by_id], references: [id])
+  woreda                              Woreda                               @relation(fields: [woreda_id], references: [id])
 
   @@map("title_deed_applications")
 }
@@ -144,12 +99,12 @@ model TitleDeedApplicationClientDocument {
   updated_by_id                       String?
   created_at                          DateTime                     @default(now())
   updated_at                          DateTime                     @updatedAt
+  createdBy                           User?                        @relation(fields: [created_by_id], references: [id])
+  rejectedBy                          Employee?                    @relation("rejectedBy", fields: [rejected_by_id], references: [id])
   rejectionReason                     RejectionReason?             @relation(fields: [rejection_reason_id], references: [id])
   titleDeedApplication                TitleDeedApplication         @relation(fields: [title_deed_application_id], references: [id])
   titleDeedServiceDocumentType        TitleDeedServiceDocumentType @relation(fields: [title_deed_service_document_type_id], references: [id])
-  rejectedBy                          Employee?                    @relation("rejectedBy", fields: [rejected_by_id], references: [id])
   verifiedBy                          Employee?                    @relation("verifiedBy", fields: [verified_by_id], references: [id])
-  createdBy                           User?                        @relation(fields: [created_by_id], references: [id])
 
   @@map("title_deed_application_client_documents")
 }
@@ -164,8 +119,8 @@ model TitleDeedApplicationDocument {
   updated_by_id             String?
   created_at                DateTime             @default(now())
   updated_at                DateTime             @updatedAt
-  titleDeedApplication      TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
   createdBy                 Employee?            @relation(fields: [created_by_id], references: [id])
+  titleDeedApplication      TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
 
   @@map("title_deed_application_documents")
 }
@@ -192,12 +147,11 @@ model TitleDeedApplicationReview {
 }
 
 model TitleDeedApplicationOwner {
-  id                          String  @id @default(uuid())
-  is_representative           Boolean @default(false)
-  is_organization             Boolean @default(false)
+  id                          String               @id @default(uuid())
+  is_organization             Boolean              @default(false)
   id_type                     IdType
   id_number                   String
-  is_applicant                Boolean @default(false)
+  is_applicant                Boolean              @default(false)
   first_name                  String
   father_name                 String
   grand_father_name           String
@@ -218,20 +172,19 @@ model TitleDeedApplicationOwner {
   residency_country_id        String
   woreda_id                   String
   remark                      String?
-
-  draft         Boolean   @default(false)
-  drafted_at    DateTime?
-  drafted_by_id String?
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
-  created_by_id String?
-  updated_by_id String?
-
-  titleDeedApplication TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
-  disabilityStatus     DisabilityStatus     @relation(fields: [disability_status_id], references: [id])
-  woreda               Woreda               @relation(fields: [woreda_id], references: [id])
-  nationality          Country?             @relation("nationality", fields: [nationality_id], references: [id])
-  residencyCountry     Country?             @relation("residencyCountry", fields: [residency_country_id], references: [id])
+  draft                       Boolean              @default(false)
+  drafted_at                  DateTime?
+  drafted_by_id               String?
+  created_at                  DateTime             @default(now())
+  updated_at                  DateTime             @updatedAt
+  created_by_id               String?
+  updated_by_id               String?
+  is_representative           Boolean              @default(false)
+  disabilityStatus            DisabilityStatus     @relation(fields: [disability_status_id], references: [id])
+  nationality                 Country              @relation("nationality", fields: [nationality_id], references: [id])
+  residencyCountry            Country              @relation("residencyCountry", fields: [residency_country_id], references: [id])
+  titleDeedApplication        TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
+  woreda                      Woreda               @relation(fields: [woreda_id], references: [id])
 
   @@map("title_deed_application_owners")
 }
@@ -242,41 +195,35 @@ model TitleDeedApplicationPayment {
   payment_reason            TitleDeedApplicationPaymentReason
   title_deed_application_id String
   remark                    String?
-
-  paid          Boolean   @default(false)
-  paid_at       DateTime?
-  paid_by_id    String?
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
-  created_by_id String?
-  updated_by_id String?
-
-  titleDeedApplication TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
+  paid                      Boolean                           @default(false)
+  paid_at                   DateTime?
+  paid_by_id                String?
+  created_at                DateTime                          @default(now())
+  updated_at                DateTime                          @updatedAt
+  created_by_id             String?
+  updated_by_id             String?
+  titleDeedApplication      TitleDeedApplication              @relation(fields: [title_deed_application_id], references: [id])
 
   @@map("title_deed_application_payments")
 }
 
 model TitleDeedApplicationAppointment {
-  id                        String   @id @default(uuid())
+  id                        String               @id @default(uuid())
   date_time                 DateTime
   title_deed_application_id String
   remark                    String?
-
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-  created_by_id String?
-  updated_by_id String?
-
-  titleDeedApplication TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
+  created_at                DateTime             @default(now())
+  updated_at                DateTime             @updatedAt
+  created_by_id             String?
+  updated_by_id             String?
+  titleDeedApplication      TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
 
   @@map("title_deed_application_appointments")
 }
 
-//Plot
 model Plot {
-  id                        String  @id @default(uuid())
-  plot_id                   String  @unique
-  // polygon                   Unsupported("geometry")
+  id                        String               @id @default(uuid())
+  plot_id                   String               @unique
   block_number              String
   house_number              String
   area_meter_square         Float
@@ -286,49 +233,46 @@ model Plot {
   land_grade_id             String
   woreda_id                 String
   branch_id                 String
-
-  submitted               Boolean   @default(false)
-  submitted_at            DateTime?
-  base_map_approved       Boolean   @default(false)
-  base_map_approved_at    DateTime?
-  base_map_approved_by_id String?
-  base_map_approver_note  String?
-  plot_registered_at      DateTime  @default(now())
-  plot_registered_by_id   String
-  plot_registration_note  String?
-  authorized              Boolean   @default(false)
-  authorized_at           DateTime?
-  authorized_by_id        String?
-  authorizer_note         String?
-  rejected                Boolean   @default(false)
-  rejected_at             DateTime?
-  rejected_by_id          String?
-  rejecter_note           String?
-  rejection_reason_id     String?
-  created_at              DateTime  @default(now())
-  updated_at              DateTime  @updatedAt
-  created_by_id           String?
-  updated_by_id           String?
-
-  landUse              LandUse              @relation(fields: [land_use_id], references: [id])
-  landGrade            LandGrade            @relation(fields: [land_grade_id], references: [id])
-  titleDeedApplication TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
-  woreda               Woreda               @relation(fields: [woreda_id], references: [id])
-  branch               Branch               @relation(fields: [branch_id], references: [id])
-  rejectionReason      RejectionReason?     @relation(fields: [rejection_reason_id], references: [id])
-  rejectedBy           Employee?            @relation("rejectedBy", fields: [rejected_by_id], references: [id])
-  authorizedBy         Employee?            @relation("authorizedBy", fields: [authorized_by_id], references: [id])
-  plotRegisteredBy     Employee             @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
-  baseMapApprovedBy    Employee?            @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
-  plotProperties       PlotProperty[]
+  base_map_approved         Boolean              @default(false)
+  base_map_approved_at      DateTime?
+  base_map_approved_by_id   String?
+  base_map_approver_note    String?
+  plot_registered_at        DateTime             @default(now())
+  plot_registered_by_id     String
+  plot_registration_note    String?
+  authorized                Boolean              @default(false)
+  authorized_at             DateTime?
+  authorized_by_id          String?
+  authorizer_note           String?
+  rejected                  Boolean              @default(false)
+  rejected_at               DateTime?
+  rejected_by_id            String?
+  rejecter_note             String?
+  rejection_reason_id       String?
+  created_at                DateTime             @default(now())
+  updated_at                DateTime             @updatedAt
+  created_by_id             String?
+  updated_by_id             String?
+  submitted                 Boolean              @default(false)
+  submitted_at              DateTime?
+  plotProperties            PlotProperty[]
+  authorizedBy              Employee?            @relation("authorizedBy", fields: [authorized_by_id], references: [id])
+  baseMapApprovedBy         Employee?            @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
+  branch                    Branch               @relation(fields: [branch_id], references: [id])
+  landGrade                 LandGrade            @relation(fields: [land_grade_id], references: [id])
+  landUse                   LandUse              @relation(fields: [land_use_id], references: [id])
+  plotRegisteredBy          Employee             @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
+  rejectedBy                Employee?            @relation("rejectedBy", fields: [rejected_by_id], references: [id])
+  rejectionReason           RejectionReason?     @relation(fields: [rejection_reason_id], references: [id])
+  titleDeedApplication      TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
+  woreda                    Woreda               @relation(fields: [woreda_id], references: [id])
 
   @@map("plots")
 }
 
 model PlotProperty {
-  id                         String  @id @default(uuid())
-  property_id                String  @unique
-  // polygon                   Unsupported("geometry")
+  id                         String           @id @default(uuid())
+  property_id                String           @unique
   basement_floor_number      String
   upper_floor_number         String
   building_number            String
@@ -343,120 +287,116 @@ model PlotProperty {
   plot_id                    String
   property_use_id            String
   property_type_id           String
-
-  base_map_approved       Boolean   @default(false)
-  base_map_approved_at    DateTime?
-  base_map_approved_by_id String?
-  base_map_approver_note  String?
-  plot_registered_at      DateTime  @default(now())
-  plot_registered_by_id   String
-  plot_registration_note  String?
-  rejected                Boolean   @default(false)
-  rejected_at             DateTime?
-  rejected_by_id          String?
-  rejecter_note           String?
-  rejection_reason_id     String?
-  created_at              DateTime  @default(now())
-  updated_at              DateTime  @updatedAt
-  created_by_id           String?
-  updated_by_id           String?
-
-  propertyUse       PropertyUse      @relation(fields: [property_use_id], references: [id])
-  propertyType      PropertyType     @relation(fields: [property_type_id], references: [id])
-  plot              Plot             @relation(fields: [plot_id], references: [id])
-  rejectionReason   RejectionReason? @relation(fields: [rejection_reason_id], references: [id])
-  rejectedBy        Employee?        @relation("rejectedBy", fields: [rejected_by_id], references: [id])
-  plotRegisteredBy  Employee         @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
-  baseMapApprovedBy Employee?        @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
+  base_map_approved          Boolean          @default(false)
+  base_map_approved_at       DateTime?
+  base_map_approved_by_id    String?
+  base_map_approver_note     String?
+  plot_registered_at         DateTime         @default(now())
+  plot_registered_by_id      String
+  plot_registration_note     String?
+  rejected                   Boolean          @default(false)
+  rejected_at                DateTime?
+  rejected_by_id             String?
+  rejecter_note              String?
+  rejection_reason_id        String?
+  created_at                 DateTime         @default(now())
+  updated_at                 DateTime         @updatedAt
+  created_by_id              String?
+  updated_by_id              String?
+  baseMapApprovedBy          Employee?        @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
+  plot                       Plot             @relation(fields: [plot_id], references: [id])
+  plotRegisteredBy           Employee         @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
+  propertyType               PropertyType     @relation(fields: [property_type_id], references: [id])
+  propertyUse                PropertyUse      @relation(fields: [property_use_id], references: [id])
+  rejectedBy                 Employee?        @relation("rejectedBy", fields: [rejected_by_id], references: [id])
+  rejectionReason            RejectionReason? @relation(fields: [rejection_reason_id], references: [id])
 
   @@map("plot_properties")
 }
 
-//AUTHENTICATION
 model User {
-  id                             String    @id @default(uuid())
-  user_type                      UserType
-  id_type                        IdType
-  name                           String
-  username                       String    @unique
-  password                       String
-  phone_number                   String    @unique
-  email                          String?   @unique
-  code_hash                      String?
-  profile_image                  String?
-  code_expiration                DateTime?
-  require_password_change        Boolean   @default(false)
-  username_verified              Boolean   @default(false)
-  username_verified_at           DateTime?
-  is_active                      Boolean   @default(true)
-  active_status_updated_at       DateTime?
-  active_status_updated_by_id    String?
-  status_update_note             String?
-  is_suspended                   Boolean   @default(false)
-  suspended_status_updated_at    DateTime?
-  suspended_status_updated_by_id String?
-  suspended_status_update_note   String?
-
+  id                                  String                               @id @default(uuid())
+  user_type                           UserType
+  id_type                             IdType
+  name                                String
+  username                            String                               @unique
+  password                            String
+  phone_number                        String                               @unique
+  email                               String?                              @unique
+  code_hash                           String?
+  profile_image                       String?
+  code_expiration                     DateTime?
+  require_password_change             Boolean                              @default(false)
+  username_verified                   Boolean                              @default(false)
+  username_verified_at                DateTime?
+  is_active                           Boolean                              @default(true)
+  active_status_updated_at            DateTime?
+  active_status_updated_by_id         String?
+  status_update_note                  String?
+  is_suspended                        Boolean                              @default(false)
+  suspended_status_updated_at         DateTime?
+  suspended_status_updated_by_id      String?
+  suspended_status_update_note        String?
   created_at                          DateTime                             @default(now())
   updated_at                          DateTime                             @updatedAt
   created_by_id                       String?
   updated_by_id                       String?
-  userRoles                           UserRole[]
-  otps                                Otp[]
   loginHistories                      LoginHistory[]
-  titleDeedApplications               TitleDeedApplication[]
+  otps                                Otp[]
   titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
+  titleDeedApplications               TitleDeedApplication[]
+  userRoles                           UserRole[]
 
   @@map("users")
 }
 
 model Employee {
-  id                             String    @id @default(uuid())
-  name                           String
-  username                       String    @unique
-  password                       String
-  phone_number                   String    @unique
-  email                          String?   @unique
-  code_hash                      String?
-  profile_image                  String?
-  code_expiration                DateTime?
-  require_password_change        Boolean   @default(false)
-  username_verified              Boolean   @default(false)
-  username_verified_at           DateTime?
-  is_active                      Boolean   @default(true)
-  active_status_updated_at       DateTime?
-  active_status_updated_by_id    String?
-  status_update_note             String?
-  is_suspended                   Boolean   @default(false)
-  suspended_status_updated_at    DateTime?
-  suspended_status_updated_by_id String?
-  suspended_status_update_note   String?
-
-  created_at                  DateTime                     @default(now())
-  updated_at                  DateTime                     @updatedAt
-  created_by_id               String?
-  updated_by_id               String?
-  employeeLoginHistories      EmployeeLoginHistory[]
-  employeeRoles               EmployeeRole[]
-  titleDeedApplicationReviews TitleDeedApplicationReview[]
-
-  rejectedTitleDeedApplication               TitleDeedApplication[]               @relation("rejectedBy")
-  verifiedTitleDeedApplication               TitleDeedApplication[]               @relation("verifiedBy")
+  id                                         String                               @id @default(uuid())
+  name                                       String
+  username                                   String                               @unique
+  password                                   String
+  phone_number                               String                               @unique
+  email                                      String?                              @unique
+  code_hash                                  String?
+  profile_image                              String?
+  code_expiration                            DateTime?
+  require_password_change                    Boolean                              @default(false)
+  username_verified                          Boolean                              @default(false)
+  username_verified_at                       DateTime?
+  is_active                                  Boolean                              @default(true)
+  active_status_updated_at                   DateTime?
+  active_status_updated_by_id                String?
+  status_update_note                         String?
+  is_suspended                               Boolean                              @default(false)
+  suspended_status_updated_at                DateTime?
+  suspended_status_updated_by_id             String?
+  suspended_status_update_note               String?
+  branch_id                                  String?
+  branch                                     Branch?                              @relation(fields: [branch_id], references: [id])
+  created_at                                 DateTime                             @default(now())
+  updated_at                                 DateTime                             @updatedAt
+  created_by_id                              String?
+  updated_by_id                              String?
+  employeeLoginHistories                     EmployeeLoginHistory[]
+  employeeRoles                              EmployeeRole[]
+  baseMapApprovedPlotProperty                PlotProperty[]                       @relation("baseMapApprovedBy")
+  plotRegisteredPlotProperty                 PlotProperty[]                       @relation("plotRegisteredBy")
+  rejectedPlotProperty                       PlotProperty[]                       @relation("rejectedBy")
+  authorizedPlot                             Plot[]                               @relation("authorizedBy")
+  baseMapApprovedPlot                        Plot[]                               @relation("baseMapApprovedBy")
+  plotRegisteredPlot                         Plot[]                               @relation("plotRegisteredBy")
+  rejectedPlot                               Plot[]                               @relation("rejectedBy")
+  rejectedTitleDeedApplicationClientDocument TitleDeedApplicationClientDocument[] @relation("rejectedBy")
+  verifiedTitleDeedApplicationClientDocument TitleDeedApplicationClientDocument[] @relation("verifiedBy")
+  titleDeedApplicationDocuments              TitleDeedApplicationDocument[]
+  titleDeedApplicationReviews                TitleDeedApplicationReview[]
+  appointmentRequiredTitleDeedApplication    TitleDeedApplication[]               @relation("appointmentRequiredBy")
   archivedTitleDeedApplication               TitleDeedApplication[]               @relation("archivedBy")
   authorizedTitleDeedApplication             TitleDeedApplication[]               @relation("authorizedBy")
   baseMapApprovedTitleDeedApplication        TitleDeedApplication[]               @relation("baseMapApprovedBy")
   plotRegisteredTitleDeedApplication         TitleDeedApplication[]               @relation("plotRegisteredBy")
-  appointmentRequiredTitleDeedApplication    TitleDeedApplication[]               @relation("appointmentRequiredBy")
-  rejectedTitleDeedApplicationClientDocument TitleDeedApplicationClientDocument[] @relation("rejectedBy")
-  verifiedTitleDeedApplicationClientDocument TitleDeedApplicationClientDocument[] @relation("verifiedBy")
-  titleDeedApplicationDocuments              TitleDeedApplicationDocument[]
-  rejectedPlot                               Plot[]                               @relation("rejectedBy")
-  authorizedPlot                             Plot[]                               @relation("authorizedBy")
-  baseMapApprovedPlot                        Plot[]                               @relation("baseMapApprovedBy")
-  plotRegisteredPlot                         Plot[]                               @relation("plotRegisteredBy")
-  rejectedPlotProperty                       PlotProperty[]                       @relation("rejectedBy")
-  baseMapApprovedPlotProperty                PlotProperty[]                       @relation("baseMapApprovedBy")
-  plotRegisteredPlotProperty                 PlotProperty[]                       @relation("plotRegisteredBy")
+  rejectedTitleDeedApplication               TitleDeedApplication[]               @relation("rejectedBy")
+  verifiedTitleDeedApplication               TitleDeedApplication[]               @relation("verifiedBy")
 
   @@map("employees")
 }
@@ -464,10 +404,10 @@ model Employee {
 model Otp {
   id         String   @id @default(uuid())
   user_id    String
-  user       User     @relation(fields: [user_id], references: [id])
   otp        String
   created_at DateTime @default(now())
   expires_at DateTime
+  user       User     @relation(fields: [user_id], references: [id])
 
   @@map("otp")
 }
@@ -478,9 +418,9 @@ model LoginHistory {
   ip_address String
   lat        String?
   lng        String?
-  user       User     @relation(fields: [user_id], references: [id])
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  user       User     @relation(fields: [user_id], references: [id])
 
   @@map("login_histories")
 }
@@ -492,16 +432,16 @@ model EmployeeLoginHistory {
   ip_address    String
   lat           String?
   lng           String?
-  employee      Employee @relation(fields: [employee_id], references: [id])
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
+  employee      Employee @relation(fields: [employee_id], references: [id])
 
   @@map("employee_login_histories")
 }
 
 model PermissionAction {
   id                            String                         @id @default(uuid())
-  action                        String                         @unique()
+  action                        String                         @unique
   description                   String?
   draft                         Boolean                        @default(false)
   created_at                    DateTime                       @default(now())
@@ -513,7 +453,7 @@ model PermissionAction {
 
 model PermissionResource {
   id                      String                   @id @default(uuid())
-  name                    String                   @unique()
+  name                    String                   @unique
   description             String?
   draft                   Boolean                  @default(false)
   created_at              DateTime                 @default(now())
@@ -525,16 +465,16 @@ model PermissionResource {
 
 model Role {
   id                      String                   @id @default(uuid())
-  name                    String                   @unique()
+  name                    String                   @unique
   description             String?
   switchable              Boolean                  @default(false)
   editable                Boolean                  @default(false)
   draft                   Boolean                  @default(false)
   created_at              DateTime                 @default(now())
   updated_at              DateTime                 @updatedAt
+  employeeRoles           EmployeeRole[]
   rolePermissionResources RolePermissionResource[]
   userRoles               UserRole[]
-  employeeRoles           EmployeeRole[]
 
   @@map("roles")
 }
@@ -543,11 +483,11 @@ model RolePermissionResource {
   id                            String                         @id @default(uuid())
   role_id                       String
   permission_resource_id        String
-  role                          Role                           @relation(fields: [role_id], references: [id])
-  permissionResource            PermissionResource             @relation(fields: [permission_resource_id], references: [id])
   created_at                    DateTime                       @default(now())
   updated_at                    DateTime                       @updatedAt
   rolePermissionResourceActions RolePermissionResourceAction[]
+  permissionResource            PermissionResource             @relation(fields: [permission_resource_id], references: [id])
+  role                          Role                           @relation(fields: [role_id], references: [id])
 
   @@unique([permission_resource_id, role_id])
   @@map("role_permission_resources")
@@ -557,10 +497,10 @@ model RolePermissionResourceAction {
   id                          String                 @id @default(uuid())
   permission_action_id        String
   role_permission_resource_id String
-  permissionAction            PermissionAction       @relation(fields: [permission_action_id], references: [id])
-  rolePermissionResource      RolePermissionResource @relation(fields: [role_permission_resource_id], references: [id])
   created_at                  DateTime               @default(now())
   updated_at                  DateTime               @updatedAt
+  permissionAction            PermissionAction       @relation(fields: [permission_action_id], references: [id])
+  rolePermissionResource      RolePermissionResource @relation(fields: [role_permission_resource_id], references: [id])
 
   @@unique([role_permission_resource_id, permission_action_id])
   @@map("role_permission_resource_actions")
@@ -570,12 +510,12 @@ model UserRole {
   id            String    @id @default(uuid())
   user_id       String
   role_id       String
-  role          Role      @relation(fields: [role_id], references: [id])
-  user          User      @relation(fields: [user_id], references: [id])
   created_at    DateTime  @default(now())
   updated_at    DateTime? @updatedAt
   created_by_id String?
   updated_by_id String?
+  role          Role      @relation(fields: [role_id], references: [id])
+  user          User      @relation(fields: [user_id], references: [id])
 
   @@unique([role_id, user_id])
   @@map("user_roles")
@@ -585,18 +525,17 @@ model EmployeeRole {
   id            String    @id @default(uuid())
   employee_id   String
   role_id       String
-  role          Role      @relation(fields: [role_id], references: [id])
-  employee      Employee  @relation(fields: [employee_id], references: [id])
   created_at    DateTime  @default(now())
   updated_at    DateTime? @updatedAt
   created_by_id String?
   updated_by_id String?
+  employee      Employee  @relation(fields: [employee_id], references: [id])
+  role          Role      @relation(fields: [role_id], references: [id])
 
   @@unique([role_id, employee_id])
   @@map("employee_roles")
 }
 
-//BASE DATA
 model TitleDeedService {
   id                            String                         @id @default(uuid())
   name                          String                         @unique
@@ -605,10 +544,7 @@ model TitleDeedService {
   description                   String?
   description_json              Json?                          @default("{}")
   has_existing_title_deed       Boolean                        @default(false)
-  applicant_type                APPLICANT_TYPE                 @default(BOTH)
   parent_title_deed_service_id  String?
-  titleDeedService              TitleDeedService?              @relation("TitleDeedServiceToTitleDeedService", fields: [parent_title_deed_service_id], references: [id])
-  childrenTitleDeedServices     TitleDeedService[]             @relation("TitleDeedServiceToTitleDeedService")
   draft                         Boolean                        @default(false)
   drafted_at                    DateTime?
   drafted_by_id                 String?
@@ -616,11 +552,14 @@ model TitleDeedService {
   updated_at                    DateTime                       @updatedAt
   created_by_id                 String?
   updated_by_id                 String?
-  titleDeedServiceBranches      TitleDeedServiceBranch[]
-  titleDeedApplications         TitleDeedApplication[]
-  titleDeedServiceRequirements  TitleDeedServiceRequirement[]
+  applicant_type                APPLICANT_TYPE                 @default(BOTH)
   titleDeedServiceDocumentTypes TitleDeedServiceDocumentType[]
+  titleDeedApplications         TitleDeedApplication[]
+  titleDeedServiceBranches      TitleDeedServiceBranch[]
   titleDeedServicePayments      TitleDeedServicePayment[]
+  titleDeedServiceRequirements  TitleDeedServiceRequirement[]
+  titleDeedService              TitleDeedService?              @relation("TitleDeedServiceToTitleDeedService", fields: [parent_title_deed_service_id], references: [id])
+  childrenTitleDeedServices     TitleDeedService[]             @relation("TitleDeedServiceToTitleDeedService")
 
   @@map("title_deed_services")
 }
@@ -638,8 +577,7 @@ model TitleDeedServicePayment {
   updated_at            DateTime                          @updatedAt
   created_by_id         String?
   updated_by_id         String?
-
-  titleDeedService TitleDeedService @relation(fields: [title_deed_service_id], references: [id])
+  titleDeedService      TitleDeedService                  @relation(fields: [title_deed_service_id], references: [id])
 
   @@map("title_deed_service_payments")
 }
@@ -648,8 +586,6 @@ model TitleDeedServiceRequirement {
   id                    String           @id @default(uuid())
   description           String
   description_json      Json?            @default("{}")
-  title_deed_service_id String
-  titleDeedService      TitleDeedService @relation(fields: [title_deed_service_id], references: [id])
   draft                 Boolean          @default(false)
   drafted_at            DateTime?
   drafted_by_id         String?
@@ -657,6 +593,8 @@ model TitleDeedServiceRequirement {
   updated_at            DateTime         @updatedAt
   created_by_id         String?
   updated_by_id         String?
+  title_deed_service_id String
+  titleDeedService      TitleDeedService @relation(fields: [title_deed_service_id], references: [id])
 
   @@unique([title_deed_service_id, description])
   @@map("title_deed_service_requirements")
@@ -667,9 +605,7 @@ model TitleDeedServiceBranch {
   description           String?
   description_json      Json?            @default("{}")
   branch_id             String
-  branch                Branch           @relation(fields: [branch_id], references: [id])
   title_deed_service_id String
-  titleDeedService      TitleDeedService @relation(fields: [title_deed_service_id], references: [id])
   draft                 Boolean          @default(false)
   drafted_at            DateTime?
   drafted_by_id         String?
@@ -677,6 +613,8 @@ model TitleDeedServiceBranch {
   updated_at            DateTime         @updatedAt
   created_by_id         String?
   updated_by_id         String?
+  branch                Branch           @relation(fields: [branch_id], references: [id])
+  titleDeedService      TitleDeedService @relation(fields: [title_deed_service_id], references: [id])
 
   @@unique([title_deed_service_id, branch_id])
   @@map("title_deed_service_branches")
@@ -690,8 +628,6 @@ model Branch {
   description              String?
   description_json         Json?                    @default("{}")
   woreda_id                String
-  woreda                   Woreda                   @relation(fields: [woreda_id], references: [id])
-  branch_type              BranchType               @default(SUB_CITY)
   draft                    Boolean                  @default(false)
   drafted_at               DateTime?
   drafted_by_id            String?
@@ -699,9 +635,12 @@ model Branch {
   updated_at               DateTime                 @updatedAt
   created_by_id            String?
   updated_by_id            String?
-  titleDeedServiceBranches TitleDeedServiceBranch[]
-  titleDeedApplications    TitleDeedApplication[]
+  branch_type              BranchType               @default(SUB_CITY)
+  woreda                   Woreda                   @relation(fields: [woreda_id], references: [id])
+  employees                Employee[]
   Plot                     Plot[]
+  titleDeedApplications    TitleDeedApplication[]
+  titleDeedServiceBranches TitleDeedServiceBranch[]
 
   @@map("branches")
 }
@@ -743,26 +682,25 @@ model DisabilityStatus {
 }
 
 model Country {
-  id               String    @id @default(uuid())
-  name             String    @unique
-  name_json        Json      @default("{}")
-  country_code     String    @unique
-  flag             String?
-  nationality      String    @unique
-  nationality_json Json      @default("{}")
-  description      String?
-  description_json Json?     @default("{}")
-  draft            Boolean   @default(false)
-  drafted_at       DateTime?
-  drafted_by_id    String?
-  created_at       DateTime  @default(now())
-  updated_at       DateTime  @updatedAt
-  created_by_id    String?
-  updated_by_id    String?
-  regions          Region[]
-
-  residencyTitleDeedApplicationOwners   TitleDeedApplicationOwner[] @relation("residencyCountry")
+  id                                    String                      @id @default(uuid())
+  name                                  String                      @unique
+  name_json                             Json                        @default("{}")
+  country_code                          String                      @unique
+  flag                                  String?
+  nationality                           String                      @unique
+  nationality_json                      Json                        @default("{}")
+  description                           String?
+  description_json                      Json?                       @default("{}")
+  draft                                 Boolean                     @default(false)
+  drafted_at                            DateTime?
+  drafted_by_id                         String?
+  created_at                            DateTime                    @default(now())
+  updated_at                            DateTime                    @updatedAt
+  created_by_id                         String?
+  updated_by_id                         String?
+  regions                               Region[]
   nationalityTitleDeedApplicationOwners TitleDeedApplicationOwner[] @relation("nationality")
+  residencyTitleDeedApplicationOwners   TitleDeedApplicationOwner[] @relation("residencyCountry")
 
   @@map("countries")
 }
@@ -775,7 +713,6 @@ model Region {
   description      String?
   description_json Json?      @default("{}")
   country_id       String
-  country          Country    @relation(fields: [country_id], references: [id])
   draft            Boolean    @default(false)
   drafted_at       DateTime?
   drafted_by_id    String?
@@ -784,6 +721,7 @@ model Region {
   created_by_id    String?
   updated_by_id    String?
   districts        District[]
+  country          Country    @relation(fields: [country_id], references: [id])
 
   @@map("regions")
 }
@@ -796,7 +734,6 @@ model District {
   description_json Json?     @default("{}")
   region_id        String
   zip_code         String
-  region           Region    @relation(fields: [region_id], references: [id])
   draft            Boolean   @default(false)
   drafted_at       DateTime?
   drafted_by_id    String?
@@ -804,6 +741,7 @@ model District {
   updated_at       DateTime  @updatedAt
   created_by_id    String?
   updated_by_id    String?
+  region           Region    @relation(fields: [region_id], references: [id])
   woredas          Woreda[]
 
   @@unique([name, region_id])
@@ -819,7 +757,6 @@ model Woreda {
   description_json           Json?                       @default("{}")
   zip_code                   String
   district_id                String
-  district                   District                    @relation(fields: [district_id], references: [id])
   draft                      Boolean                     @default(false)
   drafted_at                 DateTime?
   drafted_by_id              String?
@@ -828,9 +765,10 @@ model Woreda {
   created_by_id              String?
   updated_by_id              String?
   branches                   Branch[]
-  titleDeedApplications      TitleDeedApplication[]
-  titleDeedApplicationOwners TitleDeedApplicationOwner[]
   plots                      Plot[]
+  titleDeedApplicationOwners TitleDeedApplicationOwner[]
+  titleDeedApplications      TitleDeedApplication[]
+  district                   District                    @relation(fields: [district_id], references: [id])
 
   @@unique([name, district_id])
   @@unique([zip_code, district_id])
@@ -872,8 +810,8 @@ model TitleDeedServiceDocumentType {
   updated_at                          DateTime                             @updatedAt
   created_by_id                       String?
   updated_by_id                       String?
-  titleDeedService                    TitleDeedService                     @relation(fields: [title_deed_service_id], references: [id])
   documentType                        DocumentType                         @relation(fields: [document_type_id], references: [id])
+  titleDeedService                    TitleDeedService                     @relation(fields: [title_deed_service_id], references: [id])
   titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
 
   @@map("document_category_types")
@@ -892,10 +830,10 @@ model RejectionReason {
   updated_at                          DateTime                             @updatedAt
   created_by_id                       String?
   updated_by_id                       String?
-  titleDeedApplications               TitleDeedApplication[]
-  titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
-  plots                               Plot[]
   plotProperties                      PlotProperty[]
+  plots                               Plot[]
+  titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
+  titleDeedApplications               TitleDeedApplication[]
 
   @@map("rejection_reasons")
 }
@@ -972,21 +910,20 @@ model PropertyUse {
   @@map("property_uses")
 }
 
-// AUTHENTICATION SECURITY TABLES
 model RefreshToken {
   id                      String    @id @default(uuid())
-  jti                     String    @unique // JWT ID - unique identifier for the token
-  family_id               String // Family ID for token rotation - same family per login session
-  subject_user_id         String // User ID (either User or Employee)
-  subject_type            String // 'user' or 'employee'
+  jti                     String    @unique
+  family_id               String
+  subject_user_id         String
+  subject_type            String
   issued_at               DateTime  @default(now())
   expires_at              DateTime
-  rotated_at              DateTime? // When this token was rotated (replaced by a new one)
-  revoked_at              DateTime? // When this token was revoked
-  revoked_reason          String? // Reason for revocation (logout, reuse_detected, etc.)
-  last_ip                 String? // IP address of last use
-  last_user_agent         String? // User agent of last use
-  last_device_fingerprint String? // Device fingerprint for additional security
+  rotated_at              DateTime?
+  revoked_at              DateTime?
+  revoked_reason          String?
+  last_ip                 String?
+  last_user_agent         String?
+  last_device_fingerprint String?
   created_at              DateTime  @default(now())
   updated_at              DateTime  @updatedAt
 
@@ -999,17 +936,17 @@ model RefreshToken {
 
 model Session {
   id                 String    @id @default(uuid())
-  session_id         String    @unique // Unique session identifier
-  user_id            String // User ID (either User or Employee)
-  user_type          String // 'user' or 'employee'
+  session_id         String    @unique
+  user_id            String
+  user_type          String
   last_seen_at       DateTime  @default(now())
-  expires_at         DateTime // Absolute expiration time
-  idle_timeout_at    DateTime // Idle timeout time
-  ip                 String? // IP address
-  user_agent         String? // User agent
-  device_fingerprint String? // Device fingerprint
-  revoked_at         DateTime? // When session was revoked
-  revoked_reason     String? // Reason for revocation
+  expires_at         DateTime
+  idle_timeout_at    DateTime
+  ip                 String?
+  user_agent         String?
+  device_fingerprint String?
+  revoked_at         DateTime?
+  revoked_reason     String?
   created_at         DateTime  @default(now())
   updated_at         DateTime  @updatedAt
 
@@ -1022,17 +959,17 @@ model Session {
 
 model AuthAuditLog {
   id          String   @id @default(uuid())
-  event_id    String   @unique // Unique event identifier
+  event_id    String   @unique
   occurred_at DateTime @default(now())
-  actor_type  String // 'user' or 'employee'
-  actor_id    String // User/Employee ID
-  action      String // login_success, login_fail, token_refresh, token_reuse_detected, session_revoked, logout, logout_all
-  result      String // 'success', 'failure', 'denied'
-  ip          String? // IP address
-  user_agent  String? // User agent
-  token_jti   String? // JWT ID of the token involved
-  session_id  String? // Session ID if applicable
-  metadata    Json? // Additional event metadata
+  actor_type  String
+  actor_id    String
+  action      String
+  result      String
+  ip          String?
+  user_agent  String?
+  token_jti   String?
+  session_id  String?
+  metadata    Json?
   created_at  DateTime @default(now())
 
   @@index([actor_type, actor_id])
@@ -1045,12 +982,47 @@ model AuthAuditLog {
 
 model RevokedAccessToken {
   id             String   @id @default(uuid())
-  jti            String   @unique // JWT ID of the revoked access token
-  expires_at     DateTime // When the token expires (for cleanup)
+  jti            String   @unique
+  expires_at     DateTime
   revoked_at     DateTime @default(now())
-  revoked_reason String // Reason for revocation
+  revoked_reason String
   created_at     DateTime @default(now())
 
   @@index([expires_at])
   @@map("revoked_access_tokens")
+}
+
+enum UserType {
+  ORGANIZATION
+  INDIVIDUAL
+}
+
+enum IdType {
+  FAYDA_ID
+  GOVERNMENT_ID
+  TIN_NUMBER
+  PASSPORT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum BranchType {
+  CENTRAL
+  MESOB
+  SUB_CITY
+}
+
+enum APPLICANT_TYPE {
+  INDIVIDUAL
+  ORGANIZATION
+  BOTH
+}
+
+enum TitleDeedApplicationPaymentReason {
+  DOCUMENT_VERIFICATION
+  TECHNICAL_INSPECTION
+  CERTIFICATE_PRINTING
 }

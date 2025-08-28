@@ -42,6 +42,7 @@ import { PropertyUseModule } from './models/basedata/property-use/property-use.m
 import { TitleDeedApplicationPaymentModule } from './models/title-deed-application-payment/title-deed-application-payment.module';
 import { AuthorizationModule } from './common/services/authorization.module';
 import { TokenCleanupService } from './common/services/token-cleanup.service';
+import { EmployeeModule } from './models/employee/employee.module';
 
 @Module({
   imports: [
@@ -90,6 +91,7 @@ import { TokenCleanupService } from './common/services/token-cleanup.service';
     PropertyTypeModule,
     PropertyUseModule,
     TitleDeedApplicationPaymentModule,
+    EmployeeModule,
   ],
   controllers: [AppController],
   providers: [AppService, TokenCleanupService],
