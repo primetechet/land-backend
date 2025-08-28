@@ -971,3 +971,86 @@ model PropertyUse {
 
   @@map("property_uses")
 }
+
+// AUTHENTICATION SECURITY TABLES
+model RefreshToken {
+  id                      String    @id @default(uuid())
+  jti                     String    @unique // JWT ID - unique identifier for the token
+  family_id               String // Family ID for token rotation - same family per login session
+  subject_user_id         String // User ID (either User or Employee)
+  subject_type            String // 'user' or 'employee'
+  issued_at               DateTime  @default(now())
+  expires_at              DateTime
+  rotated_at              DateTime? // When this token was rotated (replaced by a new one)
+  revoked_at              DateTime? // When this token was revoked
+  revoked_reason          String? // Reason for revocation (logout, reuse_detected, etc.)
+  last_ip                 String? // IP address of last use
+  last_user_agent         String? // User agent of last use
+  last_device_fingerprint String? // Device fingerprint for additional security
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+
+  @@index([family_id])
+  @@index([subject_user_id, subject_type])
+  @@index([expires_at])
+  @@index([revoked_at])
+  @@map("refresh_tokens")
+}
+
+model Session {
+  id                 String    @id @default(uuid())
+  session_id         String    @unique // Unique session identifier
+  user_id            String // User ID (either User or Employee)
+  user_type          String // 'user' or 'employee'
+  last_seen_at       DateTime  @default(now())
+  expires_at         DateTime // Absolute expiration time
+  idle_timeout_at    DateTime // Idle timeout time
+  ip                 String? // IP address
+  user_agent         String? // User agent
+  device_fingerprint String? // Device fingerprint
+  revoked_at         DateTime? // When session was revoked
+  revoked_reason     String? // Reason for revocation
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+
+  @@index([user_id, user_type])
+  @@index([expires_at])
+  @@index([idle_timeout_at])
+  @@index([revoked_at])
+  @@map("sessions")
+}
+
+model AuthAuditLog {
+  id          String   @id @default(uuid())
+  event_id    String   @unique // Unique event identifier
+  occurred_at DateTime @default(now())
+  actor_type  String // 'user' or 'employee'
+  actor_id    String // User/Employee ID
+  action      String // login_success, login_fail, token_refresh, token_reuse_detected, session_revoked, logout, logout_all
+  result      String // 'success', 'failure', 'denied'
+  ip          String? // IP address
+  user_agent  String? // User agent
+  token_jti   String? // JWT ID of the token involved
+  session_id  String? // Session ID if applicable
+  metadata    Json? // Additional event metadata
+  created_at  DateTime @default(now())
+
+  @@index([actor_type, actor_id])
+  @@index([action])
+  @@index([occurred_at])
+  @@index([token_jti])
+  @@index([session_id])
+  @@map("auth_audit_logs")
+}
+
+model RevokedAccessToken {
+  id             String   @id @default(uuid())
+  jti            String   @unique // JWT ID of the revoked access token
+  expires_at     DateTime // When the token expires (for cleanup)
+  revoked_at     DateTime @default(now())
+  revoked_reason String // Reason for revocation
+  created_at     DateTime @default(now())
+
+  @@index([expires_at])
+  @@map("revoked_access_tokens")
+}

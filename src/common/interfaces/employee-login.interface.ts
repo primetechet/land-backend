@@ -44,5 +44,6 @@ export interface EmployeeTokenClaim {
     username: string;
     username_verified: boolean;
     language: string;
+    jti: string; // JWT ID for logout functionality
   };
 }

@@ -2,15 +2,15 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
-  UnauthorizedException,
   Logger,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
-import { IS_PUBLIC_KEY } from 'src/common/decorators/public.decorator';
+import { ConfigService } from '@nestjs/config';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { EmployeeTokenClaim } from '../interfaces/employee-login.interface';
+import { RefreshTokenService } from '../services/refresh-token.service';
 
 @Injectable()
 export class EmployeeAuthGuard implements CanActivate {
@@ -20,6 +20,7 @@ export class EmployeeAuthGuard implements CanActivate {
     private jwtService: JwtService,
     private configService: ConfigService,
     private reflector: Reflector,
+    private refreshTokenService: RefreshTokenService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -51,12 +52,22 @@ export class EmployeeAuthGuard implements CanActivate {
       // Validate required claims
       this.validateRequiredClaims(payload);
 
+      // Validate that this is an access token
+      this.validateAccessToken(payload);
+
+      // Check if the token is revoked
+      const isRevoked = await this.refreshTokenService.isAccessTokenRevoked(payload.jti);
+      if (isRevoked) {
+        throw new UnauthorizedException('Token has been revoked');
+      }
+
       // Create minimal token claim structure
       const tokenClaim: EmployeeTokenClaim['user'] = {
         sub: payload.sub,
         username: payload.username,
         username_verified: payload.username_verified || false,
         language: payload.language || 'en',
+        jti: payload.jti, // Include JTI for logout functionality
       };
 
       request['user'] = tokenClaim;
@@ -71,37 +82,21 @@ export class EmployeeAuthGuard implements CanActivate {
   }
 
   private validateRequiredClaims(payload: any): void {
-    const requiredClaims = ['sub', 'iss', 'aud', 'exp', 'iat'];
-    const missingClaims = requiredClaims.filter((claim) => !payload[claim]);
-
-    if (missingClaims.length > 0) {
-      this.logger.warn(
-        `Missing required JWT claims: ${missingClaims.join(', ')}`,
-      );
-      throw new UnauthorizedException('Invalid token claims');
-    }
-
-    // Validate exp claim
-    const now = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < now) {
-      this.logger.warn('Token has expired');
-      throw new UnauthorizedException('Token expired');
-    }
-
-    // Validate nbf claim if present
-    if (payload.nbf && payload.nbf > now) {
-      this.logger.warn('Token not yet valid');
-      throw new UnauthorizedException('Token not yet valid');
-    }
-
-    // Validate iat claim
-    if (payload.iat && payload.iat > now) {
-      this.logger.warn('Token issued in the future');
-      throw new UnauthorizedException('Invalid token issue time');
+    const requiredClaims = ['sub', 'iss', 'aud', 'exp', 'iat', 'jti', 'type'];
+    for (const claim of requiredClaims) {
+      if (!payload[claim]) {
+        throw new UnauthorizedException(`Missing required claim: ${claim}`);
+      }
     }
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
+  private validateAccessToken(payload: any): void {
+    if (payload.type !== 'access') {
+      throw new UnauthorizedException('Invalid token type');
+    }
+  }
+
+  private extractTokenFromHeader(request: any): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }

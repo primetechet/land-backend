@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { RefreshTokenService } from 'src/common/services/refresh-token.service';
 
 @Module({
   imports: [
@@ -15,10 +16,7 @@ import { AuthGuard } from 'src/common/guards/auth.guard';
           secret: configService.get<string>('AUTH_JWT_SECRET'),
           signOptions: {
             algorithm: 'HS256',
-            expiresIn: configService.get<string>(
-              'AUTH_JWT_TOKEN_EXPIRES_IN',
-              '1145m',
-            ),
+            expiresIn: '15m', // Short-lived access tokens
             issuer: configService.get<string>('JWT_ISSUER', 'land-backend'),
             audience: configService.get<string>(
               'JWT_AUDIENCE',
@@ -41,10 +39,12 @@ import { AuthGuard } from 'src/common/guards/auth.guard';
   controllers: [AuthController],
   providers: [
     AuthService,
+    RefreshTokenService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
   ],
+  exports: [AuthService, RefreshTokenService],
 })
 export class AuthModule {}

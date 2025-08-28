@@ -10,6 +10,7 @@ import {
 } from 'nestjs-i18n';
 import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { EmployeeAuthModule } from './models/auth/employee-auth/employee-auth.module';
 import { TitleDeedApplicationModule } from './models/title-deed-application/title-deed-application.module';
 import { TitleDeedServiceModule } from './models/basedata/title-deed-service/title-deed-service.module';
@@ -40,12 +41,14 @@ import { PropertyTypeModule } from './models/basedata/property-type/property-typ
 import { PropertyUseModule } from './models/basedata/property-use/property-use.module';
 import { TitleDeedApplicationPaymentModule } from './models/title-deed-application-payment/title-deed-application-payment.module';
 import { AuthorizationModule } from './common/services/authorization.module';
+import { TokenCleanupService } from './common/services/token-cleanup.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
     AuthorizationModule,
     CountryModule,
@@ -89,6 +92,6 @@ import { AuthorizationModule } from './common/services/authorization.module';
     TitleDeedApplicationPaymentModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, TokenCleanupService],
 })
 export class AppModule {}

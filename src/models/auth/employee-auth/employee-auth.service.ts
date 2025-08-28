@@ -20,6 +20,7 @@ import {
   IUserRole,
 } from 'src/common/interfaces/employee-login.interface';
 import { AuthorizationService } from 'src/common/services/authorization.service';
+import { RefreshTokenService } from 'src/common/services/refresh-token.service';
 import { plainToInstance } from 'class-transformer';
 
 @Injectable()
@@ -29,11 +30,14 @@ export class EmployeeAuthService {
     private readonly prisma: DatabaseService,
     private readonly i18n: I18nService<I18nTranslations>,
     private readonly authorizationService: AuthorizationService,
+    private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
   async login(
     loginDto: EmployeeLoginDto,
     ip_address: string,
+    userAgent?: string,
+    deviceFingerprint?: string,
   ): Promise<EmployeeLoginResponseDto> {
     const user: any = await this.getEmployeeLoginDetail(loginDto.username);
 
@@ -87,7 +91,12 @@ export class EmployeeAuthService {
       });
     }
 
-    const result = await this.generateJwtToken(user);
+    const result = await this.generateJwtToken(
+      user,
+      ip_address,
+      userAgent,
+      deviceFingerprint,
+    );
 
     // Add resourcePermissions to the response (not the JWT token)
     const resourcePermissions =
@@ -123,15 +132,27 @@ export class EmployeeAuthService {
     });
   }
 
-  async refreshToken(payload: any): Promise<EmployeeLoginResponseDto> {
-    const user = await this.getEmployeeLoginDetail(payload.username);
+  async refreshToken(
+    payload: any,
+    ip_address?: string,
+    userAgent?: string,
+    deviceFingerprint?: string,
+  ): Promise<EmployeeLoginResponseDto> {
+    // Use subject_user_id for lookup instead of username
+    const user = await this.getEmployeeLoginDetailById(payload.sub);
     if (!user) {
       throw new UnauthorizedException(
         this.i18n.t('error-messages.auth.invalid-token'),
       );
     }
 
-    const result = await this.generateJwtToken(user);
+    // Use the refresh token service to rotate tokens
+    const rotationResult = await this.refreshTokenService.rotateRefreshToken(
+      payload.jti,
+      ip_address,
+      userAgent,
+      deviceFingerprint,
+    );
 
     // Add resourcePermissions to the response (not the JWT token)
     const resourcePermissions =
@@ -139,15 +160,52 @@ export class EmployeeAuthService {
 
     // Transform to response DTO to exclude sensitive data
     const userResponse = plainToInstance(EmployeeResponseDto, {
-      ...result.user,
+      ...user,
       resourcePermissions,
     });
 
     return {
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
+      accessToken: rotationResult.newAccessToken,
+      refreshToken: rotationResult.newRefreshToken,
       user: userResponse,
     };
+  }
+
+  async logout(
+    employeeId: string,
+    jti?: string,
+    reason: string = 'logout',
+    accessTokenJti?: string,
+    accessTokenExpiresAt?: Date,
+  ): Promise<void> {
+    if (jti && accessTokenJti && accessTokenExpiresAt) {
+      // Use the new method that finds and revokes the active refresh token
+      await this.refreshTokenService.revokeCurrentUserSession(
+        employeeId,
+        'employee',
+        accessTokenJti,
+        accessTokenExpiresAt,
+        reason,
+      );
+    } else {
+      // Fallback: revoke all tokens for the employee
+      await this.refreshTokenService.revokeAllUserTokens(
+        employeeId,
+        'employee',
+        reason,
+      );
+    }
+  }
+
+  async logoutAll(
+    employeeId: string,
+    reason: string = 'logout_all',
+  ): Promise<void> {
+    await this.refreshTokenService.revokeAllUserTokens(
+      employeeId,
+      'employee',
+      reason,
+    );
   }
 
   async getEmployeeLoginDetail(username: string) {
@@ -169,39 +227,64 @@ export class EmployeeAuthService {
     });
   }
 
+  async getEmployeeLoginDetailById(employeeId: string) {
+    return await this.prisma.employee.findUnique({
+      where: {
+        id: employeeId,
+      },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        password: true, // Still needed for password verification
+        email: true,
+        require_password_change: true,
+        is_active: true,
+        is_suspended: true,
+        username_verified: true,
+      },
+    });
+  }
+
   private async generateJwtToken<
     T extends IEmployeeLogin | Partial<IEmployeeLogin>,
   >(
     user: T,
+    ip_address?: string,
+    userAgent?: string,
+    deviceFingerprint?: string,
   ): Promise<{
     accessToken: string;
     refreshToken: string;
     user: T;
   }> {
-    // Minimal JWT payload following JWT BCP standards
-    const jwtPayload = {
-      sub: user.id || '',
-      username: user.username || '',
-      username_verified: user.username_verified || false,
-      language: 'en',
-      jti: `emp-${user.id}-${Date.now()}`, // Unique token identifier
-    };
-
-    const accessToken = this.jwtService.sign(jwtPayload, {
-      algorithm: 'HS256',
-      expiresIn: '1145m',
-    });
-
-    const refreshToken = this.jwtService.sign(
+    // Generate a new access token with short expiration
+    const accessTokenJti = `emp-${user.id}-${Date.now()}`;
+    const accessToken = this.jwtService.sign(
       {
-        sub: user.id,
-        username: user.username,
-        jti: `refresh-emp-${user.id}-${Date.now()}`,
+        sub: user.id || '',
+        username: user.username || '',
+        username_verified: user.username_verified || false,
+        language: 'en',
+        jti: accessTokenJti,
+        type: 'access',
       },
       {
         algorithm: 'HS256',
-        expiresIn: '11h',
+        expiresIn: '15m', // Short-lived access tokens
+        issuer: 'land-backend',
+        audience: 'land-backend-users',
       },
+    );
+
+    // Create a stateful refresh token
+    const { refreshToken } = await this.refreshTokenService.createRefreshToken(
+      user.id || '',
+      'employee',
+      user.username || '', // Pass username for lookup
+      ip_address,
+      userAgent,
+      deviceFingerprint,
     );
 
     return {
