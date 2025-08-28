@@ -175,6 +175,4 @@ export class SearchTitleDeedApplicationOwnerDto extends PartialType(
 
 export class UpdateTitleDeedApplicationOwnerDto extends PartialType(
   CreateTitleDeedApplicationOwnerDto,
-) {
-  updated_by_id: string;
-}
+) {}

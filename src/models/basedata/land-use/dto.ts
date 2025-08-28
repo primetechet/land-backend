@@ -45,6 +45,4 @@ export class SearchLandUseDto extends PartialType(PaginationDto) {
   search?: string;
 }
 
-export class UpdateLandUseDto extends PartialType(CreateLandUseDto) {
-  updated_by_id: string;
-}
+export class UpdateLandUseDto extends PartialType(CreateLandUseDto) {}

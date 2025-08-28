@@ -24,7 +24,7 @@ import { ACTIONS } from 'src/common/constants/actions';
 import { EmployeeResponseDto } from './dto';
 
 @ApiTags('Employee Management')
-@Controller('employees')
+@Controller('employee')
 @UseGuards(EmployeeAuthGuard)
 @ApiBearerAuth()
 export class EmployeeController {
@@ -81,6 +81,12 @@ export class EmployeeController {
     @Query('branchId') branchId?: string,
   ): Promise<EmployeeResponseDto[]> {
     return this.employeeService.findAll(request, branchId);
+  }
+
+  @Get('paginated')
+  // @Resource([{ resource: RESOURCE.EMPLOYEE, actions: [ACTIONS.READ] }])
+  findAllPaginated(@Query() payload: any) {
+    return this.employeeService.findAllPaginated(payload);
   }
 
   @Get(':id')

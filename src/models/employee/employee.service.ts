@@ -16,6 +16,7 @@ import { I18nService } from 'nestjs-i18n';
 import { I18nTranslations } from 'src/generated/i18n.generated';
 import * as bcrypt from 'bcryptjs';
 import { plainToInstance } from 'class-transformer';
+import { paginate } from 'src/common/utils/paginater';
 
 @Injectable()
 export class EmployeeService {
@@ -209,6 +210,39 @@ export class EmployeeService {
     return plainToInstance(EmployeeResponseDto, employees, {
       groups: ['me'],
     });
+  }
+
+  async findAllPaginated(options: any) {
+    const { search } = { ...options };
+    const where: any = {};
+
+    if (search) {
+      where.OR = [
+        {
+          name: {
+            contains: search, // Use 'contains' for a case-insensitive search
+            mode: 'insensitive', // Ensure the search is case-insensitive
+          },
+        },
+      ];
+    }
+
+    return paginate(
+      this.prisma.employee,
+      {
+        where,
+        orderBy: { created_at: 'desc' },
+        include: {
+          employeeRoles: {
+            select: {
+              id: true,
+              role: { select: { id: true, name: true } },
+            },
+          },
+        },
+      },
+      { page: options.page, perPage: options.limit },
+    );
   }
 
   async findOne(

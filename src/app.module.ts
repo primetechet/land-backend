@@ -44,6 +44,7 @@ import { AuthorizationModule } from './common/services/authorization.module';
 import { TokenCleanupService } from './common/services/token-cleanup.service';
 import { EmployeeModule } from './models/employee/employee.module';
 import { RejectionReasonModule } from './models/basedata/rejection-reason/rejection-reason.module';
+import { EmployeeRoleModule } from './models/employee-role/employee-role.module';
 
 @Module({
   imports: [
@@ -95,6 +96,7 @@ import { RejectionReasonModule } from './models/basedata/rejection-reason/reject
     EmployeeModule,
     RejectionReasonModule,
     EmployeeModule,
+    EmployeeRoleModule,
   ],
   controllers: [AppController],
   providers: [AppService, TokenCleanupService],
