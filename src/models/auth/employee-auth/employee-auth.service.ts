@@ -110,28 +110,27 @@ export class EmployeeAuthService {
     };
   }
 
-  async refreshToken(token: EmployeeTokenClaim) {
-    if (!token.user.username) {
+  async refreshToken(payload: any) {
+    const user = await this.getEmployeeLoginDetail(payload.username);
+    if (!user) {
       throw new UnauthorizedException(
         this.i18n.t('error-messages.auth.invalid-token'),
       );
     }
-    const user = await this.getEmployeeLoginDetail(token.user.username);
-    if (user) {
-      const result = await this.generateJwtToken(user);
 
-      // Add resourcePermissions to the response (not the JWT token)
-      const resourcePermissions =
-        await this.authorizationService.getEmployeePermissions(user.id);
+    const result = await this.generateJwtToken(user);
 
-      return {
-        ...result,
-        user: {
-          ...result.user,
-          resourcePermissions,
-        },
-      };
-    }
+    // Add resourcePermissions to the response (not the JWT token)
+    const resourcePermissions =
+      await this.authorizationService.getEmployeePermissions(user.id);
+
+    return {
+      ...result,
+      user: {
+        ...result.user,
+        resourcePermissions,
+      },
+    };
   }
 
   async getEmployeeLoginDetail(username: string) {

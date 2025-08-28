@@ -44,10 +44,7 @@ export class EmployeeAuthGuard implements CanActivate {
         secret: this.configService.get('AUTH_JWT_SECRET'),
         algorithms: ['HS256'], // Pin to HS256 only
         issuer: this.configService.get('JWT_ISSUER', 'land-backend'),
-        audience: this.configService.get(
-          'JWT_AUDIENCE',
-          'land-backend-employees',
-        ),
+        audience: this.configService.get('JWT_AUDIENCE', 'land-backend-users'),
         clockTolerance: 30, // 30 seconds tolerance for clock skew
       });
 

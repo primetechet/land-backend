@@ -23,7 +23,7 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
             issuer: configService.get<string>('JWT_ISSUER', 'land-backend'),
             audience: configService.get<string>(
               'JWT_AUDIENCE',
-              'land-backend-employees',
+              'land-backend-users',
             ),
           },
           verifyOptions: {
@@ -31,7 +31,7 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
             issuer: configService.get<string>('JWT_ISSUER', 'land-backend'),
             audience: configService.get<string>(
               'JWT_AUDIENCE',
-              'land-backend-employees',
+              'land-backend-users',
             ),
             clockTolerance: 30,
           },

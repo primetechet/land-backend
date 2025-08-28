@@ -11,10 +11,13 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from 'src/common/decorators/public.decorator';
+import { RefreshToken } from 'src/common/decorators/refresh-token.decorator';
 import { LoginDto } from './dto';
 import { TokenClaim } from 'src/common/interfaces/login.interface';
 import { NullableType } from 'src/common/types/nullable.type';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { UseGuards } from '@nestjs/common';
+import { RefreshTokenGuard } from 'src/common/guards/refresh-token.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -32,17 +35,25 @@ export class AuthController {
 
   @Get('me')
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @SerializeOptions({
+    groups: ['me'],
+  })
   me(@Request() request: TokenClaim): Promise<NullableType<any>> {
     return this.authService.me(request);
   }
 
+  @Public()
+  @RefreshToken()
+  @UseGuards(RefreshTokenGuard)
   @SerializeOptions({
     groups: ['me'],
   })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
-  public refresh(@Request() request: TokenClaim) {
-    return this.authService.refreshToken(request);
+  public refresh(@Request() request: any) {
+    const payload = request.refreshTokenPayload;
+    return this.authService.refreshToken(payload);
   }
 }

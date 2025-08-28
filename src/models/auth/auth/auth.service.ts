@@ -105,27 +105,26 @@ export class AuthService {
     };
   }
 
-  async refreshToken(token: TokenClaim) {
-    if (!token.user.username) {
+  async refreshToken(payload: any) {
+    const user = await this.getLoginDetail(payload.username);
+    if (!user) {
       throw new UnauthorizedException(
         this.i18n.t('error-messages.auth.invalid-token'),
       );
     }
-    const user = await this.getLoginDetail(token.user.username);
-    if (user) {
-      const result = await this.generateJwtToken(user);
 
-      // Add userRoles to the response (not the JWT token)
-      const userRoles = await this.authorizationService.getUserRoles(user.id);
+    const result = await this.generateJwtToken(user);
 
-      return {
-        ...result,
-        user: {
-          ...result.user,
-          userRoles,
-        },
-      };
-    }
+    // Add userRoles to the response (not the JWT token)
+    const userRoles = await this.authorizationService.getUserRoles(user.id);
+
+    return {
+      ...result,
+      user: {
+        ...result.user,
+        userRoles,
+      },
+    };
   }
 
   async getLoginDetail(username: string) {
