@@ -68,10 +68,6 @@ export class EmployeeResponseDto {
 
   @Expose()
   @ApiProperty()
-  role_id?: string;
-
-  @Expose()
-  @ApiProperty()
   branch?: {
     id: string;
     name: string;
