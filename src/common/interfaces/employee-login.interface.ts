@@ -20,7 +20,6 @@ export interface IEmployeeLogin {
   id: string;
   name?: string | null;
   username: string;
-  password: string;
   email?: string | null;
   require_password_change: boolean;
   username_verified: boolean;
@@ -43,9 +42,8 @@ export interface EmployeeTokenClaim {
   user: {
     sub: string;
     username: string;
-    email?: string | null;
-    roles?: IUserRole[];
     username_verified: boolean;
     language: string;
+    jti: string; // JWT ID for logout functionality
   };
 }

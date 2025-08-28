@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { EmployeeAuthGuard } from 'src/common/guards/employee-auth.guard';
 import { RolesGuard } from 'src/common/guards/roles.guard';
+import { RefreshTokenService } from 'src/common/services/refresh-token.service';
 
 @Module({
   imports: [
@@ -15,7 +16,22 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
         return {
           secret: configService.get<string>('AUTH_JWT_SECRET'),
           signOptions: {
-            expiresIn: configService.get<string>('AUTH_JWT_TOKEN_EXPIRES_IN'),
+            algorithm: 'HS256',
+            expiresIn: '15m', // Short-lived access tokens
+            issuer: configService.get<string>('JWT_ISSUER', 'land-backend'),
+            audience: configService.get<string>(
+              'JWT_AUDIENCE',
+              'land-backend-users',
+            ),
+          },
+          verifyOptions: {
+            algorithms: ['HS256'],
+            issuer: configService.get<string>('JWT_ISSUER', 'land-backend'),
+            audience: configService.get<string>(
+              'JWT_AUDIENCE',
+              'land-backend-users',
+            ),
+            clockTolerance: 30,
           },
         };
       },
@@ -24,6 +40,7 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
   controllers: [EmployeeAuthController],
   providers: [
     EmployeeAuthService,
+    RefreshTokenService,
     {
       provide: APP_GUARD,
       useClass: EmployeeAuthGuard,
@@ -33,5 +50,6 @@ import { RolesGuard } from 'src/common/guards/roles.guard';
       useClass: RolesGuard,
     },
   ],
+  exports: [EmployeeAuthService, RefreshTokenService],
 })
 export class EmployeeAuthModule {}

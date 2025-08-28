@@ -8,13 +8,12 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
-import { EmployeeTokenClaim } from '../interfaces/employee-login.interface';
+import { REFRESH_TOKEN_KEY } from '../decorators/refresh-token.decorator';
 import { RefreshTokenService } from '../services/refresh-token.service';
 
 @Injectable()
-export class EmployeeAuthGuard implements CanActivate {
-  private readonly logger = new Logger(EmployeeAuthGuard.name);
+export class RefreshTokenGuard implements CanActivate {
+  private readonly logger = new Logger(RefreshTokenGuard.name);
 
   constructor(
     private jwtService: JwtService,
@@ -24,20 +23,23 @@ export class EmployeeAuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const isRefreshToken = this.reflector.getAllAndOverride<boolean>(
+      REFRESH_TOKEN_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
-    if (isPublic) {
-      return true;
+    if (!isRefreshToken) {
+      return true; // Let other guards handle this
     }
+
+    // For refresh token endpoints, we handle all validation ourselves
+    // This prevents conflicts with the global AuthGuard
 
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      this.logger.warn('No token provided in request');
-      throw new UnauthorizedException('No token provided');
+      this.logger.warn('No refresh token provided in request');
+      throw new UnauthorizedException('No refresh token provided');
     }
 
     try {
@@ -45,44 +47,45 @@ export class EmployeeAuthGuard implements CanActivate {
         secret: this.configService.get('AUTH_JWT_SECRET'),
         algorithms: ['HS256'], // Pin to HS256 only
         issuer: this.configService.get('JWT_ISSUER', 'land-backend'),
-        audience: this.configService.get('JWT_AUDIENCE', 'land-backend-users'),
         clockTolerance: 30, // 30 seconds tolerance for clock skew
       });
 
       // Validate required claims
       this.validateRequiredClaims(payload);
 
-      // Validate that this is an access token
-      this.validateAccessToken(payload);
+      // Validate that this is actually a refresh token
+      this.validateRefreshToken(payload);
 
-      // Check if the token is revoked
-      const isRevoked = await this.refreshTokenService.isAccessTokenRevoked(payload.jti);
-      if (isRevoked) {
-        throw new UnauthorizedException('Token has been revoked');
+      // Check if the refresh token exists and is valid in the database
+      const refreshTokenData =
+        await this.refreshTokenService.validateRefreshToken(payload.jti);
+      if (!refreshTokenData) {
+        throw new UnauthorizedException('Invalid or expired refresh token');
       }
 
-      // Create minimal token claim structure
-      const tokenClaim: EmployeeTokenClaim['user'] = {
-        sub: payload.sub,
-        username: payload.username,
-        username_verified: payload.username_verified || false,
-        language: payload.language || 'en',
-        jti: payload.jti, // Include JTI for logout functionality
-      };
-
-      request['user'] = tokenClaim;
+      // Add the validated payload to the request
+      request['refreshTokenPayload'] = payload;
     } catch (error) {
-      this.logger.warn(`Token validation failed: ${error.message}`, {
+      this.logger.warn(`Refresh token validation failed: ${error.message}`, {
         error: error.name,
         token: token.substring(0, 20) + '...',
       });
-      throw new UnauthorizedException('Invalid token');
+      throw new UnauthorizedException('Invalid refresh token');
     }
     return true;
   }
 
   private validateRequiredClaims(payload: any): void {
-    const requiredClaims = ['sub', 'iss', 'aud', 'exp', 'iat', 'jti', 'type'];
+    const requiredClaims = [
+      'sub',
+      'iss',
+      'exp',
+      'iat',
+      'jti',
+      'type',
+      'family_id',
+      'subject_type',
+    ];
     for (const claim of requiredClaims) {
       if (!payload[claim]) {
         throw new UnauthorizedException(`Missing required claim: ${claim}`);
@@ -90,9 +93,11 @@ export class EmployeeAuthGuard implements CanActivate {
     }
   }
 
-  private validateAccessToken(payload: any): void {
-    if (payload.type !== 'access') {
-      throw new UnauthorizedException('Invalid token type');
+  private validateRefreshToken(payload: any): void {
+    if (payload.type !== 'refresh') {
+      throw new UnauthorizedException(
+        'Invalid token type - expected refresh token',
+      );
     }
   }
 

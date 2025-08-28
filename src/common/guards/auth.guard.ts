@@ -9,12 +9,12 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
-import { EmployeeTokenClaim } from '../interfaces/employee-login.interface';
+import { TokenClaim } from '../interfaces/login.interface';
 import { RefreshTokenService } from '../services/refresh-token.service';
 
 @Injectable()
-export class EmployeeAuthGuard implements CanActivate {
-  private readonly logger = new Logger(EmployeeAuthGuard.name);
+export class AuthGuard implements CanActivate {
+  private readonly logger = new Logger(AuthGuard.name);
 
   constructor(
     private jwtService: JwtService,
@@ -62,7 +62,7 @@ export class EmployeeAuthGuard implements CanActivate {
       }
 
       // Create minimal token claim structure
-      const tokenClaim: EmployeeTokenClaim['user'] = {
+      const tokenClaim: TokenClaim['user'] = {
         sub: payload.sub,
         username: payload.username,
         username_verified: payload.username_verified || false,

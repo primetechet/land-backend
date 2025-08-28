@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { LoginDto } from './dto';
+import { LoginDto, UserResponseDto, LoginResponseDto } from './dto';
 import { DatabaseService } from 'src/common/database/database.service';
 import { I18nService } from 'nestjs-i18n';
 import { I18nTranslations } from 'src/generated/i18n.generated';
@@ -14,6 +14,9 @@ import {
   ILogin,
   IUserRole,
 } from 'src/common/interfaces/login.interface';
+import { AuthorizationService } from 'src/common/services/authorization.service';
+import { RefreshTokenService } from 'src/common/services/refresh-token.service';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AuthService {
@@ -21,9 +24,16 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly prisma: DatabaseService,
     private readonly i18n: I18nService<I18nTranslations>,
+    private readonly authorizationService: AuthorizationService,
+    private readonly refreshTokenService: RefreshTokenService,
   ) {}
 
-  async login(loginDto: LoginDto, ip_address: string) {
+  async login(
+    loginDto: LoginDto,
+    ip_address: string,
+    userAgent?: string,
+    deviceFingerprint?: string,
+  ): Promise<LoginResponseDto> {
     const user = await this.getLoginDetail(loginDto.username);
 
     if (!user) {
@@ -76,23 +86,112 @@ export class AuthService {
       });
     }
 
-    return this.generateJwtToken(user);
+    const result = await this.generateJwtToken(
+      user,
+      ip_address,
+      userAgent,
+      deviceFingerprint,
+    );
+
+    // Add userRoles to the response (not the JWT token)
+    const userRoles = await this.authorizationService.getUserRoles(user.id);
+
+    // Transform to response DTO to exclude sensitive data
+    const userResponse = plainToInstance(UserResponseDto, {
+      ...result.user,
+      userRoles,
+    });
+
+    return {
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      user: userResponse,
+    };
   }
 
-  async me(token: TokenClaim) {
+  async me(token: TokenClaim): Promise<UserResponseDto> {
     const user = await this.getLoginDetail(token.user.username);
+    const userRoles = await this.authorizationService.getUserRoles(
+      token.user.sub,
+    );
 
-    return { ...user, server_time: new Date() };
+    // Transform to response DTO to exclude sensitive data
+    return plainToInstance(UserResponseDto, {
+      ...user,
+      userRoles,
+      server_time: new Date(),
+    });
   }
 
-  async refreshToken(token: TokenClaim) {
-    if (!token.user.username) {
+  async refreshToken(
+    payload: any,
+    ip_address?: string,
+    userAgent?: string,
+    deviceFingerprint?: string,
+  ): Promise<LoginResponseDto> {
+    // Use subject_user_id for lookup instead of username
+    const user = await this.getLoginDetailById(payload.sub);
+    if (!user) {
       throw new UnauthorizedException(
         this.i18n.t('error-messages.auth.invalid-token'),
       );
     }
-    const user = await this.getLoginDetail(token.user.username);
-    if (user) return this.generateJwtToken(user);
+
+    // Use the refresh token service to rotate tokens
+    const rotationResult = await this.refreshTokenService.rotateRefreshToken(
+      payload.jti,
+      ip_address,
+      userAgent,
+      deviceFingerprint,
+    );
+
+    // Add userRoles to the response (not the JWT token)
+    const userRoles = await this.authorizationService.getUserRoles(user.id);
+
+    // Transform to response DTO to exclude sensitive data
+    const userResponse = plainToInstance(UserResponseDto, {
+      ...user,
+      userRoles,
+    });
+
+    return {
+      accessToken: rotationResult.newAccessToken,
+      refreshToken: rotationResult.newRefreshToken,
+      user: userResponse,
+    };
+  }
+
+  async logout(
+    userId: string,
+    jti?: string,
+    reason: string = 'logout',
+    accessTokenJti?: string,
+    accessTokenExpiresAt?: Date,
+  ): Promise<void> {
+    if (jti && accessTokenJti && accessTokenExpiresAt) {
+      // Use the new method that finds and revokes the active refresh token
+      await this.refreshTokenService.revokeCurrentUserSession(
+        userId,
+        'user',
+        accessTokenJti,
+        accessTokenExpiresAt,
+        reason,
+      );
+    } else {
+      // Fallback: revoke all tokens for the user
+      await this.refreshTokenService.revokeAllUserTokens(
+        userId,
+        'user',
+        reason,
+      );
+    }
+  }
+
+  async logoutAll(
+    userId: string,
+    reason: string = 'logout_all',
+  ): Promise<void> {
+    await this.refreshTokenService.revokeAllUserTokens(userId, 'user', reason);
   }
 
   async getLoginDetail(username: string) {
@@ -104,50 +203,72 @@ export class AuthService {
         id: true,
         name: true,
         username: true,
-        password: true,
+        password: true, // Still needed for password verification
         email: true,
         require_password_change: true,
         is_active: true,
         is_suspended: true,
+        username_verified: true,
+      },
+    });
+  }
+
+  async getLoginDetailById(userId: string) {
+    return await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        password: true, // Still needed for password verification
+        email: true,
+        require_password_change: true,
+        is_active: true,
+        is_suspended: true,
+        username_verified: true,
       },
     });
   }
 
   private async generateJwtToken<T extends ILogin | Partial<ILogin>>(
     user: T,
+    ip_address?: string,
+    userAgent?: string,
+    deviceFingerprint?: string,
   ): Promise<{
     accessToken: string;
     refreshToken: string;
     user: T;
   }> {
-    const jwtPayload: {
-      sub: string;
-      username: string;
-      roles?: IUserRole[];
-      username_verified: boolean;
-      language: string;
-    } = {
-      sub: user.id || '',
-      username: user.username || '',
-      username_verified: user.username_verified || false,
-      language: 'en',
-    };
-
-    if ('userRoles' in user && user.userRoles) {
-      jwtPayload.roles = user.userRoles;
-    }
-
-    const accessToken = this.jwtService.sign(jwtPayload, {
-      expiresIn: '1145m',
-    });
-
-    const refreshToken = this.jwtService.sign(
+    // Generate a new access token with short expiration
+    const accessTokenJti = `${user.id}-${Date.now()}`;
+    const accessToken = this.jwtService.sign(
       {
-        username: user.username,
+        sub: user.id || '',
+        username: user.username || '',
+        username_verified: user.username_verified || false,
+        language: 'en',
+        jti: accessTokenJti,
+        type: 'access',
       },
       {
-        expiresIn: '11h',
+        algorithm: 'HS256',
+        expiresIn: '15m', // Short-lived access tokens
+        issuer: 'land-backend',
+        audience: 'land-backend-users',
       },
+    );
+
+    // Create a stateful refresh token
+    const { refreshToken } = await this.refreshTokenService.createRefreshToken(
+      user.id || '',
+      'user',
+      user.username || '', // Pass username for lookup
+      ip_address,
+      userAgent,
+      deviceFingerprint,
     );
 
     return {

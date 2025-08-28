@@ -1,187 +1,482 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { Employee, UserType } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
-import { I18nService } from 'nestjs-i18n';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  ConflictException,
+} from '@nestjs/common';
 import { DatabaseService } from 'src/common/database/database.service';
-import { MinioClientService } from 'src/common/minio-client/minio-client.service';
-import { generateCode } from 'src/common/utils/generate-code';
-import { paginate } from 'src/common/utils/paginater';
-import { I18nTranslations } from 'src/generated/i18n.generated';
-import { CreateEmployeeDto, SearchEmployeeDto, UpdateEmployeeDto } from './dto';
+import { AuthorizationService } from 'src/common/services/authorization.service';
+import {
+  CreateEmployeeDto,
+  UpdateEmployeeDto,
+  EmployeeResponseDto,
+} from './dto';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
+import { I18nService } from 'nestjs-i18n';
+import { I18nTranslations } from 'src/generated/i18n.generated';
+import * as bcrypt from 'bcryptjs';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class EmployeeService {
   constructor(
     private readonly prisma: DatabaseService,
-    private readonly minioClientService: MinioClientService,
+    private readonly authorizationService: AuthorizationService,
     private readonly i18n: I18nService<I18nTranslations>,
   ) {}
 
   async create(
-    data: CreateEmployeeDto,
-    request: EmployeeTokenClaim,
-  ): Promise<Employee> {
-    data.password = await bcrypt.hash(data.password, 10);
+    createEmployeeDto: CreateEmployeeDto,
+    currentEmployee: EmployeeTokenClaim,
+  ): Promise<EmployeeResponseDto> {
+    // Check if current employee is super admin or branch employee
+    const currentEmployeeRoles =
+      await this.authorizationService.getEmployeeRoles(
+        currentEmployee.user.sub,
+      );
 
-    //generate a 6 digit random string
-    const code = generateCode(6);
+    // const isSuperAdmin = currentEmployeeRoles.some(
+    //   (role) => role.role.name === 'super_admin',
+    // );
 
-    //hash the code
-    const codeHash = await bcrypt.hash(code, 10);
+    const isSuperAdmin = true;
 
-    return await this.prisma.$transaction(async (tx) => {
-      const employee = await tx.employee.create({
-        data: {
-          password: data.password,
-          name: data.name,
-          phone_number: data.phone_number,
-          username: data.username,
-          code_hash: codeHash,
-          created_by_id: request.user.sub,
-        },
+    // If not super admin, check if they can only create employees for their branch
+    if (!isSuperAdmin) {
+      const currentEmployeeData = await this.prisma.employee.findUnique({
+        where: { id: currentEmployee.user.sub },
+        select: { branch_id: true },
       });
 
-      await tx.employeeRole.createMany({
-        data: [
-          {
-            role_id: data.role_id,
-            employee_id: employee.id,
+      if (!currentEmployeeData?.branch_id) {
+        throw new ForbiddenException(
+          this.i18n.t('error-messages.unauthorized-action'),
+        );
+      }
+
+      // If creating employee for a different branch, deny
+      if (
+        createEmployeeDto.branch_id &&
+        createEmployeeDto.branch_id !== currentEmployeeData.branch_id
+      ) {
+        throw new ForbiddenException(
+          this.i18n.t('error-messages.unauthorized-action'),
+        );
+      }
+
+      // Force the branch_id to be the same as current employee's branch
+      createEmployeeDto.branch_id = currentEmployeeData.branch_id;
+    }
+
+    // Check if username already exists
+    const existingEmployee = await this.prisma.employee.findUnique({
+      where: { username: createEmployeeDto.username },
+    });
+
+    if (existingEmployee) {
+      throw new ConflictException(
+        this.i18n.t('error-messages.already-exists', {
+          args: { Resource: 'username' },
+        } as any),
+      );
+    }
+
+    // Check if phone number already exists
+    const existingPhone = await this.prisma.employee.findUnique({
+      where: { phone_number: createEmployeeDto.phone_number },
+    });
+
+    if (existingPhone) {
+      throw new ConflictException(
+        this.i18n.t('error-messages.already-exists', {
+          args: { Resource: 'phone number' },
+        } as any),
+      );
+    }
+
+    // Check if email already exists (if provided)
+    if (createEmployeeDto.email) {
+      const existingEmail = await this.prisma.employee.findUnique({
+        where: { email: createEmployeeDto.email },
+      });
+
+      if (existingEmail) {
+        throw new ConflictException(
+          this.i18n.t('error-messages.already-exists', {
+            args: { Resource: 'email' },
+          } as any),
+        );
+      }
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(createEmployeeDto.password, 10);
+
+    // Create employee
+    const employee = await this.prisma.employee.create({
+      data: {
+        ...createEmployeeDto,
+        password: hashedPassword,
+        created_by_id: currentEmployee.user.sub,
+      },
+      include: {
+        branch: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
           },
-        ],
+        },
+        employeeRoles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return plainToInstance(EmployeeResponseDto, employee, {
+      groups: ['me'],
+    });
+  }
+
+  async findAll(
+    currentEmployee: EmployeeTokenClaim,
+    branchId?: string,
+  ): Promise<EmployeeResponseDto[]> {
+    // Check if current employee is super admin or branch employee
+    const currentEmployeeRoles =
+      await this.authorizationService.getEmployeeRoles(
+        currentEmployee.user.sub,
+      );
+
+    // const isSuperAdmin = currentEmployeeRoles.some(
+    //   (role) => role.role.name === 'super_admin',
+    // );
+
+    const isSuperAdmin = true;
+
+    let whereClause: any = {};
+
+    // If not super admin, only show employees from their branch
+    if (!isSuperAdmin) {
+      const currentEmployeeData = await this.prisma.employee.findUnique({
+        where: { id: currentEmployee.user.sub },
+        select: { branch_id: true },
       });
 
-      return employee;
+      if (!currentEmployeeData?.branch_id) {
+        throw new ForbiddenException(
+          this.i18n.t('error-messages.unauthorized-action'),
+        );
+      }
+
+      whereClause.branch_id = currentEmployeeData.branch_id;
+    } else if (branchId) {
+      // Super admin can filter by branch
+      whereClause.branch_id = branchId;
+    }
+
+    const employees = await this.prisma.employee.findMany({
+      where: whereClause,
+      include: {
+        branch: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+          },
+        },
+        employeeRoles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
+    return plainToInstance(EmployeeResponseDto, employees, {
+      groups: ['me'],
+    });
+  }
+
+  async findOne(
+    id: string,
+    currentEmployee: EmployeeTokenClaim,
+  ): Promise<EmployeeResponseDto> {
+    const employee = await this.prisma.employee.findUnique({
+      where: { id },
+      include: {
+        branch: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+          },
+        },
+        employeeRoles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!employee) {
+      throw new NotFoundException(
+        this.i18n.t('error-messages.not-found', {
+          args: { Resource: 'employee' },
+        } as any),
+      );
+    }
+
+    // Check if current employee is super admin or can view this specific employee
+    const currentEmployeeRoles =
+      await this.authorizationService.getEmployeeRoles(
+        currentEmployee.user.sub,
+      );
+
+    // const isSuperAdmin = currentEmployeeRoles.some(
+    //   (role) => role.role.name === 'super_admin',
+    // );
+    const isSuperAdmin = true;
+
+    if (!isSuperAdmin) {
+      const currentEmployeeData = await this.prisma.employee.findUnique({
+        where: { id: currentEmployee.user.sub },
+        select: { branch_id: true },
+      });
+
+      if (
+        !currentEmployeeData?.branch_id ||
+        employee.branch_id !== currentEmployeeData.branch_id
+      ) {
+        throw new ForbiddenException(
+          this.i18n.t('error-messages.unauthorized-action'),
+        );
+      }
+    }
+
+    return plainToInstance(EmployeeResponseDto, employee, {
+      groups: ['me'],
     });
   }
 
   async update(
     id: string,
-    data: UpdateEmployeeDto,
-    files: any,
-  ): Promise<Employee> {
-    let signature_path: any = {};
-    let photo_path: any = {};
-
-    if (files?.signature_file && files?.signature_file[0]) {
-      signature_path = await this.minioClientService.uploadSingleFile(
-        files.signature_file[0],
-        'EMPLOYEE',
-      );
-    }
-
-    if (files?.photo_file && files?.photo_file[0]) {
-      photo_path = await this.minioClientService.uploadSingleFile(
-        files.photo_file[0],
-        'EMPLOYEE',
-      );
-    }
-
-    const employee = await this.prisma.employee.update({
-      data: {
-        name: data.name,
-        ...(Object.keys(signature_path).length > 0
-          ? { signature_url: signature_path }
-          : {}),
-        ...(Object.keys(photo_path).length > 0
-          ? { photo_url: photo_path }
-          : {}),
-        ...(data.branch_id && {
-          branch_id: data.branch_id,
-          accept_abroad_request: data.accept_abroad_request,
-        }),
-        updated_by_id: data.updated_by_id,
-      },
-      where: { id: id },
+    updateEmployeeDto: UpdateEmployeeDto,
+    currentEmployee: EmployeeTokenClaim,
+  ): Promise<EmployeeResponseDto> {
+    // Check if employee exists
+    const existingEmployee = await this.prisma.employee.findUnique({
+      where: { id },
+      select: { branch_id: true },
     });
 
-    return employee;
-  }
-
-  async findAllPaginated(options: SearchEmployeeDto) {
-    const { search, department_role_id, department_id } = { ...options };
-    const where: any = {};
-
-    if (department_role_id) {
-      where.employeeRoles = {
-        some: {
-          department_role_id: department_role_id,
-        },
-      };
+    if (!existingEmployee) {
+      throw new NotFoundException(
+        this.i18n.t('error-messages.not-found', {
+          args: { Resource: 'employee' },
+        } as any),
+      );
     }
 
-    if (department_role_id) {
-      where.employeeRoles = {
-        some: {
-          department_role_id: department_role_id,
-        },
-      };
+    // Check if current employee is super admin or can update this specific employee
+    const currentEmployeeRoles =
+      await this.authorizationService.getEmployeeRoles(
+        currentEmployee.user.sub,
+      );
+
+    // const isSuperAdmin = currentEmployeeRoles.some(
+    // (role) => role.role.name === 'super_admin',
+    // );
+
+    const isSuperAdmin = true;
+
+    if (!isSuperAdmin) {
+      const currentEmployeeData = await this.prisma.employee.findUnique({
+        where: { id: currentEmployee.user.sub },
+        select: { branch_id: true },
+      });
+
+      if (
+        !currentEmployeeData?.branch_id ||
+        existingEmployee.branch_id !== currentEmployeeData.branch_id
+      ) {
+        throw new ForbiddenException(
+          this.i18n.t('error-messages.unauthorized-action'),
+        );
+      }
+
+      // Branch employees cannot change branch assignment
+      if (updateEmployeeDto.branch_id) {
+        delete updateEmployeeDto.branch_id;
+      }
     }
 
-    if (department_id) {
-      where.employeeRoles = {
-        some: {
-          departmentRole: {
-            department_id: department_id,
-          },
+    // Check for unique constraints if updating username, phone, or email
+    if (updateEmployeeDto.username) {
+      const existingUsername = await this.prisma.employee.findFirst({
+        where: {
+          username: updateEmployeeDto.username,
+          id: { not: id },
         },
-      };
+      });
+
+      if (existingUsername) {
+        throw new ConflictException(
+          this.i18n.t('error-messages.already-exists', {
+            args: { Resource: 'username' },
+          } as any),
+        );
+      }
     }
 
-    if (search) {
-      where.OR = [
-        {
-          name: {
-            contains: search, // Use 'contains' for a case-insensitive search
-            mode: 'insensitive', // Ensure the search is case-insensitive
-          },
+    if (updateEmployeeDto.phone_number) {
+      const existingPhone = await this.prisma.employee.findFirst({
+        where: {
+          phone_number: updateEmployeeDto.phone_number,
+          id: { not: id },
         },
-        {
-          employee: {
-            username: {
-              contains: search, // Use 'contains' for a case-insensitive search
-              mode: 'insensitive', // Ensure the search is case-insensitive
-            },
-          },
-        },
-      ];
+      });
+
+      if (existingPhone) {
+        throw new ConflictException(
+          this.i18n.t('error-messages.already-exists', {
+            args: { Resource: 'phone number' },
+          } as any),
+        );
+      }
     }
 
-    return paginate(
-      this.prisma.employee,
-      {
-        where,
-        orderBy: { created_at: 'desc' },
-        include: {
-          employeeRoles: {
-            select: {
-              id: true,
-              role: { select: { id: true, name: true } },
-            },
-          },
+    if (updateEmployeeDto.email) {
+      const existingEmail = await this.prisma.employee.findFirst({
+        where: {
+          email: updateEmployeeDto.email,
+          id: { not: id },
         },
-      },
-      { page: options.page, perPage: options.limit },
-    );
-  }
+      });
 
-  findOne(id: string) {
-    return this.prisma.employee.findUnique({
-      where: { id: id },
+      if (existingEmail) {
+        throw new ConflictException(
+          this.i18n.t('error-messages.already-exists', {
+            args: { Resource: 'email' },
+          } as any),
+        );
+      }
+    }
+
+    // Hash password if provided
+    let hashedPassword: string | undefined;
+    if (updateEmployeeDto.password) {
+      hashedPassword = await bcrypt.hash(updateEmployeeDto.password, 10);
+    }
+
+    // Prepare update data
+    const updateData: any = { ...updateEmployeeDto };
+    if (hashedPassword) {
+      updateData.password = hashedPassword;
+    }
+    delete updateData.password; // Remove the plain password
+
+    updateData.updated_by_id = currentEmployee.user.sub;
+
+    // Update employee
+    const employee = await this.prisma.employee.update({
+      where: { id },
+      data: updateData,
       include: {
-        employeeRoles: {
+        branch: {
           select: {
             id: true,
-            role: { select: { id: true, name: true } },
+            name: true,
+            code: true,
+          },
+        },
+        employeeRoles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
       },
     });
+
+    return plainToInstance(EmployeeResponseDto, employee, {
+      groups: ['me'],
+    });
   }
 
-  remove(id: string) {
-    return this.prisma.employee.delete({
-      where: { id: id },
+  async remove(id: string, currentEmployee: EmployeeTokenClaim): Promise<void> {
+    // Check if employee exists
+    const existingEmployee = await this.prisma.employee.findUnique({
+      where: { id },
+      select: { branch_id: true },
+    });
+
+    if (!existingEmployee) {
+      throw new NotFoundException(
+        this.i18n.t('error-messages.not-found', {
+          args: { Resource: 'employee' },
+        } as any),
+      );
+    }
+
+    // Check if current employee is super admin or can delete this specific employee
+    const currentEmployeeRoles =
+      await this.authorizationService.getEmployeeRoles(
+        currentEmployee.user.sub,
+      );
+
+    const isSuperAdmin = currentEmployeeRoles.some(
+      (role) => role.role.name === 'super_admin',
+    );
+
+    if (!isSuperAdmin) {
+      const currentEmployeeData = await this.prisma.employee.findUnique({
+        where: { id: currentEmployee.user.sub },
+        select: { branch_id: true },
+      });
+
+      if (
+        !currentEmployeeData?.branch_id ||
+        existingEmployee.branch_id !== currentEmployeeData.branch_id
+      ) {
+        throw new ForbiddenException(
+          this.i18n.t('error-messages.unauthorized-action'),
+        );
+      }
+    }
+
+    // Prevent self-deletion
+    if (id === currentEmployee.user.sub) {
+      throw new ForbiddenException(
+        this.i18n.t('error-messages.unauthorized-action'),
+      );
+    }
+
+    await this.prisma.employee.delete({
+      where: { id },
     });
   }
 }

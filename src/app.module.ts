@@ -10,6 +10,7 @@ import {
 } from 'nestjs-i18n';
 import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { EmployeeAuthModule } from './models/auth/employee-auth/employee-auth.module';
 import { TitleDeedApplicationModule } from './models/title-deed-application/title-deed-application.module';
 import { TitleDeedServiceModule } from './models/basedata/title-deed-service/title-deed-service.module';
@@ -39,6 +40,9 @@ import { PlotPropertyModule } from './models/plot-property/plot-property.module'
 import { PropertyTypeModule } from './models/basedata/property-type/property-type.module';
 import { PropertyUseModule } from './models/basedata/property-use/property-use.module';
 import { TitleDeedApplicationPaymentModule } from './models/title-deed-application-payment/title-deed-application-payment.module';
+import { AuthorizationModule } from './common/services/authorization.module';
+import { TokenCleanupService } from './common/services/token-cleanup.service';
+import { EmployeeModule } from './models/employee/employee.module';
 import { RejectionReasonModule } from './models/basedata/rejection-reason/rejection-reason.module';
 import { EmployeeModule } from './models/employee/employee.module';
 
@@ -47,7 +51,9 @@ import { EmployeeModule } from './models/employee/employee.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     DatabaseModule,
+    AuthorizationModule,
     CountryModule,
     I18nModule.forRoot({
       fallbackLanguage: 'en',
@@ -87,10 +93,11 @@ import { EmployeeModule } from './models/employee/employee.module';
     PropertyTypeModule,
     PropertyUseModule,
     TitleDeedApplicationPaymentModule,
+    EmployeeModule,
     RejectionReasonModule,
     EmployeeModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, TokenCleanupService],
 })
 export class AppModule {}
