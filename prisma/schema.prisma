@@ -192,6 +192,7 @@ model TitleDeedApplicationOwner {
   titleDeedApplication        TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
   woreda                      Woreda               @relation(fields: [woreda_id], references: [id])
 
+  @@unique([id_number, title_deed_application_id])
   @@map("title_deed_application_owners")
 }
 

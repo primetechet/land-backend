@@ -15,6 +15,7 @@ import {
   SearchTitleDeedServiceBranchDto,
 } from './dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('Title Deed Service Branches')
 @Controller('title-deed-service-branch')
@@ -28,6 +29,7 @@ export class TitleDeedServiceBranchController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Get all title deed service branches' })
   findAll(@Query() query: SearchTitleDeedServiceBranchDto) {
     return this.service.findAll(query);

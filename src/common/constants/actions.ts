@@ -10,8 +10,6 @@ export enum ACTIONS {
   VALIDATE = 'Validate',
   AUTHORIZE = 'Authorize',
   CLOSE = 'Close',
-  RELEASE = 'Release',
-  FLAG = 'Flag',
-  CHECK_IN = 'CheckIn',
-  CANCEL = 'Cancel',
+  ARCHIVE = 'Archive',
+  REGISTER_PLOT = 'RegisterPlot',
 }
