@@ -18,6 +18,16 @@ export class TitleDeedApplicationOwnerService {
   async create(
     data: CreateTitleDeedApplicationOwnerDto,
   ): Promise<TitleDeedApplicationOwner> {
+    // First, validate that the title deed application exists
+    const titleDeedApplication =
+      await this.prisma.titleDeedApplication.findUnique({
+        where: { id: data.title_deed_application_id },
+      });
+
+    if (!titleDeedApplication) {
+      throw new HttpException('Title deed application not found', 404);
+    }
+
     // Check if the same person (by ID number) already exists for this application
     const existingOwner = await this.prisma.titleDeedApplicationOwner.findFirst(
       {

@@ -126,3 +126,110 @@ This documentation follows established practices from:
 - **Google Engineering Practices** - Clear reviews and understandable changes
 
 For questions or improvements to this documentation, please create an issue or submit a pull request.
+
+## Title Deed Application Owner Endpoints
+
+### Authentication Requirements
+
+**Important**: These endpoints require different types of authentication:
+
+- **Regular User Authentication**: For creating applications and viewing your own applications
+- **Employee Authentication**: For administrative operations (if needed)
+
+### My Applications Endpoint
+
+**GET** `/title-deed-application/my-applications`
+
+This endpoint fetches applications where the authenticated user is an approved owner. The matching is done based on the user's secondary ID (if available).
+
+**Authentication**: Regular User Token (not Employee Token)
+
+**Query Parameters:**
+
+- `page` (optional): Page number for pagination
+- `limit` (optional): Number of items per page
+- `search` (optional): Search term to filter applications
+
+**Response:**
+Returns paginated list of applications with owner details.
+
+**Limitations:**
+
+- Currently only matches by secondary ID if available
+- If user has no secondary ID, returns an error message
+- To enable primary ID matching, the User model needs to be extended with an `id_number` field
+
+### Applications by Owner ID Endpoint
+
+**GET** `/title-deed-application/by-owner/:idType/:idNumber`
+
+This endpoint fetches applications where a specific ID number is an approved owner.
+
+**Path Parameters:**
+
+- `idType`: ID type (FAYDA_ID, GOVERNMENT_ID, TIN_NUMBER, PASSPORT)
+- `idNumber`: The ID number to search for
+
+**Query Parameters:**
+
+- `page` (optional): Page number for pagination
+- `limit` (optional): Number of items per page
+- `search` (optional): Search term to filter applications
+
+**Response:**
+Returns paginated list of applications with owner details.
+
+### Create Application Endpoint
+
+**POST** `/title-deed-application`
+
+This endpoint creates a new title deed application.
+
+**Authentication**: Regular User Token (not Employee Token)
+
+**Body**: CreateTitleDeedApplicationDto
+
+**Response:**
+Returns the created application.
+
+### Usage Examples
+
+```bash
+# Get my applications (requires user authentication)
+GET /title-deed-application/my-applications?page=1&limit=10
+
+# Get applications by specific ID (works with any ID)
+GET /title-deed-application/by-owner/FAYDA_ID/123456789?page=1&limit=10
+
+# Create a new application (requires user authentication)
+POST /title-deed-application
+{
+  "is_organization": false,
+  "kebele": "Kebele 12",
+  "house_number": "H-123",
+  "title_deed_service_id": "uuid-of-service",
+  "woreda_id": "uuid-of-woreda",
+  "branch_id": "uuid-of-branch"
+}
+```
+
+### Future Improvements
+
+To make the "My Applications" endpoint more robust, consider:
+
+1. Adding an `id_number` field to the User model
+2. Implementing additional matching criteria (phone number, name, etc.)
+3. Adding a user profile system where users can link their ID numbers
+4. Implementing a verification system for user ID numbers
+
+### Troubleshooting
+
+**Error: "User not found"**
+
+- Ensure you're using a valid user token (not employee token)
+- Verify the user exists in the database
+
+**Error: "No ID number found in your profile"**
+
+- Add a secondary ID to your user profile
+- Contact support to link your ID numbers to your account

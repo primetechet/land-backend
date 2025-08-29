@@ -350,6 +350,10 @@ model User {
   suspended_status_updated_at         DateTime?
   suspended_status_updated_by_id      String?
   suspended_status_update_note        String?
+  secondary_id_type                   IdType?
+  secondary_id                        String?
+  primary_id_verified                 Boolean                              @default(false)
+  secondary_id_verified               Boolean                              @default(false)
   created_at                          DateTime                             @default(now())
   updated_at                          DateTime                             @updatedAt
   created_by_id                       String?
