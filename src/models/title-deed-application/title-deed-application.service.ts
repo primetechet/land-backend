@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import {
   CreateTitleDeedApplicationDto,
   SearchTitleDeedApplicationDto,
@@ -14,8 +14,31 @@ export class TitleDeedApplicationService {
   constructor(private readonly prisma: DatabaseService) {}
   async create(
     data: CreateTitleDeedApplicationDto,
-    request: EmployeeTokenClaim,
+    request: any,
   ): Promise<TitleDeedApplication> {
+    // Check if the user exists (either as User or Employee)
+    const user = await this.prisma.user.findUnique({
+      where: { id: request.user.sub },
+    });
+
+    const employee = await this.prisma.employee.findUnique({
+      where: { id: request.user.sub },
+    });
+
+    if (!user && !employee) {
+      throw new HttpException('User not found', 404);
+    }
+
+    // If it's an employee, we need to handle this differently
+    // For now, let's assume employees can create applications on behalf of users
+    // You might want to add a user_id field to the DTO to specify which user the application belongs to
+    if (employee && !user) {
+      throw new HttpException(
+        'Employees cannot create applications directly. Please specify a user ID.',
+        422,
+      );
+    }
+
     return this.prisma.titleDeedApplication.create({
       data: {
         application_no: 'TAKE_FROM_TRIGGER',
@@ -62,7 +85,7 @@ export class TitleDeedApplicationService {
     return this.prisma.titleDeedApplication.update({ where: { id }, data });
   }
 
-  async submit(id: string, request: EmployeeTokenClaim) {
+  async submit(id: string, request: any) {
     return await this.prisma.titleDeedApplication.update({
       where: { id, user_id: request.user.sub },
       data: {
@@ -302,5 +325,186 @@ export class TitleDeedApplicationService {
           };
         });
       });
+  }
+
+  async findMyApplications(
+    request: any,
+    options: SearchTitleDeedApplicationDto,
+  ) {
+    const { search } = { ...options };
+
+    // Get user's information
+    const user = await this.prisma.user.findUnique({
+      where: { id: request.user.sub },
+      select: {
+        id_type: true,
+        secondary_id_type: true,
+        secondary_id: true,
+        username: true,
+        phone_number: true,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('User not found', 404);
+    }
+
+    const where: any = {
+      titleDeedApplicationOwners: {
+        some: {
+          OR: [
+            // Match by secondary ID if available
+            ...(user.secondary_id_type && user.secondary_id
+              ? [
+                  {
+                    id_type: user.secondary_id_type,
+                    id_number: user.secondary_id,
+                  },
+                  {
+                    id_type: user.id_type,
+                    id_number: user.username,
+                  },
+                ]
+              : [
+                  {
+                    id_type: user.id_type,
+                    id_number: user.username,
+                  },
+                ]),
+          ],
+        },
+      },
+    };
+
+    if (search) {
+      where.OR = [
+        { title_deed_number: { contains: search, mode: 'insensitive' } },
+        { kebele: { contains: search, mode: 'insensitive' } },
+        { house_number: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    return paginate(
+      this.prisma.titleDeedApplication,
+      {
+        where,
+        orderBy: { created_at: 'desc' },
+        include: {
+          titleDeedService: { select: { id: true, name: true } },
+          organizationType: { select: { id: true, name: true } },
+          _count: {
+            select: {
+              titleDeedApplicationOwners: true,
+            },
+          },
+          woreda: {
+            select: {
+              id: true,
+              name: true,
+              district: { select: { id: true, name: true } },
+            },
+          },
+          branch: { select: { id: true, name: true } },
+          user: { select: { id: true, name: true } },
+          titleDeedApplicationOwners: {
+            where: {
+              verified: true,
+              rejected: false,
+              OR: [
+                ...(user.secondary_id_type && user.secondary_id
+                  ? [
+                      {
+                        id_type: user.secondary_id_type,
+                        id_number: user.secondary_id,
+                      },
+                    ]
+                  : []),
+              ],
+            },
+            select: {
+              id: true,
+              first_name: true,
+              father_name: true,
+              grand_father_name: true,
+              id_type: true,
+              id_number: true,
+              verified: true,
+              verified_at: true,
+            },
+          },
+        },
+      },
+      { page: +options.page, perPage: +options.limit },
+    );
+  }
+
+  async findApplicationsByOwnerId(
+    idType: string,
+    idNumber: string,
+    options: SearchTitleDeedApplicationDto,
+  ) {
+    const { search } = { ...options };
+
+    const where: any = {
+      titleDeedApplicationOwners: {
+        some: {
+          id_type: idType,
+          id_number: idNumber,
+        },
+      },
+    };
+
+    if (search) {
+      where.OR = [
+        { title_deed_number: { contains: search, mode: 'insensitive' } },
+        { kebele: { contains: search, mode: 'insensitive' } },
+        { house_number: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    return paginate(
+      this.prisma.titleDeedApplication,
+      {
+        where,
+        orderBy: { created_at: 'desc' },
+        include: {
+          titleDeedService: { select: { id: true, name: true } },
+          organizationType: { select: { id: true, name: true } },
+          _count: {
+            select: {
+              titleDeedApplicationOwners: true,
+            },
+          },
+          woreda: {
+            select: {
+              id: true,
+              name: true,
+              district: { select: { id: true, name: true } },
+            },
+          },
+          branch: { select: { id: true, name: true } },
+          user: { select: { id: true, name: true } },
+          titleDeedApplicationOwners: {
+            where: {
+              verified: true,
+              rejected: false,
+              id_type: idType,
+              id_number: idNumber,
+            },
+            select: {
+              id: true,
+              first_name: true,
+              father_name: true,
+              grand_father_name: true,
+              id_type: true,
+              id_number: true,
+              verified: true,
+              verified_at: true,
+            },
+          },
+        },
+      },
+      { page: +options.page, perPage: +options.limit },
+    );
   }
 }

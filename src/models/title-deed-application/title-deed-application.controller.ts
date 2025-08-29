@@ -29,6 +29,7 @@ import { RESOURCE } from 'src/common/constants/resource';
 import { ACTIONS } from 'src/common/constants/actions';
 import { DatabaseService } from 'src/common/database/database.service';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
+import { TokenClaim } from 'src/common/interfaces/login.interface';
 
 @ApiTags('title-deed-application')
 @ApiBearerAuth()
@@ -46,7 +47,10 @@ export class TitleDeedApplicationController {
     description: 'Application created successfully.',
   })
   @ApiResponse({ status: 422, description: 'Duplicate application detected.' })
-  async create(@Request() request, @Body() dto: CreateTitleDeedApplicationDto) {
+  async create(
+    @Request() request: TokenClaim,
+    @Body() dto: CreateTitleDeedApplicationDto,
+  ) {
     return this.service.create(dto, request);
   }
 
@@ -98,6 +102,33 @@ export class TitleDeedApplicationController {
     return this.service.findAllPaginated(payload);
   }
 
+  @Get('my-applications')
+  @ApiOperation({ summary: 'Get my applications where I am an approved owner' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  findMyApplications(@Query() payload: any, @Request() request: TokenClaim) {
+    return this.service.findMyApplications(request, payload);
+  }
+
+  @Get('by-owner/:idType/:idNumber')
+  @ApiOperation({ summary: 'Get applications by owner ID number' })
+  @ApiParam({
+    name: 'idType',
+    description: 'ID type (FAYDA_ID, GOVERNMENT_ID, TIN_NUMBER, PASSPORT)',
+  })
+  @ApiParam({ name: 'idNumber', description: 'ID number' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  findApplicationsByOwnerId(
+    @Param('idType') idType: string,
+    @Param('idNumber') idNumber: string,
+    @Query() payload: any,
+  ) {
+    return this.service.findApplicationsByOwnerId(idType, idNumber, payload);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a title deed application by ID' })
   @ApiParam({ name: 'id', type: String })
@@ -106,7 +137,7 @@ export class TitleDeedApplicationController {
   }
 
   @Post(':id/submit')
-  submit(@Request() request: EmployeeTokenClaim, @Param('id') id: string) {
+  submit(@Request() request: TokenClaim, @Param('id') id: string) {
     return this.service.submit(id, request);
   }
 

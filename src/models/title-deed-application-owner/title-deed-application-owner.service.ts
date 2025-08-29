@@ -1,12 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
 import {
   CreateTitleDeedApplicationOwnerDto,
   UpdateTitleDeedApplicationOwnerDto,
   SearchTitleDeedApplicationOwnerDto,
+  VerifyTitleDeedApplicationOwnerDto,
+  RejectTitleDeedApplicationOwnerDto,
 } from './dto';
 import { TitleDeedApplicationOwner } from '@prisma/client';
 import { paginate } from 'src/common/utils/paginater';
 import { DatabaseService } from 'src/common/database/database.service';
+import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 
 @Injectable()
 export class TitleDeedApplicationOwnerService {
@@ -15,6 +18,46 @@ export class TitleDeedApplicationOwnerService {
   async create(
     data: CreateTitleDeedApplicationOwnerDto,
   ): Promise<TitleDeedApplicationOwner> {
+    // First, validate that the title deed application exists
+    const titleDeedApplication =
+      await this.prisma.titleDeedApplication.findUnique({
+        where: { id: data.title_deed_application_id },
+      });
+
+    if (!titleDeedApplication) {
+      throw new HttpException('Title deed application not found', 404);
+    }
+
+    // Check if the same person (by ID number) already exists for this application
+    const existingOwner = await this.prisma.titleDeedApplicationOwner.findFirst(
+      {
+        where: {
+          title_deed_application_id: data.title_deed_application_id,
+          id_number: data.id_number,
+        },
+      },
+    );
+
+    if (existingOwner) {
+      // If the person exists and is verified, reject
+      if (existingOwner.verified) {
+        throw new HttpException(
+          'This person is already verified as an owner for this application',
+          422,
+        );
+      }
+
+      // If the person exists and is in pending state (both false), reject
+      if (!existingOwner.verified && !existingOwner.rejected) {
+        throw new HttpException(
+          'This person is already registered as an owner for this application and is pending verification',
+          422,
+        );
+      }
+
+      // If the person was previously rejected, allow creation (they can try again)
+    }
+
     return this.prisma.titleDeedApplicationOwner.create({
       data: {
         is_organization: data.is_organization,
@@ -126,6 +169,12 @@ export class TitleDeedApplicationOwnerService {
         nationality_id: true,
         residency_country_id: true,
         woreda_id: true,
+        verified: true,
+        rejected: true,
+        verified_at: true,
+        rejected_at: true,
+        verifier_note: true,
+        rejecter_note: true,
         nationality: {
           select: {
             id: true,
@@ -187,6 +236,12 @@ export class TitleDeedApplicationOwnerService {
         gender: true,
         house_number: true,
         remark: true,
+        verified: true,
+        rejected: true,
+        verified_at: true,
+        rejected_at: true,
+        verifier_note: true,
+        rejecter_note: true,
         titleDeedApplication: { select: { id: true, title_deed_number: true } },
         disabilityStatus: { select: { id: true, name: true } },
         nationality: { select: { id: true, name: true } },
@@ -198,7 +253,157 @@ export class TitleDeedApplicationOwnerService {
     });
   }
 
+  async findVerifiedOwnerByApplicationId(titleDeedApplicationId: string) {
+    return this.prisma.titleDeedApplicationOwner.findFirst({
+      where: {
+        title_deed_application_id: titleDeedApplicationId,
+        verified: true,
+      },
+      select: {
+        id: true,
+        is_organization: true,
+        id_type: true,
+        id_number: true,
+        is_applicant: true,
+        first_name: true,
+        father_name: true,
+        grand_father_name: true,
+        gender: true,
+        house_number: true,
+        remark: true,
+        verified: true,
+        verified_at: true,
+        verifier_note: true,
+        nationality: { select: { id: true, name: true } },
+        woreda: { select: { id: true, name: true } },
+        created_at: true,
+        updated_at: true,
+      },
+    });
+  }
+
   remove(id: string) {
     return this.prisma.titleDeedApplicationOwner.delete({ where: { id } });
+  }
+
+  async verify(
+    id: string,
+    data: VerifyTitleDeedApplicationOwnerDto,
+    request: EmployeeTokenClaim,
+  ) {
+    const titleDeedApplicationOwner =
+      await this.prisma.titleDeedApplicationOwner.findUnique({
+        where: { id },
+        include: {
+          titleDeedApplication: true,
+        },
+      });
+
+    if (!titleDeedApplicationOwner) {
+      throw new HttpException('Owner not found', 404);
+    }
+
+    const employee = await this.prisma.employee.findUnique({
+      where: { id: request.user.sub },
+    });
+
+    if (!employee) {
+      throw new HttpException('Employee not found', 422);
+    }
+
+    // Check if there's already a verified owner for this application with the same ID number
+    const existingVerifiedOwner =
+      await this.prisma.titleDeedApplicationOwner.findFirst({
+        where: {
+          title_deed_application_id:
+            titleDeedApplicationOwner.title_deed_application_id,
+          id_number: titleDeedApplicationOwner.id_number,
+          verified: true,
+          rejected: false,
+          id: { not: id }, // Exclude current owner
+        },
+      });
+
+    if (existingVerifiedOwner) {
+      throw new HttpException(
+        'This person is already verified as an owner for this application',
+        422,
+      );
+    }
+
+    // Check if there's another owner in pending state (both false) for this application
+    const existingPendingOwner =
+      await this.prisma.titleDeedApplicationOwner.findFirst({
+        where: {
+          title_deed_application_id:
+            titleDeedApplicationOwner.title_deed_application_id,
+          verified: false,
+          rejected: false,
+          id: { not: id }, // Exclude current owner
+        },
+      });
+
+    if (existingPendingOwner) {
+      throw new HttpException(
+        'There is already a pending owner for this application. Please verify or reject the existing owner first.',
+        422,
+      );
+    }
+
+    await this.prisma.titleDeedApplicationOwner.update({
+      where: { id },
+      data: {
+        rejected: false,
+        verified: true,
+        verifier_note: data.verifier_note,
+        verified_by_id: employee.id,
+        verified_at: new Date(),
+      },
+    });
+
+    return {
+      data: titleDeedApplicationOwner,
+      message: 'Owner verified successfully',
+    };
+  }
+
+  async reject(
+    id: string,
+    data: RejectTitleDeedApplicationOwnerDto,
+    request: EmployeeTokenClaim,
+  ) {
+    const titleDeedApplicationOwner =
+      await this.prisma.titleDeedApplicationOwner.findUnique({
+        where: { id },
+      });
+
+    if (!titleDeedApplicationOwner) {
+      throw new HttpException('Owner not found', 404);
+    }
+
+    const employee = await this.prisma.employee.findUnique({
+      where: { id: request.user.sub },
+    });
+
+    if (!employee) {
+      throw new HttpException('Employee not found', 422);
+    }
+
+    await this.prisma.titleDeedApplicationOwner.update({
+      where: { id },
+      data: {
+        verified: false,
+        rejected: true,
+        rejecter_note: data.rejecter_note,
+        rejection_reason_id: data.rejection_reason_id,
+        rejected_by_id: employee.id,
+        rejected_at: new Date(),
+      },
+    });
+
+    return {
+      data: titleDeedApplicationOwner,
+      message: 'Owner rejected successfully',
+    };
   }
 }

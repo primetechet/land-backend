@@ -21,6 +21,28 @@ export class PlotService {
         where: { id: createDto.title_deed_application_id },
       });
 
+    // Fetch only approved owners for this title deed application for auditing
+    const owners = await this.prisma.titleDeedApplicationOwner.findMany({
+      where: {
+        title_deed_application_id: createDto.title_deed_application_id,
+        verified: true,
+        rejected: false,
+      },
+      select: {
+        id_type: true,
+        id_number: true,
+        first_name: true,
+        father_name: true,
+        grand_father_name: true,
+        gender: true,
+        is_organization: true,
+        is_representative: true,
+        is_applicant: true,
+        verified: true,
+        rejected: true,
+      },
+    });
+
     const { attributes: arcGisPlot, geometry } = this.getPlotFromArchGis(
       createDto.plot_id,
     );
@@ -45,46 +67,15 @@ export class PlotService {
         block_number: arcGisPlot.Block_Number,
         area_meter_square: arcGisPlot.Built_up_Area || 10,
         global_id: arcGisPlot.GlobalID,
-        titleDeedApplication: {
-          connect: {
-            id: titleDeedApplication.id,
-          },
-        },
-        landUse: {
-          connect: {
-            id: landUse.id,
-          },
-        },
-        landGrade: {
-          connect: {
-            id: landGrade.id,
-          },
-        },
-        tenureType: {
-          connect: {
-            id: tenureType.id,
-          },
-        },
-        holdingType: {
-          connect: {
-            id: holdingType.id,
-          },
-        },
-        woreda: {
-          connect: {
-            id: titleDeedApplication.woreda_id,
-          },
-        },
-        branch: {
-          connect: {
-            id: titleDeedApplication.branch_id,
-          },
-        },
-        plotRegisteredBy: {
-          connect: {
-            id: request.user.sub,
-          },
-        },
+        title_deed_application_id: titleDeedApplication.id,
+        woreda_id: titleDeedApplication.woreda_id,
+        branch_id: titleDeedApplication.branch_id,
+        plot_registered_by_id: request.user.sub,
+        owners_audit: owners,
+        land_use_id: landUse.id,
+        land_grade_id: landGrade.id,
+        tenure_type_id: tenureType.id,
+        holding_type_id: holdingType.id,
       },
       select: {
         id: true,

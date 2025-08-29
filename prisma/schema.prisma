@@ -181,6 +181,15 @@ model TitleDeedApplicationOwner {
   draft                       Boolean              @default(false)
   drafted_at                  DateTime?
   drafted_by_id               String?
+  verified                    Boolean              @default(false)
+  verified_at                 DateTime?
+  verified_by_id              String?
+  verifier_note               String?
+  rejected                    Boolean              @default(false)
+  rejected_at                 DateTime?
+  rejected_by_id              String?
+  rejecter_note               String?
+  rejection_reason_id         String?
   created_at                  DateTime             @default(now())
   updated_at                  DateTime             @updatedAt
   created_by_id               String?
@@ -191,6 +200,9 @@ model TitleDeedApplicationOwner {
   residencyCountry            Country              @relation("residencyCountry", fields: [residency_country_id], references: [id])
   titleDeedApplication        TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
   woreda                      Woreda               @relation(fields: [woreda_id], references: [id])
+  verifiedBy                  Employee?            @relation("verifiedBy", fields: [verified_by_id], references: [id])
+  rejectedBy                  Employee?            @relation("rejectedBy", fields: [rejected_by_id], references: [id])
+  rejectionReason             RejectionReason?     @relation(fields: [rejection_reason_id], references: [id])
 
   @@unique([id_number, title_deed_application_id])
   @@map("title_deed_application_owners")
@@ -266,6 +278,7 @@ model Plot {
   rejected_by_id            String?
   rejecter_note             String?
   rejection_reason_id       String?
+  owners_audit              Json? // Store complete owner information for auditing
   client_confirmed          Boolean              @default(false)
   client_confirmed_at       DateTime?
   client_confirmation_note  String?
@@ -362,6 +375,10 @@ model User {
   suspended_status_updated_at         DateTime?
   suspended_status_updated_by_id      String?
   suspended_status_update_note        String?
+  secondary_id_type                   IdType?
+  secondary_id                        String?
+  primary_id_verified                 Boolean                              @default(false)
+  secondary_id_verified               Boolean                              @default(false)
   created_at                          DateTime                             @default(now())
   updated_at                          DateTime                             @updatedAt
   created_by_id                       String?
@@ -422,6 +439,8 @@ model Employee {
   plotRegisteredTitleDeedApplication         TitleDeedApplication[]               @relation("plotRegisteredBy")
   rejectedTitleDeedApplication               TitleDeedApplication[]               @relation("rejectedBy")
   verifiedTitleDeedApplication               TitleDeedApplication[]               @relation("verifiedBy")
+  verifiedTitleDeedApplicationOwners         TitleDeedApplicationOwner[]          @relation("verifiedBy")
+  rejectedTitleDeedApplicationOwners         TitleDeedApplicationOwner[]          @relation("rejectedBy")
 
   @@map("employees")
 }
@@ -859,6 +878,7 @@ model RejectionReason {
   plots                               Plot[]
   titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
   titleDeedApplications               TitleDeedApplication[]
+  titleDeedApplicationOwners          TitleDeedApplicationOwner[]
 
   @@map("rejection_reasons")
 }

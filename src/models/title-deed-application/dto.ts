@@ -27,6 +27,7 @@ export class CreateTitleDeedApplicationDto {
   @IsOptional()
   @IsString()
   birth_date?: string;
+
   @ApiProperty({ description: 'House number', example: 'H-123' })
   @IsString()
   house_number: string;
@@ -41,24 +42,30 @@ export class CreateTitleDeedApplicationDto {
 
   @ApiProperty({
     description: 'Related Title Deed Service ID',
-    example: 'uuid-of-service',
+    example: '8a8d8d73-ab77-4995-99f9-db5b27ae607e',
   })
   @IsString()
   title_deed_service_id: string;
 
   @ApiPropertyOptional({
-    description: 'Organization Type ID (if applicable)',
-    example: 'uuid-of-org-type',
+    description: 'Organization Type ID (required for organizations)',
+    example: '1c942126-f7d8-43e5-ba63-997ec861f39a',
   })
   @IsOptional()
   @IsString()
   organization_type_id?: string;
 
-  @ApiProperty({ description: 'Woreda ID', example: 'uuid-of-woreda' })
+  @ApiProperty({
+    description: 'Woreda ID',
+    example: 'c7e0e1d2-38bf-42d6-82ef-c06a48cbd539',
+  })
   @IsString()
   woreda_id: string;
 
-  @ApiProperty({ description: 'Branch ID', example: 'uuid-of-branch' })
+  @ApiProperty({
+    description: 'Branch ID',
+    example: '4ab03482-72c2-46d3-a556-dd8b486d1f2f',
+  })
   @IsString()
   branch_id: string;
 }

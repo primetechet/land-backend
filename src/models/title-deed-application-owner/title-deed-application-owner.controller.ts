@@ -23,11 +23,14 @@ import { TitleDeedApplicationOwnerService } from './title-deed-application-owner
 import {
   CreateTitleDeedApplicationOwnerDto,
   UpdateTitleDeedApplicationOwnerDto,
+  VerifyTitleDeedApplicationOwnerDto,
+  RejectTitleDeedApplicationOwnerDto,
 } from './dto';
 import { Resource } from 'src/common/decorators/resource.decorator';
 import { RESOURCE } from 'src/common/constants/resource';
 import { ACTIONS } from 'src/common/constants/actions';
 import { DatabaseService } from 'src/common/database/database.service';
+import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 
 @ApiTags('title-deed-application-owner')
 @ApiBearerAuth()
@@ -41,25 +44,11 @@ export class TitleDeedApplicationOwnerController {
   @Post()
   @ApiOperation({ summary: 'Create a new title deed application owner' })
   @ApiResponse({ status: 201, description: 'Owner created successfully.' })
-  @ApiResponse({ status: 422, description: 'Duplicate record found.' })
+  @ApiResponse({ status: 422, description: 'Duplicate verified owner found.' })
   async create(
     @Request() request,
     @Body() dto: CreateTitleDeedApplicationOwnerDto,
   ) {
-    const existing = await this.prisma.titleDeedApplicationOwner.findFirst({
-      where: {
-        id_number: dto.id_number,
-        title_deed_application_id: dto.title_deed_application_id,
-      },
-    });
-
-    if (existing) {
-      throw new HttpException(
-        'Owner already exists for this application',
-        HttpStatus.UNPROCESSABLE_ENTITY,
-      );
-    }
-
     return this.service.create(dto);
   }
 
@@ -84,6 +73,17 @@ export class TitleDeedApplicationOwnerController {
     return this.service.findOne(id);
   }
 
+  @Get('application/:applicationId/verified')
+  @ApiOperation({
+    summary: 'Get the verified owner for a title deed application',
+  })
+  @ApiParam({ name: 'applicationId', type: String })
+  findVerifiedOwnerByApplicationId(
+    @Param('applicationId') applicationId: string,
+  ) {
+    return this.service.findVerifiedOwnerByApplicationId(applicationId);
+  }
+
   @Patch(':id')
   @ApiOperation({ summary: 'Update a title deed application owner by ID' })
   @ApiParam({ name: 'id', type: String })
@@ -100,5 +100,29 @@ export class TitleDeedApplicationOwnerController {
   @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.DELETE] }])
   remove(@Param('id') id: string) {
     return this.service.remove(id);
+  }
+
+  @Post(':id/verify')
+  @ApiOperation({ summary: 'Verify a title deed application owner' })
+  @ApiParam({ name: 'id', type: String })
+  @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.UPDATE] }])
+  async verify(
+    @Param('id') id: string,
+    @Body() dto: VerifyTitleDeedApplicationOwnerDto,
+    @Request() request: EmployeeTokenClaim,
+  ) {
+    return this.service.verify(id, dto, request);
+  }
+
+  @Post(':id/reject')
+  @ApiOperation({ summary: 'Reject a title deed application owner' })
+  @ApiParam({ name: 'id', type: String })
+  @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.UPDATE] }])
+  async reject(
+    @Param('id') id: string,
+    @Body() dto: RejectTitleDeedApplicationOwnerDto,
+    @Request() request: EmployeeTokenClaim,
+  ) {
+    return this.service.reject(id, dto, request);
   }
 }

@@ -175,4 +175,33 @@ export class SearchTitleDeedApplicationOwnerDto extends PartialType(
 
 export class UpdateTitleDeedApplicationOwnerDto extends PartialType(
   CreateTitleDeedApplicationOwnerDto,
-) {}
+) {
+  updated_by_id: string;
+}
+
+export class VerifyTitleDeedApplicationOwnerDto {
+  @ApiPropertyOptional({
+    description: 'Verifier note',
+    example: 'Owner information verified successfully',
+  })
+  @IsOptional()
+  @IsString()
+  verifier_note?: string;
+}
+
+export class RejectTitleDeedApplicationOwnerDto {
+  @ApiProperty({
+    description: 'Rejection reason ID',
+    example: 'uuid-of-rejection-reason',
+  })
+  @IsString()
+  rejection_reason_id: string;
+
+  @ApiPropertyOptional({
+    description: 'Rejecter note',
+    example: 'Owner information is incomplete!',
+  })
+  @IsOptional()
+  @IsString()
+  rejecter_note?: string;
+}
