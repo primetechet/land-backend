@@ -176,6 +176,15 @@ model TitleDeedApplicationOwner {
   draft                       Boolean              @default(false)
   drafted_at                  DateTime?
   drafted_by_id               String?
+  verified                    Boolean              @default(false)
+  verified_at                 DateTime?
+  verified_by_id              String?
+  verifier_note               String?
+  rejected                    Boolean              @default(false)
+  rejected_at                 DateTime?
+  rejected_by_id              String?
+  rejecter_note               String?
+  rejection_reason_id         String?
   created_at                  DateTime             @default(now())
   updated_at                  DateTime             @updatedAt
   created_by_id               String?
@@ -186,6 +195,9 @@ model TitleDeedApplicationOwner {
   residencyCountry            Country              @relation("residencyCountry", fields: [residency_country_id], references: [id])
   titleDeedApplication        TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
   woreda                      Woreda               @relation(fields: [woreda_id], references: [id])
+  verifiedBy                  Employee?            @relation("verifiedBy", fields: [verified_by_id], references: [id])
+  rejectedBy                  Employee?            @relation("rejectedBy", fields: [rejected_by_id], references: [id])
+  rejectionReason             RejectionReason?     @relation(fields: [rejection_reason_id], references: [id])
 
   @@map("title_deed_application_owners")
 }
@@ -398,6 +410,8 @@ model Employee {
   plotRegisteredTitleDeedApplication         TitleDeedApplication[]               @relation("plotRegisteredBy")
   rejectedTitleDeedApplication               TitleDeedApplication[]               @relation("rejectedBy")
   verifiedTitleDeedApplication               TitleDeedApplication[]               @relation("verifiedBy")
+  verifiedTitleDeedApplicationOwners         TitleDeedApplicationOwner[]          @relation("verifiedBy")
+  rejectedTitleDeedApplicationOwners         TitleDeedApplicationOwner[]          @relation("rejectedBy")
 
   @@map("employees")
 }
@@ -835,6 +849,7 @@ model RejectionReason {
   plots                               Plot[]
   titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
   titleDeedApplications               TitleDeedApplication[]
+  titleDeedApplicationOwners          TitleDeedApplicationOwner[]
 
   @@map("rejection_reasons")
 }
