@@ -25,6 +25,7 @@ import { Resource } from 'src/common/decorators/resource.decorator';
 import { RESOURCE } from 'src/common/constants/resource';
 import { ACTIONS } from 'src/common/constants/actions';
 import { DatabaseService } from 'src/common/database/database.service';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('title-deed-service')
 @ApiBearerAuth()
@@ -55,6 +56,7 @@ export class TitleDeedServiceController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Get all title deed services' })
   findAll(@Query() payload: any) {
     return this.service.findAll(payload);

@@ -82,6 +82,18 @@ export class TitleDeedApplicationController {
     return this.service.titleDeedPlot(id, payload);
   }
 
+  @Get(':id/owner')
+  @ApiOperation({ summary: 'Get paginated title deed application plots' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  titleDeedOwner(
+    @Param('id') id: string,
+    @Query() payload: any,
+    @Request() request,
+  ) {
+    return this.service.titleDeedOwner(id, payload);
+  }
+
   @Get('paginated')
   @ApiOperation({ summary: 'Get paginated applications' })
   @ApiQuery({ name: 'page', required: false, type: Number })
@@ -132,7 +144,6 @@ export class TitleDeedApplicationController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update a title deed application by ID' })
   @ApiParam({ name: 'id', type: String })
-  @Resource([{ resource: RESOURCE.CONFIGURATION, actions: [ACTIONS.UPDATE] }])
   update(@Param('id') id: string, @Body() dto: UpdateTitleDeedApplicationDto) {
     return this.service.update(id, dto);
   }

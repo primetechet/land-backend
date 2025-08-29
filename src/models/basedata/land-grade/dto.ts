@@ -47,6 +47,4 @@ export class SearchLandGradeDto extends PartialType(PaginationDto) {
   search?: string;
 }
 
-export class UpdateLandGradeDto extends PartialType(CreateLandGradeDto) {
-  updated_by_id: string;
-}
+export class UpdateLandGradeDto extends PartialType(CreateLandGradeDto) {}

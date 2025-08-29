@@ -12,52 +12,65 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreatePlotDto {
   @ApiProperty({
-    description: 'Geometry polygon in WKT or GeoJSON format',
-    example: {
-      type: 'Polygon',
-      coordinates: [
-        [
-          [39.123, 9.123],
-          [39.124, 9.123],
-          [39.124, 9.124],
-          [39.123, 9.124],
-          [39.123, 9.123],
-        ],
-      ],
-    },
+    description: 'Plot Id from archGis desktop',
+    example: 'ARD-123123213',
   })
-  @IsObject()
-  polygon: any; // you may validate GeoJSON separately
-
-  @ApiProperty({ description: 'Block number', example: 'B12' })
   @IsString()
-  block_number: string;
-
-  @ApiProperty({ description: 'House number', example: 'H45' })
-  @IsString()
-  house_number: string;
-
-  @ApiProperty({ description: 'Area in square meters', example: 350.75 })
-  @IsNumber()
-  area_meter_square: number;
-
-  @ApiPropertyOptional({ description: 'Remark or notes about plot' })
-  @IsOptional()
-  @IsString()
-  remark?: string;
+  plot_id: string;
 
   @ApiProperty({ description: 'Title deed application ID' })
   @IsUUID()
   title_deed_application_id: string;
-
-  @ApiProperty({ description: 'Land use ID' })
-  @IsUUID()
-  land_use_id: string;
-
-  @ApiProperty({ description: 'Land grade ID' })
-  @IsUUID()
-  land_grade_id: string;
 }
+
+// export class CreatePlotDto {
+//   @ApiProperty({
+//     description: 'Geometry polygon in WKT or GeoJSON format',
+//     example: {
+//       type: 'Polygon',
+//       coordinates: [
+//         [
+//           [39.123, 9.123],
+//           [39.124, 9.123],
+//           [39.124, 9.124],
+//           [39.123, 9.124],
+//           [39.123, 9.123],
+//         ],
+//       ],
+//     },
+//   })
+//   @IsObject()
+//   polygon: any; // you may validate GeoJSON separately
+
+//   @ApiProperty({ description: 'Block number', example: 'B12' })
+//   @IsString()
+//   block_number: string;
+
+//   @ApiProperty({ description: 'House number', example: 'H45' })
+//   @IsString()
+//   house_number: string;
+
+//   @ApiProperty({ description: 'Area in square meters', example: 350.75 })
+//   @IsNumber()
+//   area_meter_square: number;
+
+//   @ApiPropertyOptional({ description: 'Remark or notes about plot' })
+//   @IsOptional()
+//   @IsString()
+//   remark?: string;
+
+//   @ApiProperty({ description: 'Title deed application ID' })
+//   @IsUUID()
+//   title_deed_application_id: string;
+
+//   @ApiProperty({ description: 'Land use ID' })
+//   @IsUUID()
+//   land_use_id: string;
+
+//   @ApiProperty({ description: 'Land grade ID' })
+//   @IsUUID()
+//   land_grade_id: string;
+// }
 
 export class SearchPlotDto extends PartialType(PaginationDto) {
   @ApiPropertyOptional({
@@ -90,4 +103,16 @@ export class SearchPlotDto extends PartialType(PaginationDto) {
 
 export class UpdatePlotDto extends PartialType(CreatePlotDto) {
   updated_by_id: string;
+}
+
+export class ClientRejectPlotDto {
+  @ApiProperty({ example: 'I don´t accept this map' })
+  @IsOptional()
+  client_rejection_note: string;
+}
+
+export class ClientConfirmationPlotDto {
+  @ApiProperty({ example: 'I accept this map' })
+  @IsOptional()
+  client_confirmation_note: string;
 }

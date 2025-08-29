@@ -199,7 +199,7 @@ export class RejectTitleDeedApplicationOwnerDto {
 
   @ApiPropertyOptional({
     description: 'Rejecter note',
-    example: 'Owner information is incomplete',
+    example: 'Owner information is incomplete!',
   })
   @IsOptional()
   @IsString()

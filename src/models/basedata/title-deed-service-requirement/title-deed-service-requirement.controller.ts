@@ -15,6 +15,7 @@ import {
   SearchTitleDeedServiceRequirementDto,
 } from './dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('Title Deed Service Requirements')
 @Controller('title-deed-service-requirement')
@@ -28,6 +29,7 @@ export class TitleDeedServiceRequirementController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Get all service requirements' })
   findAll(@Query() query: SearchTitleDeedServiceRequirementDto) {
     return this.service.findAll(query);

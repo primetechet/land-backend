@@ -141,10 +141,26 @@ export class TitleDeedApplicationService {
       ];
     }
 
+    this.prisma.titleDeedApplication.findMany({
+      where: {
+        titleDeedApplicationOwners: {
+          some: {
+            first_name_am: 'ብስራት',
+          },
+        },
+      },
+    });
+
     return paginate(
       this.prisma.titleDeedApplication,
       {
-        where,
+        where: {
+          titleDeedApplicationOwners: {
+            some: {
+              first_name_am: 'ብስራት',
+            },
+          },
+        },
         orderBy: { created_at: 'desc' },
         include: {
           titleDeedService: { select: { id: true, name: true } },
@@ -162,6 +178,10 @@ export class TitleDeedApplicationService {
             },
           },
 
+          titleDeedApplicationOwners: {
+            where: { is_applicant: true },
+            take: 1,
+          },
           branch: { select: { id: true, name: true } },
           user: { select: { id: true, name: true } },
         },
@@ -188,8 +208,31 @@ export class TitleDeedApplicationService {
     );
   }
 
+  async titleDeedOwner(id: string, options: SearchTitleDeedApplicationDto) {
+    const { search } = { ...options };
+    const where: any = {};
+
+    return await this.prisma.titleDeedApplicationOwner.findMany({
+      where: { title_deed_application_id: id },
+      include: {
+        disabilityStatus: {
+          select: { id: true, name: true },
+        },
+        nationality: {
+          select: { id: true, name: true, nationality: true },
+        },
+        residencyCountry: {
+          select: { id: true, name: true },
+        },
+        woreda: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+  }
+
   findOne(id: string) {
-    return this.prisma.titleDeedApplication.findUnique({
+    const titleDeedApplication = this.prisma.titleDeedApplication.findUnique({
       where: { id },
       include: {
         titleDeedService: { select: { id: true, name: true } },
@@ -208,6 +251,8 @@ export class TitleDeedApplicationService {
         user: { select: { id: true, name: true } },
       },
     });
+
+    return titleDeedApplication;
   }
 
   async archiveDocuments(id: string) {

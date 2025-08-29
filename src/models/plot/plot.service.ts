@@ -1,7 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from 'src/common/database/database.service';
 import { paginate } from 'src/common/utils/paginater';
-import { CreatePlotDto, UpdatePlotDto, SearchPlotDto } from './dto';
+import {
+  CreatePlotDto,
+  UpdatePlotDto,
+  SearchPlotDto,
+  ClientRejectPlotDto,
+  ClientConfirmationPlotDto,
+} from './dto';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 import { PaginationDto } from 'src/common/dtos/global.dto';
 
@@ -37,25 +43,86 @@ export class PlotService {
       },
     });
 
+    const { attributes: arcGisPlot, geometry } = this.getPlotFromArchGis(
+      createDto.plot_id,
+    );
+    console.log(arcGisPlot);
+    const landUse = await this.prisma.landUse.findUnique({
+      where: { name: arcGisPlot.Land_Use },
+    });
+    const landGrade = await this.prisma.landGrade.findUnique({
+      where: { name: arcGisPlot.Land_Grade },
+    });
+    const tenureType = await this.prisma.tenureType.findUnique({
+      where: { name: arcGisPlot.Tenure_Type },
+    });
+    const holdingType = await this.prisma.holdingType.findUnique({
+      where: { name: arcGisPlot.Holding_Type },
+    });
+
     return await this.prisma.plot.create({
       data: {
-        plot_id: 'TAKE_FROM_TRIGGER',
-        block_number: createDto.block_number,
-        house_number: createDto.house_number,
-        area_meter_square: createDto.area_meter_square,
-        remark: createDto.remark,
+        plot_id: arcGisPlot.UniqueID,
+        geo: geometry,
+        block_number: arcGisPlot.Block_Number,
+        area_meter_square: arcGisPlot.Built_up_Area || 10,
+        global_id: arcGisPlot.GlobalID,
         title_deed_application_id: titleDeedApplication.id,
-        land_use_id: createDto.land_use_id,
-        land_grade_id: createDto.land_grade_id,
         woreda_id: titleDeedApplication.woreda_id,
         branch_id: titleDeedApplication.branch_id,
         plot_registered_by_id: request.user.sub,
         owners_audit: owners,
+        land_use_id: landUse.id,
+        land_grade_id: landGrade.id,
+        tenure_type_id: tenureType.id,
+        holding_type_id: holdingType.id,
       },
       select: {
         id: true,
       },
     });
+  }
+
+  getPlotFromArchGis(plot_id: string): any {
+    return {
+      attributes: {
+        OBJECTID: 80903,
+        UniqueID: 'LTP-AD01000002',
+        BasemapID: null,
+        Landholder_Full_Name: 'test',
+        Subcity: 'Addis Ketema',
+        New_Wereda: '01',
+        Block_Number: null,
+        Parcel_Number: null,
+        Certificate_Number: null,
+        Holding_Type: 'Farmer',
+        Land_Use: 'Farming',
+        Land_Function: 'Farmer_Residence',
+        Land_Grade: 'Grade 1-1',
+        Tenure_Type: 'old_possesion',
+        Built_up_Area: null,
+        Proportional_Area: null,
+        Floor_Number: null,
+        GlobalID: '{43B62F84-BCBD-42CE-B933-09FC16B4CD19}',
+        created_user: 'GIS_ADMIN_HQ',
+        created_date: 1756462875000,
+        last_edited_user: 'GIS_ADMIN_HQ',
+        last_edited_date: 1756462885000,
+        CustomID: '000002',
+        'SHAPE.STArea()': 1071159.719329834,
+        'SHAPE.STLength()': 4832.3826762518092,
+      },
+      geometry: {
+        rings: [
+          [
+            [474056.14609999955, 1030648.0333999991],
+            [475607.62939999998, 1030492.8850999996],
+            [474211.29440000001, 1029251.6984000001],
+            [474056.14609999955, 1030648.0333999991],
+          ],
+        ],
+      },
+    };
   }
 
   async findAll(query: SearchPlotDto) {
@@ -171,6 +238,8 @@ export class PlotService {
       include: {
         landUse: { select: { id: true, name: true } },
         landGrade: { select: { id: true, name: true } },
+        holdingType: { select: { id: true, name: true } },
+        tenureType: { select: { id: true, name: true } },
         woreda: { select: { id: true, name: true } },
         branch: { select: { id: true, name: true } },
         rejectionReason: { select: { id: true, name: true } },
@@ -223,5 +292,57 @@ export class PlotService {
     });
 
     return plot;
+  }
+
+  async clientConfirmed(id: string, data: ClientConfirmationPlotDto) {
+    // const user = await this.prisma.titleDeedApplicationOwner.findFirst({
+    //   where: { id_number: request.user.username },
+    // });
+
+    // if (!user) {
+    //   throw new HttpException('Not your application', 422);
+    // }
+
+    const plot = await this.prisma.plot.update({
+      where: {
+        id: id,
+      },
+      data: {
+        client_confirmed: true,
+        client_confirmation_note: data.client_confirmation_note,
+        client_confirmed_at: new Date(),
+      },
+    });
+
+    return {
+      data: plot,
+      message: 'Plot accepted',
+    };
+  }
+
+  async clientReject(id: string, data: ClientRejectPlotDto) {
+    // const user = await this.prisma.titleDeedApplicationOwner.findFirst({
+    //   where: { id_number: request.user.username },
+    // });
+
+    // if (!user) {
+    //   throw new HttpException('Not your application', 422);
+    // }
+
+    const plot = await this.prisma.plot.update({
+      where: {
+        id: id,
+      },
+      data: {
+        client_rejected: true,
+        client_rejection_note: data.client_rejection_note,
+        client_rejected_at: new Date(),
+      },
+    });
+
+    return {
+      data: plot,
+      message: 'Plot accepted',
+    };
   }
 }
