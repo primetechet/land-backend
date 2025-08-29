@@ -20,6 +20,7 @@ import {
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 import { PaginationDto } from 'src/common/dtos/global.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('Plots')
 @Controller('plot')
@@ -60,6 +61,7 @@ export class PlotController {
   }
 
   @Get(':id')
+  @Public()
   @ApiOperation({ summary: 'Get a plot by ID' })
   findOne(@Param('id') id: string) {
     return this.plotService.findOne(id);

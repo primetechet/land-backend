@@ -118,10 +118,26 @@ export class TitleDeedApplicationService {
       ];
     }
 
+    this.prisma.titleDeedApplication.findMany({
+      where: {
+        titleDeedApplicationOwners: {
+          some: {
+            first_name_am: 'ብስራት',
+          },
+        },
+      },
+    });
+
     return paginate(
       this.prisma.titleDeedApplication,
       {
-        where,
+        where: {
+          titleDeedApplicationOwners: {
+            some: {
+              first_name_am: 'ብስራት',
+            },
+          },
+        },
         orderBy: { created_at: 'desc' },
         include: {
           titleDeedService: { select: { id: true, name: true } },

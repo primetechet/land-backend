@@ -230,16 +230,26 @@ model TitleDeedApplicationAppointment {
 
 model Plot {
   id                        String               @id @default(uuid())
+  geo                       Json
   plot_id                   String               @unique
-  block_number              String
-  house_number              String
+  block_number              String?
+  house_number              String?
   area_meter_square         Float
+  parcel_number             String?
+  certificate_number        String?
   remark                    String?
   title_deed_application_id String
   land_use_id               String
   land_grade_id             String
+  holding_type_id           String
+  tenure_type_id            String
   woreda_id                 String
   branch_id                 String
+  built_up_area             Float?
+  proportional_area         Float?
+  floor_number              Float?
+  global_id                 String
+  arch_gis_created_user     String?
   base_map_approved         Boolean              @default(false)
   base_map_approved_at      DateTime?
   base_map_approved_by_id   String?
@@ -274,6 +284,8 @@ model Plot {
   branch                    Branch               @relation(fields: [branch_id], references: [id])
   landGrade                 LandGrade            @relation(fields: [land_grade_id], references: [id])
   landUse                   LandUse              @relation(fields: [land_use_id], references: [id])
+  holdingType               HoldingType          @relation(fields: [holding_type_id], references: [id])
+  tenureType                TenureType           @relation(fields: [tenure_type_id], references: [id])
   plotRegisteredBy          Employee             @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
   rejectedBy                Employee?            @relation("rejectedBy", fields: [rejected_by_id], references: [id])
   rejectionReason           RejectionReason?     @relation(fields: [rejection_reason_id], references: [id])
@@ -849,6 +861,42 @@ model RejectionReason {
   titleDeedApplications               TitleDeedApplication[]
 
   @@map("rejection_reasons")
+}
+
+model HoldingType {
+  id               String    @id @default(uuid())
+  name             String    @unique
+  name_json        Json      @default("{}")
+  description      String?
+  description_json Json?     @default("{}")
+  draft            Boolean   @default(false)
+  drafted_at       DateTime?
+  drafted_by_id    String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  created_by_id    String?
+  updated_by_id    String?
+  plots            Plot[]
+
+  @@map("holding_types")
+}
+
+model TenureType {
+  id               String    @id @default(uuid())
+  name             String    @unique
+  name_json        Json      @default("{}")
+  description      String?
+  description_json Json?     @default("{}")
+  draft            Boolean   @default(false)
+  drafted_at       DateTime?
+  drafted_by_id    String?
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  created_by_id    String?
+  updated_by_id    String?
+  plots            Plot[]
+
+  @@map("tenure_types")
 }
 
 model LandUse {

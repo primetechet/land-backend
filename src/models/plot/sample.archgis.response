@@ -1,0 +1,199 @@
+{
+ "objectIdFieldName": "OBJECTID",
+ "globalIdFieldName": "GlobalID",
+ "geometryType": "esriGeometryPolygon",
+ "spatialReference": {
+  "wkid": 20137,
+  "latestWkid": 20137
+ },
+ "fields": [
+  {
+   "name": "OBJECTID",
+   "alias": "OBJECTID",
+   "type": "esriFieldTypeOID"
+  },
+  {
+   "name": "UniqueID",
+   "alias": "UniqueID",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "BasemapID",
+   "alias": "ቤዝማፕ ቁጥር",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "Landholder_Full_Name",
+   "alias": "የባለይዞታው ሙሉ ስም",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "Subcity",
+   "alias": "ክፍለ ከተማ",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "New_Wereda",
+   "alias": "Wereda",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "Block_Number",
+   "alias": "ብሎክ ቁጥር",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "Parcel_Number",
+   "alias": "ፓርሴል ቁጥር",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "Certificate_Number",
+   "alias": "ካርታ ቁጥር",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "Holding_Type",
+   "alias": "የይዞታው አይነት",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "Land_Use",
+   "alias": "የቦታው አጠቃቀም",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "Land_Function",
+   "alias": "የቦታው አገልግሎት",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "Land_Grade",
+   "alias": "የቦታው ደረጃ",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "Tenure_Type",
+   "alias": "የይዞታው ስሪት",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "Built_up_Area",
+   "alias": "ቤቱ ያረፈበት ስፋት",
+   "type": "esriFieldTypeDouble"
+  },
+  {
+   "name": "Proportional_Area",
+   "alias": "በፕሮፖርሽን የሚደርሰው ስፋት",
+   "type": "esriFieldTypeDouble"
+  },
+  {
+   "name": "Floor_Number",
+   "alias": "ወለል ቁጥር",
+   "type": "esriFieldTypeString",
+   "length": 50
+  },
+  {
+   "name": "GlobalID",
+   "alias": "GlobalID",
+   "type": "esriFieldTypeGlobalID",
+   "length": 38
+  },
+  {
+   "name": "created_user",
+   "alias": "created_user",
+   "type": "esriFieldTypeString",
+   "length": 255
+  },
+  {
+   "name": "created_date",
+   "alias": "created_date",
+   "type": "esriFieldTypeDate",
+   "length": 8
+  },
+  {
+   "name": "last_edited_user",
+   "alias": "last_edited_user",
+   "type": "esriFieldTypeString",
+   "length": 255
+  },
+  {
+   "name": "last_edited_date",
+   "alias": "last_edited_date",
+   "type": "esriFieldTypeDate",
+   "length": 8
+  },
+  {
+   "name": "CustomID",
+   "alias": "CustomID",
+   "type": "esriFieldTypeString",
+   "length": 10
+  }
+ ],
+ "features": [
+  {
+   "attributes": {
+    "OBJECTID": 80903,
+    "UniqueID": "LTP-AD01000002",
+    "BasemapID": null,
+    "Landholder_Full_Name": "test",
+    "Subcity": "Addis Ketema",
+    "New_Wereda": "01",
+    "Block_Number": null,
+    "Parcel_Number": null,
+    "Certificate_Number": null,
+    "Holding_Type": "Farmer",
+    "Land_Use": "Airport",
+    "Land_Function": "Farmer_Residence",
+    "Land_Grade": "Grade 1-1",
+    "Tenure_Type": "old_possesion",
+    "Built_up_Area": null,
+    "Proportional_Area": null,
+    "Floor_Number": null,
+    "GlobalID": "{43B62F84-BCBD-42CE-B933-09FC16B4CD19}",
+    "created_user": "GIS_ADMIN_HQ",
+    "created_date": 1756462875000,
+    "last_edited_user": "GIS_ADMIN_HQ",
+    "last_edited_date": 1756462885000,
+    "CustomID": "000002",
+    "SHAPE.STArea()": 1071159.719329834,
+    "SHAPE.STLength()": 4832.3826762518092
+   },
+   "geometry": {
+    "rings": [
+     [
+      [
+       474056.14609999955,
+       1030648.0333999991
+      ],
+      [
+       475607.62939999998,
+       1030492.8850999996
+      ],
+      [
+       474211.29440000001,
+       1029251.6984000001
+      ],
+      [
+       474056.14609999955,
+       1030648.0333999991
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}
