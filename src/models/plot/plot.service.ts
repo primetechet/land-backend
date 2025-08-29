@@ -62,7 +62,7 @@ export class PlotService {
 
     return await this.prisma.plot.create({
       data: {
-        plot_id: arcGisPlot.UniqueID,
+        plot_id: createDto.plot_id,
         geo: geometry,
         block_number: arcGisPlot.Block_Number,
         area_meter_square: arcGisPlot.Built_up_Area || 10,

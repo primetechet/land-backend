@@ -73,6 +73,4 @@ export class SearchBranchDto extends PartialType(PaginationDto) {
   search?: string;
 }
 
-export class UpdateBranchDto extends PartialType(CreateBranchDto) {
-  updated_by_id: string;
-}
+export class UpdateBranchDto extends PartialType(CreateBranchDto) {}

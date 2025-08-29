@@ -36,8 +36,6 @@ export class CreateLandGradeDto {
   @IsOptional()
   @IsBoolean()
   draft?: boolean;
-
-  created_by_id: string;
 }
 
 export class SearchLandGradeDto extends PartialType(PaginationDto) {

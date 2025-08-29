@@ -39,8 +39,6 @@ export class CreateRejectionReasonDto {
   @IsOptional()
   @IsBoolean()
   draft?: boolean;
-
-  created_by_id: string;
 }
 
 export class SearchRejectionReasonDto extends PartialType(PaginationDto) {
@@ -52,6 +50,4 @@ export class SearchRejectionReasonDto extends PartialType(PaginationDto) {
 
 export class UpdateRejectionReasonDto extends PartialType(
   CreateRejectionReasonDto,
-) {
-  updated_by_id: string;
-}
+) {}

@@ -36,8 +36,6 @@ export class CreatePropertyUseDto {
   @IsOptional()
   @IsBoolean()
   draft?: boolean;
-
-  created_by_id: string;
 }
 
 export class SearchPropertyUseDto extends PartialType(PaginationDto) {
@@ -47,6 +45,4 @@ export class SearchPropertyUseDto extends PartialType(PaginationDto) {
   search?: string;
 }
 
-export class UpdatePropertyUseDto extends PartialType(CreatePropertyUseDto) {
-  updated_by_id: string;
-}
+export class UpdatePropertyUseDto extends PartialType(CreatePropertyUseDto) {}
