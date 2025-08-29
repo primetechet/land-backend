@@ -262,6 +262,7 @@ model Plot {
   rejected_by_id            String?
   rejecter_note             String?
   rejection_reason_id       String?
+  owners_audit              Json?                // Store complete owner information for auditing
   created_at                DateTime             @default(now())
   updated_at                DateTime             @updatedAt
   created_by_id             String?

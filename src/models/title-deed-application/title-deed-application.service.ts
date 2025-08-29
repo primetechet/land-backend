@@ -403,8 +403,6 @@ export class TitleDeedApplicationService {
     const where: any = {
       titleDeedApplicationOwners: {
         some: {
-          verified: true,
-          rejected: false,
           id_type: idType,
           id_number: idNumber,
         },

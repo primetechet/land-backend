@@ -15,6 +15,28 @@ export class PlotService {
         where: { id: createDto.title_deed_application_id },
       });
 
+    // Fetch only approved owners for this title deed application for auditing
+    const owners = await this.prisma.titleDeedApplicationOwner.findMany({
+      where: {
+        title_deed_application_id: createDto.title_deed_application_id,
+        verified: true,
+        rejected: false,
+      },
+      select: {
+        id_type: true,
+        id_number: true,
+        first_name: true,
+        father_name: true,
+        grand_father_name: true,
+        gender: true,
+        is_organization: true,
+        is_representative: true,
+        is_applicant: true,
+        verified: true,
+        rejected: true,
+      },
+    });
+
     return await this.prisma.plot.create({
       data: {
         plot_id: 'TAKE_FROM_TRIGGER',
@@ -28,6 +50,7 @@ export class PlotService {
         woreda_id: titleDeedApplication.woreda_id,
         branch_id: titleDeedApplication.branch_id,
         plot_registered_by_id: request.user.sub,
+        owners_audit: owners,
       },
       select: {
         id: true,
