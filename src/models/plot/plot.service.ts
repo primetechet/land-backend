@@ -7,6 +7,7 @@ import {
   SearchPlotDto,
   ClientRejectPlotDto,
   ClientConfirmationPlotDto,
+  CreateBaseMapDto,
 } from './dto';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 import { PaginationDto } from 'src/common/dtos/global.dto';
@@ -87,7 +88,11 @@ export class PlotService {
     });
   }
 
-  async setBaseMap(id: string) {
+  async setBaseMapId(
+    id: string,
+    setBaseMapDto: CreateBaseMapDto,
+    request: EmployeeTokenClaim,
+  ) {
     const plot = await this.prisma.plot.findUnique({
       where: { id },
       select: { plot_id: true },
@@ -95,12 +100,15 @@ export class PlotService {
     if (!plot) throw new NotFoundException('Plot not found');
 
     const response = await this.getBaseMapFromArchGis(plot.plot_id);
-    console.log(response.features);
+    if (!response.features || response.features.length === 0) {
+      throw new NotFoundException('Base map not found in ArcGIS');
+    }
+
     const { attributes: arcGisPlot, geometry } = response.features[0];
 
     await this.prisma.plot.update({
       where: { id },
-      data: { base_map_id: arcGisPlot.BasemapID },
+      data: { base_map_id: setBaseMapDto.base_map_id },
     });
     return plot;
   }

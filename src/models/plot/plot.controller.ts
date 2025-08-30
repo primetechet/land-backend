@@ -16,6 +16,7 @@ import {
   SearchPlotDto,
   ClientRejectPlotDto,
   ClientConfirmationPlotDto,
+  CreateBaseMapDto,
 } from './dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
@@ -61,12 +62,22 @@ export class PlotController {
     return this.plotService.plotCertificate(id);
   }
 
-  @Get(':id/set-base-map')
-  @Public()
-  @ApiOperation({ summary: 'Get a plot by ID' })
-  setBaseMap(@Param('id') id: string) {
-    return this.plotService.setBaseMap(id);
+  @Post(':id/set-base-map')
+  @ApiOperation({ summary: 'Create a new plot' })
+  setBaseMap(
+    @Param('id') id: string,
+    @Body() setBaseMapDto: CreateBaseMapDto,
+    @Request() request: EmployeeTokenClaim,
+  ) {
+    return this.plotService.setBaseMapId(id, setBaseMapDto, request);
   }
+
+  // @Get(':id/set-base-map')
+  // @Public()
+  // @ApiOperation({ summary: 'Get a plot by ID' })
+  // setBaseMap(@Param('id') id: string) {
+  //   return this.plotService.setBaseMap(id);
+  // }
 
   @Get(':id')
   @Public()

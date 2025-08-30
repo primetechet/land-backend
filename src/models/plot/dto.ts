@@ -23,6 +23,15 @@ export class CreatePlotDto {
   title_deed_application_id: string;
 }
 
+export class CreateBaseMapDto {
+  @ApiProperty({
+    description: 'Base map id from archGis desktop',
+    example: 'ARD-123123213',
+  })
+  @IsString()
+  base_map_id: string;
+}
+
 // export class CreatePlotDto {
 //   @ApiProperty({
 //     description: 'Geometry polygon in WKT or GeoJSON format',
