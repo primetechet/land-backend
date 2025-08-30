@@ -219,11 +219,15 @@ export class PlotService {
       include: {
         landUse: { select: { id: true, name: true } },
         landGrade: { select: { id: true, name: true } },
+        holdingType: { select: { id: true, name: true } },
+        tenureType: { select: { id: true, name: true } },
+        rejectionReason: { select: { id: true, name: true } },
         woreda: { select: { id: true, name: true } },
         branch: { select: { id: true, name: true } },
         titleDeedApplication: {
           include: {
             titleDeedService: { select: { id: true, name: true } },
+            titleDeedApplicationOwners: true,
           },
         },
       },
