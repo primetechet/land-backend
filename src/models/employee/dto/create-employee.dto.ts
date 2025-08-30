@@ -74,6 +74,15 @@ export class CreateEmployeeDto {
   branch_id?: string;
 
   @ApiProperty({
+    example: 'uuid-of-branch',
+    description: 'Branch ID where the employee will be assigned',
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID()
+  role_id?: string;
+
+  @ApiProperty({
     example: true,
     description: 'Whether the employee requires password change on first login',
     default: false,

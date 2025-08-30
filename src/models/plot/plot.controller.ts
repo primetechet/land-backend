@@ -37,6 +37,7 @@ export class PlotController {
   }
 
   @Get()
+  @Public()
   @ApiOperation({ summary: 'Get all plots with filters' })
   findAll(@Query() query: SearchPlotDto) {
     return this.plotService.findAll(query);
@@ -58,6 +59,13 @@ export class PlotController {
   @ApiOperation({ summary: 'Get paginated plot certificate data' })
   plotCertificate(@Param('id') id: string) {
     return this.plotService.plotCertificate(id);
+  }
+
+  @Get(':id/set-base-map')
+  @Public()
+  @ApiOperation({ summary: 'Get a plot by ID' })
+  setBaseMap(@Param('id') id: string) {
+    return this.plotService.setBaseMap(id);
   }
 
   @Get(':id')

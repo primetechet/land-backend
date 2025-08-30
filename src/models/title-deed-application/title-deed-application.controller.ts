@@ -94,6 +94,15 @@ export class TitleDeedApplicationController {
     return this.service.titleDeedOwner(id, payload);
   }
 
+  @Get('mine')
+  @ApiOperation({ summary: 'Get mine applications' })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  findAllMine(@Query() payload: any, @Request() request) {
+    payload.user_id = request.user.sub;
+    return this.service.findAllPaginated(payload);
+  }
+
   @Get('paginated')
   @ApiOperation({ summary: 'Get paginated applications' })
   @ApiQuery({ name: 'page', required: false, type: Number })

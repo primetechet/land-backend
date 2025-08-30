@@ -244,6 +244,7 @@ model Plot {
   id                        String               @id @default(uuid())
   geo                       Json
   plot_id                   String               @unique
+  base_map_id               String?              @unique
   block_number              String?
   house_number              String?
   area_meter_square         Float

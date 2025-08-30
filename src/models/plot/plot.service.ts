@@ -10,10 +10,15 @@ import {
 } from './dto';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 import { PaginationDto } from 'src/common/dtos/global.dto';
+import { HttpService } from '@nestjs/axios';
+import * as https from 'https';
 
 @Injectable()
 export class PlotService {
-  constructor(private readonly prisma: DatabaseService) {}
+  constructor(
+    private readonly prisma: DatabaseService,
+    private httpService: HttpService,
+  ) {}
 
   async create(createDto: CreatePlotDto, request: EmployeeTokenClaim) {
     const titleDeedApplication =
@@ -43,10 +48,9 @@ export class PlotService {
       },
     });
 
-    const { attributes: arcGisPlot, geometry } = this.getPlotFromArchGis(
-      createDto.plot_id,
-    );
-    console.log(arcGisPlot);
+    const response = await this.getPlotFromArchGis(createDto.plot_id);
+    const { attributes: arcGisPlot, geometry } = response.features[0];
+
     const landUse = await this.prisma.landUse.findUnique({
       where: { name: arcGisPlot.Land_Use },
     });
@@ -83,46 +87,113 @@ export class PlotService {
     });
   }
 
-  getPlotFromArchGis(plot_id: string): any {
+  async setBaseMap(id: string) {
+    const plot = await this.prisma.plot.findUnique({
+      where: { id },
+      select: { plot_id: true },
+    });
+    if (!plot) throw new NotFoundException('Plot not found');
+
+    const response = await this.getBaseMapFromArchGis(plot.plot_id);
+    console.log(response.features);
+    const { attributes: arcGisPlot, geometry } = response.features[0];
+
+    await this.prisma.plot.update({
+      where: { id },
+      data: { base_map_id: arcGisPlot.BasemapID },
+    });
+    return plot;
+  }
+
+  async getBaseMapFromArchGis(plot_id: string) {
+    try {
+      const agent = new https.Agent({
+        rejectUnauthorized: false, // ❌ disables cert validation
+      });
+
+      // ${encodeURIComponent(plot_id)}
+      const url = `https://10.32.141.81:6443/arcgis/rest/services/AI/LandTenureBasemap/FeatureServer/0/query?where=BasemapID='GU062025000006'&outFields=*&f=pjson`;
+
+      const response = await this.httpService
+        .post(url, {}, { httpsAgent: agent })
+        .toPromise();
+
+      console.info('Plot Fetched:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('FAILED:', error.message);
+      return { success: false, message: 'Failed to fetch data' };
+    }
+  }
+
+  async getPlotFromArchGis(plot_id: string) {
     return {
-      attributes: {
-        OBJECTID: 80903,
-        UniqueID: 'LTP-AD01000002',
-        BasemapID: null,
-        Landholder_Full_Name: 'test',
-        Subcity: 'Addis Ketema',
-        New_Wereda: '01',
-        Block_Number: null,
-        Parcel_Number: null,
-        Certificate_Number: null,
-        Holding_Type: 'Farmer',
-        Land_Use: 'Farming',
-        Land_Function: 'Farmer_Residence',
-        Land_Grade: 'Grade 1-1',
-        Tenure_Type: 'old_possesion',
-        Built_up_Area: null,
-        Proportional_Area: null,
-        Floor_Number: null,
-        GlobalID: '{43B62F84-BCBD-42CE-B933-09FC16B4CD19}',
-        created_user: 'GIS_ADMIN_HQ',
-        created_date: 1756462875000,
-        last_edited_user: 'GIS_ADMIN_HQ',
-        last_edited_date: 1756462885000,
-        CustomID: '000002',
-        'SHAPE.STArea()': 1071159.719329834,
-        'SHAPE.STLength()': 4832.3826762518092,
-      },
-      geometry: {
-        rings: [
-          [
-            [474056.14609999955, 1030648.0333999991],
-            [475607.62939999998, 1030492.8850999996],
-            [474211.29440000001, 1029251.6984000001],
-            [474056.14609999955, 1030648.0333999991],
-          ],
-        ],
-      },
+      features: [
+        {
+          attributes: {
+            OBJECTID: 80903,
+            UniqueID: 'LTP-AD01000002',
+            BasemapID: null,
+            Landholder_Full_Name: 'test',
+            Subcity: 'Addis Ketema',
+            New_Wereda: '01',
+            Block_Number: null,
+            Parcel_Number: null,
+            Certificate_Number: null,
+            Holding_Type: 'Farmer',
+            Land_Use: 'Airport',
+            Land_Function: 'Farmer_Residence',
+            Land_Grade: 'Grade 1-1',
+            Tenure_Type: 'old_possesion',
+            Built_up_Area: null,
+            Proportional_Area: null,
+            Floor_Number: null,
+            GlobalID: '{43B62F84-BCBD-42CE-B933-09FC16B4CD19}',
+            created_user: 'GIS_ADMIN_HQ',
+            created_date: 1756462875000,
+            last_edited_user: 'GIS_ADMIN_HQ',
+            last_edited_date: 1756462885000,
+            CustomID: '000002',
+            'SHAPE.STArea()': 1071159.719329834,
+            'SHAPE.STLength()': 4832.3826762518092,
+          },
+          geometry: {
+            rings: [
+              [
+                [474000, 1030700],
+                [474800, 1030650],
+                [475200, 1030500],
+                [475600, 1030300],
+                [475400, 1029900],
+                [475000, 1029600],
+                [474500, 1029400],
+                [474100, 1029500],
+                [473900, 1029800],
+                [473800, 1030200],
+                [474000, 1030700],
+              ],
+            ],
+          },
+        },
+      ],
     };
+    try {
+      const agent = new https.Agent({
+        rejectUnauthorized: false, // ❌ disables cert validation
+      });
+
+      const url = `https://10.32.141.81:6443/arcgis/rest/services/AI/LandTenure/FeatureServer/0/query?where=UniqueID='${encodeURIComponent(plot_id)}'&outFields=*&f=pjson&num=1`;
+
+      const response = await this.httpService
+        .post(url, {}, { httpsAgent: agent })
+        .toPromise();
+
+      console.info('Plot Fetched:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('FAILED:', error.message);
+      return { success: false, message: 'Failed to fetch data' };
+    }
   }
 
   async findAll(query: SearchPlotDto) {

@@ -130,8 +130,12 @@ export class TitleDeedApplicationService {
   }
 
   async findAllPaginated(options: SearchTitleDeedApplicationDto) {
-    const { search } = { ...options };
+    const { search, user_id } = { ...options };
     const where: any = {};
+
+    if (user_id) {
+      where.user_id = user_id;
+    }
 
     if (search) {
       where.OR = [
@@ -141,26 +145,10 @@ export class TitleDeedApplicationService {
       ];
     }
 
-    this.prisma.titleDeedApplication.findMany({
-      where: {
-        titleDeedApplicationOwners: {
-          some: {
-            first_name_am: 'ብስራት',
-          },
-        },
-      },
-    });
-
     return paginate(
       this.prisma.titleDeedApplication,
       {
-        where: {
-          titleDeedApplicationOwners: {
-            some: {
-              first_name_am: 'ብስራት',
-            },
-          },
-        },
+        where,
         orderBy: { created_at: 'desc' },
         include: {
           titleDeedService: { select: { id: true, name: true } },

@@ -113,6 +113,8 @@ export class EmployeeService {
     // Hash password
     const hashedPassword = await bcrypt.hash(createEmployeeDto.password, 10);
 
+    delete createEmployeeDto.branch_id;
+    delete createEmployeeDto.role_id;
     // Create employee
     const employee = await this.prisma.employee.create({
       data: {

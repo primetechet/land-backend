@@ -99,6 +99,7 @@ export class TitleDeedApplicationReviewService {
           none: { completed: false },
         },
       },
+      orderBy: { created_at: 'desc' },
     });
 
     if (!application) {

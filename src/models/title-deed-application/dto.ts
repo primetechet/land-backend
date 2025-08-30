@@ -71,7 +71,11 @@ export class CreateTitleDeedApplicationDto {
 }
 
 export class SearchTitleDeedApplicationDto extends PartialType(PaginationDto) {
+  @IsOptional()
   search?: string;
+
+  @IsOptional()
+  user_id?: string;
 }
 
 export class UpdateTitleDeedApplicationDto extends PartialType(

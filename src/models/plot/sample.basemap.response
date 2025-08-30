@@ -1,0 +1,61 @@
+
+  {
+    attributes: {
+      OBJECTID: 63245,
+      UniqueID: null,
+      BasemapID: 'BO042025000005',
+      Landholder_Full_Name: null,
+      Subcity: 'Bole',
+      New_Wereda: '04',
+      Block_Number: null,
+      Parcel_Number: null,
+      Certificate_Number: 'BO04-000005',
+      Holding_Type: 'Farmer',
+      Land_Use: 'River buffer',
+      Land_Function: 'Farmer_Commerce',
+      Land_Grade: 'Grade 1-1',
+      Tenure_Type: 'old_possesion',
+      Built_up_Area: null,
+      Proportional_Area: null,
+      Floor_Number: null,
+      GlobalID: '{0ED74D8E-97C2-4404-90CC-DB36F4CD92E2}',
+      created_user: 'ADDISLAND\\user1',
+      created_date: 1756551026000,
+      last_edited_user: 'ADDISLAND\\user1',
+      last_edited_date: 1756551026000,
+      CustomID: '000005'
+    },
+    geometry: { rings: [Array] }
+  }
+]
+
+[
+  {
+    attributes: {
+      OBJECTID: 63246,
+      UniqueID: null,
+      BasemapID: 'GU062025000006',
+      Landholder_Full_Name: 'test2',
+      Subcity: 'Gulelle',
+      New_Wereda: '06',
+      Block_Number: null,
+      Parcel_Number: null,
+      Certificate_Number: 'GU06-000006',
+      Holding_Type: 'Farmer',
+      Land_Use: 'River buffer',
+      Land_Function: 'Farmer_Commerce',
+      Land_Grade: 'Grade 1-1',
+      Tenure_Type: 'old_possesion',
+      Built_up_Area: null,
+      Proportional_Area: null,
+      Floor_Number: null,
+      GlobalID: '{73B66DD3-6D10-4CC7-A96D-737B2D0C94F2}',
+      created_user: 'ADDISLAND\\user1',
+      created_date: 1756553511000,
+      last_edited_user: 'ADDISLAND\\user1',
+      last_edited_date: 1756553511000,
+      CustomID: '000006'
+    },
+    geometry: { rings: [Array] }
+  }
+]

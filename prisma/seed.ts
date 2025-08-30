@@ -118,6 +118,22 @@ async function main() {
     },
   });
 
+  await prisma.user.upsert({
+    where: { username: 'aiuser' },
+    update: {},
+    create: {
+      user_type: UserType.INDIVIDUAL,
+      id_type: IdType.FAYDA_ID,
+      name: 'Yoseph Hailu',
+      username: 'aiuser',
+      password: hashedPassword,
+      phone_number: '+25190000000',
+      email: 'aiuser@mail.com',
+      require_password_change: true,
+      is_active: true,
+    },
+  });
+
   const adminEmployee = await prisma.employee.upsert({
     where: { username: 'admin' },
     update: {},
