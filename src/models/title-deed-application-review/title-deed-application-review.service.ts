@@ -65,10 +65,11 @@ export class TitleDeedApplicationReviewService {
         base_map_approved: false,
       };
     } else if (createTitleDeedApplicationReviewDto.action == 'AUTHORIZATION') {
+      console.log('here');
       applicationCondition = {
         authorized: false,
         submitted: true,
-        plot_registered: true,
+        base_map_approved: true,
       };
     }
 

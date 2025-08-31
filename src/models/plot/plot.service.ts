@@ -95,7 +95,7 @@ export class PlotService {
   ) {
     const plot = await this.prisma.plot.findUnique({
       where: { id },
-      select: { plot_id: true },
+      select: { plot_id: true, title_deed_application_id: true },
     });
     if (!plot) throw new NotFoundException('Plot not found');
 
@@ -105,10 +105,33 @@ export class PlotService {
     }
 
     const { attributes: arcGisPlot, geometry } = response.features[0];
+    console.log(plot);
+    ('d6616675-8541-4471-8118-78b1d2c0ea25');
 
     await this.prisma.plot.update({
       where: { id },
       data: { base_map_id: setBaseMapDto.base_map_id },
+    });
+
+    await this.prisma.titleDeedApplicationReview.updateMany({
+      where: {
+        title_deed_application_id: plot.title_deed_application_id,
+        completed: false,
+      },
+      data: {
+        completed: true,
+        completed_at: new Date(),
+        note: `Task Completed`,
+      },
+    });
+
+    await this.prisma.titleDeedApplication.update({
+      where: { id: plot.title_deed_application_id },
+      data: {
+        base_map_approved_by_id: request.user.sub,
+        base_map_approved_at: new Date(),
+        base_map_approved: true,
+      },
     });
     return plot;
   }
@@ -126,7 +149,6 @@ export class PlotService {
         .post(url, {}, { httpsAgent: agent })
         .toPromise();
 
-      console.info('Plot Fetched:', response.data);
       return response.data;
     } catch (error) {
       console.error('FAILED:', error.message);
@@ -135,56 +157,56 @@ export class PlotService {
   }
 
   async getPlotFromArchGis(plot_id: string) {
-    return {
-      features: [
-        {
-          attributes: {
-            OBJECTID: 80903,
-            UniqueID: 'LTP-AD01000002',
-            BasemapID: null,
-            Landholder_Full_Name: 'test',
-            Subcity: 'Addis Ketema',
-            New_Wereda: '01',
-            Block_Number: null,
-            Parcel_Number: null,
-            Certificate_Number: null,
-            Holding_Type: 'Farmer',
-            Land_Use: 'Airport',
-            Land_Function: 'Farmer_Residence',
-            Land_Grade: 'Grade 1-1',
-            Tenure_Type: 'old_possesion',
-            Built_up_Area: null,
-            Proportional_Area: null,
-            Floor_Number: null,
-            GlobalID: '{43B62F84-BCBD-42CE-B933-09FC16B4CD19}',
-            created_user: 'GIS_ADMIN_HQ',
-            created_date: 1756462875000,
-            last_edited_user: 'GIS_ADMIN_HQ',
-            last_edited_date: 1756462885000,
-            CustomID: '000002',
-            'SHAPE.STArea()': 1071159.719329834,
-            'SHAPE.STLength()': 4832.3826762518092,
-          },
-          geometry: {
-            rings: [
-              [
-                [474000, 1030700],
-                [474800, 1030650],
-                [475200, 1030500],
-                [475600, 1030300],
-                [475400, 1029900],
-                [475000, 1029600],
-                [474500, 1029400],
-                [474100, 1029500],
-                [473900, 1029800],
-                [473800, 1030200],
-                [474000, 1030700],
-              ],
-            ],
-          },
-        },
-      ],
-    };
+    // return {
+    //   features: [
+    //     {
+    //       attributes: {
+    //         OBJECTID: 80903,
+    //         UniqueID: 'LTP-AD01000002',
+    //         BasemapID: null,
+    //         Landholder_Full_Name: 'test',
+    //         Subcity: 'Addis Ketema',
+    //         New_Wereda: '01',
+    //         Block_Number: null,
+    //         Parcel_Number: null,
+    //         Certificate_Number: null,
+    //         Holding_Type: 'Farmer',
+    //         Land_Use: 'Airport',
+    //         Land_Function: 'Farmer_Residence',
+    //         Land_Grade: 'Grade 1-1',
+    //         Tenure_Type: 'old_possesion',
+    //         Built_up_Area: null,
+    //         Proportional_Area: null,
+    //         Floor_Number: null,
+    //         GlobalID: '{43B62F84-BCBD-42CE-B933-09FC16B4CD19}',
+    //         created_user: 'GIS_ADMIN_HQ',
+    //         created_date: 1756462875000,
+    //         last_edited_user: 'GIS_ADMIN_HQ',
+    //         last_edited_date: 1756462885000,
+    //         CustomID: '000002',
+    //         'SHAPE.STArea()': 1071159.719329834,
+    //         'SHAPE.STLength()': 4832.3826762518092,
+    //       },
+    //       geometry: {
+    //         rings: [
+    //           [
+    //             [474000, 1030700],
+    //             [474800, 1030650],
+    //             [475200, 1030500],
+    //             [475600, 1030300],
+    //             [475400, 1029900],
+    //             [475000, 1029600],
+    //             [474500, 1029400],
+    //             [474100, 1029500],
+    //             [473900, 1029800],
+    //             [473800, 1030200],
+    //             [474000, 1030700],
+    //           ],
+    //         ],
+    //       },
+    //     },
+    //   ],
+    // };
     try {
       const agent = new https.Agent({
         rejectUnauthorized: false, // ❌ disables cert validation
