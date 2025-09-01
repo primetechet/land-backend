@@ -44,6 +44,7 @@ import { AuthorizationModule } from './common/services/authorization.module';
 import { TokenCleanupService } from './common/services/token-cleanup.service';
 import { EmployeeModule } from './models/employee/employee.module';
 import { RejectionReasonModule } from './models/basedata/rejection-reason/rejection-reason.module';
+import { TitleDeedApplicationAppointmentModule } from './models/title-deed-application-appointment/title-deed-application-appointment.module';
 import { EmployeeRoleModule } from './models/employee-role/employee-role.module';
 
 @Module({
@@ -97,6 +98,7 @@ import { EmployeeRoleModule } from './models/employee-role/employee-role.module'
     RejectionReasonModule,
     EmployeeModule,
     EmployeeRoleModule,
+    TitleDeedApplicationAppointmentModule,
   ],
   controllers: [AppController],
   providers: [AppService, TokenCleanupService],

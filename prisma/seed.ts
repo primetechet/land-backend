@@ -320,6 +320,29 @@ async function seedGeographyAndTitleDeeds() {
   // });
 
   console.log('✅ Geography & Title Deed Services seeded!');
+
+  // 1️⃣1️⃣ Seed appointment Slots (4 daily windows)
+  const slots = [
+    { start_time: '09:00', end_time: '10:00', label: 'Morning 1' },
+    { start_time: '10:00', end_time: '11:00', label: 'Morning 2' },
+    { start_time: '14:00', end_time: '15:00', label: 'Afternoon 1' },
+    { start_time: '15:00', end_time: '16:00', label: 'Afternoon 2' },
+  ];
+  for (const s of slots) {
+    // emulate upsert via find/create/update since composite unique not in Client yet
+    const existing = await prisma.slot.findFirst({
+      where: { start_time: s.start_time, end_time: s.end_time },
+    });
+    if (existing) {
+      await prisma.slot.update({
+        where: { id: existing.id },
+        data: { label: s.label },
+      });
+    } else {
+      await prisma.slot.create({ data: s });
+    }
+  }
+  console.log('✅ Slots seeded!');
 }
 
 main()

@@ -57,6 +57,7 @@ model TitleDeedApplication {
   appointment_required                Boolean                              @default(false)
   appointment_required_at             DateTime?
   appointment_required_by_id          String?
+  appointment_reschedule_count        Int                                  @default(0) @db.SmallInt
   plots                               Plot[]
   titleDeedApplicationAppointments    TitleDeedApplicationAppointment[]
   titleDeedApplicationClientDocuments TitleDeedApplicationClientDocument[]
@@ -228,16 +229,42 @@ model TitleDeedApplicationPayment {
 
 model TitleDeedApplicationAppointment {
   id                        String               @id @default(uuid())
-  date_time                 DateTime
   title_deed_application_id String
-  remark                    String?
+  employee_id               String
+  scheduled_date            DateTime             @db.Date
+  slot_id                   String
   created_at                DateTime             @default(now())
-  updated_at                DateTime             @updatedAt
-  created_by_id             String?
-  updated_by_id             String?
   titleDeedApplication      TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
+  employee                  Employee             @relation("appointmentEmployee", fields: [employee_id], references: [id])
+  slot                      Slot                 @relation(fields: [slot_id], references: [id])
 
+  @@unique([employee_id, scheduled_date, slot_id])
   @@map("title_deed_application_appointments")
+}
+
+model Slot {
+  id                               String                            @id @default(uuid())
+  start_time                       String
+  end_time                         String
+  label                            String?
+  titleDeedApplicationAppointments TitleDeedApplicationAppointment[]
+  employeeOffSlots                 EmployeeOffSlot[]
+
+  @@unique([start_time, end_time])
+  @@map("slots")
+}
+
+model EmployeeOffSlot {
+  id          String   @id @default(uuid())
+  employee_id String
+  date        DateTime @db.Date
+  slot_id     String
+  reason      String?
+  employee    Employee @relation("employeeOffSlotEmployee", fields: [employee_id], references: [id])
+  slot        Slot     @relation(fields: [slot_id], references: [id])
+
+  @@unique([employee_id, date, slot_id])
+  @@map("employee_off_slots")
 }
 
 model Plot {
@@ -394,54 +421,56 @@ model User {
 }
 
 model Employee {
-  id                                         String                               @id @default(uuid())
-  name                                       String
-  username                                   String                               @unique
-  password                                   String
-  phone_number                               String                               @unique
-  email                                      String?                              @unique
-  code_hash                                  String?
-  profile_image                              String?
-  code_expiration                            DateTime?
-  require_password_change                    Boolean                              @default(false)
-  username_verified                          Boolean                              @default(false)
-  username_verified_at                       DateTime?
-  is_active                                  Boolean                              @default(true)
-  active_status_updated_at                   DateTime?
-  active_status_updated_by_id                String?
-  status_update_note                         String?
-  is_suspended                               Boolean                              @default(false)
-  suspended_status_updated_at                DateTime?
-  suspended_status_updated_by_id             String?
-  suspended_status_update_note               String?
-  branch_id                                  String?
-  branch                                     Branch?                              @relation(fields: [branch_id], references: [id])
-  created_at                                 DateTime                             @default(now())
-  updated_at                                 DateTime                             @updatedAt
-  created_by_id                              String?
-  updated_by_id                              String?
-  employeeLoginHistories                     EmployeeLoginHistory[]
-  employeeRoles                              EmployeeRole[]
-  baseMapApprovedPlotProperty                PlotProperty[]                       @relation("baseMapApprovedBy")
-  plotRegisteredPlotProperty                 PlotProperty[]                       @relation("plotRegisteredBy")
-  rejectedPlotProperty                       PlotProperty[]                       @relation("rejectedBy")
-  authorizedPlot                             Plot[]                               @relation("authorizedBy")
-  baseMapApprovedPlot                        Plot[]                               @relation("baseMapApprovedBy")
-  plotRegisteredPlot                         Plot[]                               @relation("plotRegisteredBy")
-  rejectedPlot                               Plot[]                               @relation("rejectedBy")
-  rejectedTitleDeedApplicationClientDocument TitleDeedApplicationClientDocument[] @relation("rejectedBy")
-  verifiedTitleDeedApplicationClientDocument TitleDeedApplicationClientDocument[] @relation("verifiedBy")
-  titleDeedApplicationDocuments              TitleDeedApplicationDocument[]
-  titleDeedApplicationReviews                TitleDeedApplicationReview[]
-  appointmentRequiredTitleDeedApplication    TitleDeedApplication[]               @relation("appointmentRequiredBy")
-  archivedTitleDeedApplication               TitleDeedApplication[]               @relation("archivedBy")
-  authorizedTitleDeedApplication             TitleDeedApplication[]               @relation("authorizedBy")
-  baseMapApprovedTitleDeedApplication        TitleDeedApplication[]               @relation("baseMapApprovedBy")
-  plotRegisteredTitleDeedApplication         TitleDeedApplication[]               @relation("plotRegisteredBy")
-  rejectedTitleDeedApplication               TitleDeedApplication[]               @relation("rejectedBy")
-  verifiedTitleDeedApplication               TitleDeedApplication[]               @relation("verifiedBy")
-  verifiedTitleDeedApplicationOwners         TitleDeedApplicationOwner[]          @relation("verifiedBy")
-  rejectedTitleDeedApplicationOwners         TitleDeedApplicationOwner[]          @relation("rejectedBy")
+  id                                          String                               @id @default(uuid())
+  name                                        String
+  username                                    String                               @unique
+  password                                    String
+  phone_number                                String                               @unique
+  email                                       String?                              @unique
+  code_hash                                   String?
+  profile_image                               String?
+  code_expiration                             DateTime?
+  require_password_change                     Boolean                              @default(false)
+  username_verified                           Boolean                              @default(false)
+  username_verified_at                        DateTime?
+  is_active                                   Boolean                              @default(true)
+  active_status_updated_at                    DateTime?
+  active_status_updated_by_id                 String?
+  status_update_note                          String?
+  is_suspended                                Boolean                              @default(false)
+  suspended_status_updated_at                 DateTime?
+  suspended_status_updated_by_id              String?
+  suspended_status_update_note                String?
+  branch_id                                   String?
+  branch                                      Branch?                              @relation(fields: [branch_id], references: [id])
+  created_at                                  DateTime                             @default(now())
+  updated_at                                  DateTime                             @updatedAt
+  created_by_id                               String?
+  updated_by_id                               String?
+  employeeLoginHistories                      EmployeeLoginHistory[]
+  employeeRoles                               EmployeeRole[]
+  baseMapApprovedPlotProperty                 PlotProperty[]                       @relation("baseMapApprovedBy")
+  plotRegisteredPlotProperty                  PlotProperty[]                       @relation("plotRegisteredBy")
+  rejectedPlotProperty                        PlotProperty[]                       @relation("rejectedBy")
+  authorizedPlot                              Plot[]                               @relation("authorizedBy")
+  baseMapApprovedPlot                         Plot[]                               @relation("baseMapApprovedBy")
+  plotRegisteredPlot                          Plot[]                               @relation("plotRegisteredBy")
+  rejectedPlot                                Plot[]                               @relation("rejectedBy")
+  rejectedTitleDeedApplicationClientDocument  TitleDeedApplicationClientDocument[] @relation("rejectedBy")
+  verifiedTitleDeedApplicationClientDocument  TitleDeedApplicationClientDocument[] @relation("verifiedBy")
+  titleDeedApplicationDocuments               TitleDeedApplicationDocument[]
+  titleDeedApplicationReviews                 TitleDeedApplicationReview[]
+  appointmentRequiredTitleDeedApplication     TitleDeedApplication[]               @relation("appointmentRequiredBy")
+  archivedTitleDeedApplication                TitleDeedApplication[]               @relation("archivedBy")
+  authorizedTitleDeedApplication              TitleDeedApplication[]               @relation("authorizedBy")
+  baseMapApprovedTitleDeedApplication         TitleDeedApplication[]               @relation("baseMapApprovedBy")
+  plotRegisteredTitleDeedApplication          TitleDeedApplication[]               @relation("plotRegisteredBy")
+  rejectedTitleDeedApplication                TitleDeedApplication[]               @relation("rejectedBy")
+  verifiedTitleDeedApplication                TitleDeedApplication[]               @relation("verifiedBy")
+  verifiedTitleDeedApplicationOwners          TitleDeedApplicationOwner[]          @relation("verifiedBy")
+  rejectedTitleDeedApplicationOwners          TitleDeedApplicationOwner[]          @relation("rejectedBy")
+  appointmentTitleDeedApplicationAppointments TitleDeedApplicationAppointment[]    @relation("appointmentEmployee")
+  employeeOffSlots                            EmployeeOffSlot[]                    @relation("employeeOffSlotEmployee")
 
   @@map("employees")
 }
