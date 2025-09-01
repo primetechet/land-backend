@@ -78,10 +78,10 @@ export class PlotService {
         branch_id: titleDeedApplication.branch_id,
         plot_registered_by_id: request.user.sub,
         owners_audit: owners,
-        land_use_id: '67b88736-7d8a-46d7-b769-eede8faf9b2f',
-        land_grade_id: '82a7ef1e-42f7-4b61-89e4-3ffa55a5641a',
-        tenure_type_id: '0a1b2c3d-4e5f-4a12-8b9c-a0b1c2d3e4f0',
-        holding_type_id: '0a1b2c3d-4e5f-4a12-8b9c-a0b1c2d3e4f0',
+        land_use_id: landUse.id,
+        land_grade_id: landGrade.id,
+        tenure_type_id: tenureType.id,
+        holding_type_id: holdingType.id,
       },
       select: {
         id: true,
@@ -158,56 +158,56 @@ export class PlotService {
   }
 
   async getPlotFromArchGis(plot_id: string) {
-    return {
-      features: [
-        {
-          attributes: {
-            OBJECTID: 80903,
-            UniqueID: 'LTP-AD01000002',
-            BasemapID: null,
-            Landholder_Full_Name: 'test',
-            Subcity: 'Addis Ketema',
-            New_Wereda: '01',
-            Block_Number: null,
-            Parcel_Number: null,
-            Certificate_Number: null,
-            Holding_Type: 'Farmer',
-            Land_Use: 'Airport',
-            Land_Function: 'Farmer_Residence',
-            Land_Grade: 'Grade 1-1',
-            Tenure_Type: 'old_possesion',
-            Built_up_Area: null,
-            Proportional_Area: null,
-            Floor_Number: null,
-            GlobalID: '{43B62F84-BCBD-42CE-B933-09FC16B4CD19}',
-            created_user: 'GIS_ADMIN_HQ',
-            created_date: 1756462875000,
-            last_edited_user: 'GIS_ADMIN_HQ',
-            last_edited_date: 1756462885000,
-            CustomID: '000002',
-            'SHAPE.STArea()': 1071159.719329834,
-            'SHAPE.STLength()': 4832.3826762518092,
-          },
-          geometry: {
-            rings: [
-              [
-                [474000, 1030700],
-                [474800, 1030650],
-                [475200, 1030500],
-                [475600, 1030300],
-                [475400, 1029900],
-                [475000, 1029600],
-                [474500, 1029400],
-                [474100, 1029500],
-                [473900, 1029800],
-                [473800, 1030200],
-                [474000, 1030700],
-              ],
-            ],
-          },
-        },
-      ],
-    };
+    // return {
+    //   features: [
+    //     {
+    //       attributes: {
+    //         OBJECTID: 80903,
+    //         UniqueID: 'LTP-AD01000002',
+    //         BasemapID: null,
+    //         Landholder_Full_Name: 'test',
+    //         Subcity: 'Addis Ketema',
+    //         New_Wereda: '01',
+    //         Block_Number: null,
+    //         Parcel_Number: null,
+    //         Certificate_Number: null,
+    //         Holding_Type: 'Farmer',
+    //         Land_Use: 'Airport',
+    //         Land_Function: 'Farmer_Residence',
+    //         Land_Grade: 'Grade 1-1',
+    //         Tenure_Type: 'old_possesion',
+    //         Built_up_Area: null,
+    //         Proportional_Area: null,
+    //         Floor_Number: null,
+    //         GlobalID: '{43B62F84-BCBD-42CE-B933-09FC16B4CD19}',
+    //         created_user: 'GIS_ADMIN_HQ',
+    //         created_date: 1756462875000,
+    //         last_edited_user: 'GIS_ADMIN_HQ',
+    //         last_edited_date: 1756462885000,
+    //         CustomID: '000002',
+    //         'SHAPE.STArea()': 1071159.719329834,
+    //         'SHAPE.STLength()': 4832.3826762518092,
+    //       },
+    //       geometry: {
+    //         rings: [
+    //           [
+    //             [474000, 1030700],
+    //             [474800, 1030650],
+    //             [475200, 1030500],
+    //             [475600, 1030300],
+    //             [475400, 1029900],
+    //             [475000, 1029600],
+    //             [474500, 1029400],
+    //             [474100, 1029500],
+    //             [473900, 1029800],
+    //             [473800, 1030200],
+    //             [474000, 1030700],
+    //           ],
+    //         ],
+    //       },
+    //     },
+    //   ],
+    // };
     try {
       const agent = new https.Agent({
         rejectUnauthorized: false, // ❌ disables cert validation
