@@ -17,13 +17,16 @@ import {
   ClientRejectPlotDto,
   ClientConfirmationPlotDto,
   CreateBaseMapDto,
+  SpatialQueryDto,
+  GeometryValidationDto,
 } from './dto';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 import { PaginationDto } from 'src/common/dtos/global.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('Plots')
+@ApiBearerAuth()
 @Controller('plot')
 export class PlotController {
   constructor(private readonly plotService: PlotService) {}
@@ -48,6 +51,22 @@ export class PlotController {
   @ApiOperation({ summary: 'Get paginated plots with filters' })
   findAllPaginated(@Query() query: SearchPlotDto) {
     return this.plotService.findAllPaginated(query);
+  }
+
+  @Get('spatial')
+  @Public()
+  @ApiOperation({
+    summary: 'Get plots using spatial queries (point-in-polygon, bbox, buffer)',
+  })
+  findSpatial(@Query() query: SpatialQueryDto) {
+    return this.plotService.findSpatial(query);
+  }
+
+  @Post('validate-geometry')
+  @Public()
+  @ApiOperation({ summary: 'Validate ESRI geometry data' })
+  validateGeometry(@Body() validationDto: GeometryValidationDto) {
+    return this.plotService.validateGeometry(validationDto.geo);
   }
 
   @Get(':id/property')

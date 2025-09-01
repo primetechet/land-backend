@@ -8,6 +8,7 @@ import {
   ClientRejectPlotDto,
   ClientConfirmationPlotDto,
   CreateBaseMapDto,
+  SpatialQueryDto,
 } from './dto';
 import { EmployeeTokenClaim } from 'src/common/interfaces/employee-login.interface';
 import { PaginationDto } from 'src/common/dtos/global.dto';
@@ -77,10 +78,10 @@ export class PlotService {
         branch_id: titleDeedApplication.branch_id,
         plot_registered_by_id: request.user.sub,
         owners_audit: owners,
-        land_use_id: landUse.id,
-        land_grade_id: landGrade.id,
-        tenure_type_id: tenureType.id,
-        holding_type_id: holdingType.id,
+        land_use_id: '67b88736-7d8a-46d7-b769-eede8faf9b2f',
+        land_grade_id: '82a7ef1e-42f7-4b61-89e4-3ffa55a5641a',
+        tenure_type_id: '0a1b2c3d-4e5f-4a12-8b9c-a0b1c2d3e4f0',
+        holding_type_id: '0a1b2c3d-4e5f-4a12-8b9c-a0b1c2d3e4f0',
       },
       select: {
         id: true,
@@ -157,56 +158,56 @@ export class PlotService {
   }
 
   async getPlotFromArchGis(plot_id: string) {
-    // return {
-    //   features: [
-    //     {
-    //       attributes: {
-    //         OBJECTID: 80903,
-    //         UniqueID: 'LTP-AD01000002',
-    //         BasemapID: null,
-    //         Landholder_Full_Name: 'test',
-    //         Subcity: 'Addis Ketema',
-    //         New_Wereda: '01',
-    //         Block_Number: null,
-    //         Parcel_Number: null,
-    //         Certificate_Number: null,
-    //         Holding_Type: 'Farmer',
-    //         Land_Use: 'Airport',
-    //         Land_Function: 'Farmer_Residence',
-    //         Land_Grade: 'Grade 1-1',
-    //         Tenure_Type: 'old_possesion',
-    //         Built_up_Area: null,
-    //         Proportional_Area: null,
-    //         Floor_Number: null,
-    //         GlobalID: '{43B62F84-BCBD-42CE-B933-09FC16B4CD19}',
-    //         created_user: 'GIS_ADMIN_HQ',
-    //         created_date: 1756462875000,
-    //         last_edited_user: 'GIS_ADMIN_HQ',
-    //         last_edited_date: 1756462885000,
-    //         CustomID: '000002',
-    //         'SHAPE.STArea()': 1071159.719329834,
-    //         'SHAPE.STLength()': 4832.3826762518092,
-    //       },
-    //       geometry: {
-    //         rings: [
-    //           [
-    //             [474000, 1030700],
-    //             [474800, 1030650],
-    //             [475200, 1030500],
-    //             [475600, 1030300],
-    //             [475400, 1029900],
-    //             [475000, 1029600],
-    //             [474500, 1029400],
-    //             [474100, 1029500],
-    //             [473900, 1029800],
-    //             [473800, 1030200],
-    //             [474000, 1030700],
-    //           ],
-    //         ],
-    //       },
-    //     },
-    //   ],
-    // };
+    return {
+      features: [
+        {
+          attributes: {
+            OBJECTID: 80903,
+            UniqueID: 'LTP-AD01000002',
+            BasemapID: null,
+            Landholder_Full_Name: 'test',
+            Subcity: 'Addis Ketema',
+            New_Wereda: '01',
+            Block_Number: null,
+            Parcel_Number: null,
+            Certificate_Number: null,
+            Holding_Type: 'Farmer',
+            Land_Use: 'Airport',
+            Land_Function: 'Farmer_Residence',
+            Land_Grade: 'Grade 1-1',
+            Tenure_Type: 'old_possesion',
+            Built_up_Area: null,
+            Proportional_Area: null,
+            Floor_Number: null,
+            GlobalID: '{43B62F84-BCBD-42CE-B933-09FC16B4CD19}',
+            created_user: 'GIS_ADMIN_HQ',
+            created_date: 1756462875000,
+            last_edited_user: 'GIS_ADMIN_HQ',
+            last_edited_date: 1756462885000,
+            CustomID: '000002',
+            'SHAPE.STArea()': 1071159.719329834,
+            'SHAPE.STLength()': 4832.3826762518092,
+          },
+          geometry: {
+            rings: [
+              [
+                [474000, 1030700],
+                [474800, 1030650],
+                [475200, 1030500],
+                [475600, 1030300],
+                [475400, 1029900],
+                [475000, 1029600],
+                [474500, 1029400],
+                [474100, 1029500],
+                [473900, 1029800],
+                [473800, 1030200],
+                [474000, 1030700],
+              ],
+            ],
+          },
+        },
+      ],
+    };
     try {
       const agent = new https.Agent({
         rejectUnauthorized: false, // ❌ disables cert validation
@@ -449,5 +450,201 @@ export class PlotService {
       data: plot,
       message: 'Plot accepted',
     };
+  }
+
+  async findSpatial(query: SpatialQueryDto) {
+    const {
+      point,
+      bbox,
+      buffer_distance,
+      center,
+      page = 1,
+      limit = 10,
+    } = query;
+
+    let whereClause = '';
+    let params: any[] = [];
+    let paramIndex = 1;
+
+    if (point) {
+      // Point-in-polygon query
+      whereClause = `ST_Contains(geom, ST_GeomFromText($${paramIndex}, 20137))`;
+      params.push(`POINT(${point[0]} ${point[1]})`);
+      paramIndex++;
+    } else if (bbox) {
+      // Bounding box query
+      whereClause = `ST_Intersects(geom, ST_MakeEnvelope($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3}, 20137))`;
+      params.push(bbox[0], bbox[1], bbox[2], bbox[3]);
+      paramIndex += 4;
+    } else if (center && buffer_distance) {
+      // Buffer query
+      whereClause = `ST_DWithin(geom, ST_GeomFromText($${paramIndex}, 20137), $${paramIndex + 1})`;
+      params.push(`POINT(${center[0]} ${center[1]})`, buffer_distance);
+      paramIndex += 2;
+    } else {
+      throw new Error(
+        'At least one spatial parameter (point, bbox, or center+buffer_distance) is required',
+      );
+    }
+
+    const offset = (page - 1) * limit;
+
+    // Get total count
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM plots 
+      WHERE geom IS NOT NULL AND ${whereClause}
+    `;
+
+    // Get paginated results
+    const dataQuery = `
+      SELECT 
+        id,
+        plot_id,
+        block_number,
+        house_number,
+        area_meter_square,
+        ST_AsText(geom) as geom_wkt,
+        ST_Area(geom) as calculated_area,
+        ST_Perimeter(geom) as calculated_perimeter,
+        ST_SRID(geom) as srid,
+        geo,
+        created_at,
+        updated_at
+      FROM plots 
+      WHERE geom IS NOT NULL AND ${whereClause}
+      ORDER BY created_at DESC
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    `;
+
+    const [countResult, dataResult] = await Promise.all([
+      this.prisma.$queryRawUnsafe(countQuery, ...params),
+      this.prisma.$queryRawUnsafe(dataQuery, ...params, limit, offset),
+    ]);
+
+    const total = parseInt((countResult as any)[0].total);
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: dataResult,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
+  async validateGeometry(geo: any) {
+    try {
+      // Basic structure validation
+      if (!geo || typeof geo !== 'object') {
+        return {
+          valid: false,
+          errors: ['Geometry object is required'],
+        };
+      }
+
+      if (!geo.geometry || !geo.geometry.rings) {
+        return {
+          valid: false,
+          errors: ['Geometry must have geometry.rings property'],
+        };
+      }
+
+      const rings = geo.geometry.rings;
+      if (!Array.isArray(rings) || rings.length === 0) {
+        return {
+          valid: false,
+          errors: ['Rings must be a non-empty array'],
+        };
+      }
+
+      const errors: string[] = [];
+      const warnings: string[] = [];
+
+      // Validate each ring
+      rings.forEach((ring, ringIndex) => {
+        if (!Array.isArray(ring) || ring.length < 4) {
+          errors.push(
+            `Ring ${ringIndex} must have at least 4 coordinate pairs`,
+          );
+          return;
+        }
+
+        // Check if ring is closed
+        const firstPoint = ring[0];
+        const lastPoint = ring[ring.length - 1];
+        if (firstPoint[0] !== lastPoint[0] || firstPoint[1] !== lastPoint[1]) {
+          warnings.push(
+            `Ring ${ringIndex} is not closed (first and last points differ)`,
+          );
+        }
+
+        // Validate coordinate pairs
+        ring.forEach((coord, coordIndex) => {
+          if (!Array.isArray(coord) || coord.length !== 2) {
+            errors.push(
+              `Ring ${ringIndex}, coordinate ${coordIndex} must be [x, y] array`,
+            );
+            return;
+          }
+
+          const [x, y] = coord;
+          if (typeof x !== 'number' || typeof y !== 'number') {
+            errors.push(
+              `Ring ${ringIndex}, coordinate ${coordIndex} must have numeric values`,
+            );
+          }
+
+          if (isNaN(x) || isNaN(y)) {
+            errors.push(
+              `Ring ${ringIndex}, coordinate ${coordIndex} contains NaN values`,
+            );
+          }
+        });
+      });
+
+      // Check spatial reference
+      if (geo.spatialReference && geo.spatialReference.wkid !== 20137) {
+        warnings.push(
+          `Expected SRID 20137, found ${geo.spatialReference.wkid}`,
+        );
+      }
+
+      // Try to create PostGIS geometry for validation
+      let postgisValid = false;
+      let postgisError = '';
+      try {
+        const result = await this.prisma.$queryRaw`
+          SELECT convert_esri_rings_to_polygon(${JSON.stringify(geo)}::jsonb) as geom
+        `;
+        const geom = (result as any)[0].geom;
+        if (geom) {
+          postgisValid = true;
+        }
+      } catch (error) {
+        postgisError = error.message;
+      }
+
+      return {
+        valid: errors.length === 0 && postgisValid,
+        errors: postgisError
+          ? [...errors, `PostGIS validation failed: ${postgisError}`]
+          : errors,
+        warnings,
+        postgisValid,
+        ringCount: rings.length,
+        coordinateCount: rings.reduce((sum, ring) => sum + ring.length, 0),
+      };
+    } catch (error) {
+      return {
+        valid: false,
+        errors: [`Validation failed: ${error.message}`],
+      };
+    }
   }
 }

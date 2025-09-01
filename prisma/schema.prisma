@@ -268,10 +268,11 @@ model EmployeeOffSlot {
 }
 
 model Plot {
-  id                        String               @id @default(uuid())
+  id                        String                                   @id @default(uuid())
   geo                       Json
+  geom                      Unsupported("geometry(Polygon, 20137)")?
   plot_id                   String
-  base_map_id               String?              @unique
+  base_map_id               String?                                  @unique
   block_number              String?
   house_number              String?
   area_meter_square         Float
@@ -290,48 +291,48 @@ model Plot {
   floor_number              Float?
   global_id                 String
   arch_gis_created_user     String?
-  base_map_approved         Boolean              @default(false)
+  base_map_approved         Boolean                                  @default(false)
   base_map_approved_at      DateTime?
   base_map_approved_by_id   String?
   base_map_approver_note    String?
-  plot_registered_at        DateTime             @default(now())
+  plot_registered_at        DateTime                                 @default(now())
   plot_registered_by_id     String
   plot_registration_note    String?
-  authorized                Boolean              @default(false)
+  authorized                Boolean                                  @default(false)
   authorized_at             DateTime?
   authorized_by_id          String?
   authorizer_note           String?
-  rejected                  Boolean              @default(false)
+  rejected                  Boolean                                  @default(false)
   rejected_at               DateTime?
   rejected_by_id            String?
   rejecter_note             String?
   rejection_reason_id       String?
   owners_audit              Json? // Store complete owner information for auditing
-  client_confirmed          Boolean              @default(false)
+  client_confirmed          Boolean                                  @default(false)
   client_confirmed_at       DateTime?
   client_confirmation_note  String?
-  client_rejected           Boolean              @default(false)
+  client_rejected           Boolean                                  @default(false)
   client_rejected_at        DateTime?
   client_rejection_note     String?
-  created_at                DateTime             @default(now())
-  updated_at                DateTime             @updatedAt
+  created_at                DateTime                                 @default(now())
+  updated_at                DateTime                                 @updatedAt
   created_by_id             String?
   updated_by_id             String?
-  submitted                 Boolean              @default(false)
+  submitted                 Boolean                                  @default(false)
   submitted_at              DateTime?
   plotProperties            PlotProperty[]
-  authorizedBy              Employee?            @relation("authorizedBy", fields: [authorized_by_id], references: [id])
-  baseMapApprovedBy         Employee?            @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
-  branch                    Branch               @relation(fields: [branch_id], references: [id])
-  landGrade                 LandGrade            @relation(fields: [land_grade_id], references: [id])
-  landUse                   LandUse              @relation(fields: [land_use_id], references: [id])
-  holdingType               HoldingType          @relation(fields: [holding_type_id], references: [id])
-  tenureType                TenureType           @relation(fields: [tenure_type_id], references: [id])
-  plotRegisteredBy          Employee             @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
-  rejectedBy                Employee?            @relation("rejectedBy", fields: [rejected_by_id], references: [id])
-  rejectionReason           RejectionReason?     @relation(fields: [rejection_reason_id], references: [id])
-  titleDeedApplication      TitleDeedApplication @relation(fields: [title_deed_application_id], references: [id])
-  woreda                    Woreda               @relation(fields: [woreda_id], references: [id])
+  authorizedBy              Employee?                                @relation("authorizedBy", fields: [authorized_by_id], references: [id])
+  baseMapApprovedBy         Employee?                                @relation("baseMapApprovedBy", fields: [base_map_approved_by_id], references: [id])
+  branch                    Branch                                   @relation(fields: [branch_id], references: [id])
+  landGrade                 LandGrade                                @relation(fields: [land_grade_id], references: [id])
+  landUse                   LandUse                                  @relation(fields: [land_use_id], references: [id])
+  holdingType               HoldingType                              @relation(fields: [holding_type_id], references: [id])
+  tenureType                TenureType                               @relation(fields: [tenure_type_id], references: [id])
+  plotRegisteredBy          Employee                                 @relation("plotRegisteredBy", fields: [plot_registered_by_id], references: [id])
+  rejectedBy                Employee?                                @relation("rejectedBy", fields: [rejected_by_id], references: [id])
+  rejectionReason           RejectionReason?                         @relation(fields: [rejection_reason_id], references: [id])
+  titleDeedApplication      TitleDeedApplication                     @relation(fields: [title_deed_application_id], references: [id])
+  woreda                    Woreda                                   @relation(fields: [woreda_id], references: [id])
 
   @@map("plots")
 }
